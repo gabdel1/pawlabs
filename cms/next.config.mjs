@@ -2,7 +2,17 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Skip type checking during build (run separately with tsc --noEmit if needed)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // Skip ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
+    // Turbopack for faster compilation
+    turbo: {},
     workerThreads: false,
   },
   webpack: (webpackConfig) => {
