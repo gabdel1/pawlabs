@@ -1,7 +1,10 @@
 /**
- * Payload CMS API client for fetching data from the REST API.
- * Used by Astro SSR routes to query Products, Reviews, and Media.
+ * Payload CMS API client for fetching data.
+ * Falls back to static seed data when CMS is not running.
  */
+
+import { seedProducts, CATEGORY_LABELS_EXTENDED, SUBCATEGORY_LABELS } from '../data/products';
+import type { SeedProduct } from '../data/products';
 
 const PAYLOAD_API_URL = import.meta.env.PAYLOAD_API_URL || 'http://127.0.0.1:3000/api';
 
@@ -26,11 +29,14 @@ export interface Product {
   image?: Media | string;
   gallery?: { image: Media | string }[];
   category?: string;
+  subcategory?: string;
   petType?: string;
+  animalTypes?: string[];
   featured?: boolean;
   rating?: number;
   pros?: { point: string }[];
   cons?: { point: string }[];
+  reviewBody?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -82,17 +88,18 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): P
   return res.json() as Promise<T>;
 }
 
-/** Fetch all products */
+/** Fetch all products — falls back to seed data */
 export async function getProducts(limit = 100): Promise<Product[]> {
   try {
     const data = await fetchAPI<PayloadResponse<Product>>('products', {
       limit: String(limit),
       depth: '1',
     });
-    return data.docs;
+    if (data.docs.length > 0) return data.docs;
   } catch {
-    return [];
+    // CMS not running — use seed data
   }
+  return seedProducts as Product[];
 }
 
 /** Fetch a single product by slug */
@@ -102,10 +109,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       'where[slug][equals]': slug,
       depth: '1',
     });
-    return data.docs[0] ?? null;
+    if (data.docs[0]) return data.docs[0];
   } catch {
-    return null;
+    // fallback
   }
+  return (seedProducts.find(p => p.slug === slug) as Product) ?? null;
 }
 
 /** Fetch a single product by ID */
@@ -114,7 +122,7 @@ export async function getProductById(id: string): Promise<Product | null> {
     const data = await fetchAPI<Product>(`products/${id}`, { depth: '1' });
     return data;
   } catch {
-    return null;
+    return (seedProducts.find(p => p.id === id) as Product) ?? null;
   }
 }
 
@@ -146,8 +154,10 @@ export async function getReviews(limit = 100): Promise<Review[]> {
   }
 }
 
-/** Category labels for display */
+/** Category labels */
 export const CATEGORY_LABELS: Record<string, string> = {
+  ...CATEGORY_LABELS_EXTENDED,
+  // Legacy flat keys
   'smart-gadgets': 'Smart Gadgets',
   'toys': 'Toys',
   'food-treats': 'Food & Treats',
@@ -159,7 +169,12 @@ export const CATEGORY_LABELS: Record<string, string> = {
   'other': 'Other',
 };
 
-/** Pet type labels for display */
+/** Get subcategory label */
+export function getSubcategoryLabel(category: string, subcategory: string): string | null {
+  return SUBCATEGORY_LABELS[category]?.[subcategory] ?? null;
+}
+
+/** Pet type labels */
 export const PET_TYPE_LABELS: Record<string, string> = {
   'dog': 'Dog',
   'cat': 'Cat',
@@ -170,7 +185,7 @@ export const PET_TYPE_LABELS: Record<string, string> = {
   'universal': 'Universal',
 };
 
-/** Verdict labels for display */
+/** Verdict labels */
 export const VERDICT_LABELS: Record<string, string> = {
   'highly-recommended': 'Highly Recommended',
   'recommended': 'Recommended',
@@ -178,9 +193,13 @@ export const VERDICT_LABELS: Record<string, string> = {
   'not-recommended': 'Not Recommended',
 };
 
-/** Get media URL from a media field (handles both populated and unpopulated) */
+/** Get media URL from a media field */
 export function getMediaUrl(media: Media | string | undefined | null): string | null {
   if (!media) return null;
   if (typeof media === 'string') return null;
   return media.url ?? null;
 }
+
+/** Re-export for convenience */
+export { SUBCATEGORY_LABELS, CATEGORY_LABELS_EXTENDED };
+export type { SeedProduct };
