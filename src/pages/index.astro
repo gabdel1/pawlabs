@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Logo from '../components/Logo.astro';
 import { getProducts, getMediaUrl, CATEGORY_LABELS } from '../lib/payload';
 import type { Media } from '../lib/payload';
 import { websiteJsonLd } from '../lib/seo';
@@ -42,16 +43,32 @@ const trustPoints = [
   ogType="website"
   jsonLd={websiteJsonLd()}
 >
+  <!-- Sticky Nav -->
+  <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+      <a href="/">
+        <Logo width={160} height={40} />
+      </a>
+      <div class="flex items-center gap-6">
+        <a href="/products" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors">Products</a>
+        <a href="#categories" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors hidden sm:inline">Categories</a>
+        <a href="/products" class="bg-brand-800 hover:bg-brand-900 text-white text-sm font-semibold py-2 px-5 rounded-xl transition-colors">
+          Browse All
+        </a>
+      </div>
+    </div>
+  </nav>
+
   <!-- Hero Section -->
   <section class="hero-gradient relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
+    <div class="absolute inset-0 opacity-[0.07]">
       <div class="absolute top-10 left-10 text-8xl">🐕</div>
       <div class="absolute top-20 right-20 text-7xl">🐈</div>
       <div class="absolute bottom-16 left-1/4 text-6xl">🐦</div>
       <div class="absolute bottom-10 right-1/3 text-8xl">🐾</div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-6 py-20 md:py-32 relative z-10">
+    <div class="max-w-6xl mx-auto px-6 py-20 md:py-28 relative z-10">
       <div class="text-center">
         <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot"></span>
@@ -59,16 +76,16 @@ const trustPoints = [
         </div>
 
         <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
-          Find the <span class="text-amber-300">Perfect Product</span><br />
+          Find the <span class="text-accent-400">Perfect Product</span><br />
           for Your Pet
         </h1>
 
-        <p class="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p class="text-lg md:text-xl text-teal-100 max-w-2xl mx-auto mb-10 leading-relaxed">
           Research-backed reviews, honest comparisons, and the best deals on smart gadgets, toys, food, and everything pet-related.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/products" class="group inline-flex items-center justify-center gap-2 bg-white text-brand-700 font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105">
+          <a href="/products" class="group inline-flex items-center justify-center gap-2 bg-white text-brand-800 font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105">
             Browse All Products
             <span class="group-hover:translate-x-1 transition-transform">→</span>
           </a>
@@ -77,19 +94,19 @@ const trustPoints = [
           </a>
         </div>
 
-        <div class="mt-12 flex items-center justify-center gap-8 text-indigo-200 text-sm">
+        <div class="mt-12 flex items-center justify-center gap-8 text-teal-200 text-sm">
           <div class="flex items-center gap-2">
             <span class="font-bold text-white text-lg">{products.length > 0 ? products.length : '50'}+</span>
             Products Reviewed
           </div>
-          <div class="w-px h-6 bg-indigo-300/30"></div>
+          <div class="w-px h-6 bg-teal-300/30"></div>
           <div class="flex items-center gap-2">
             <span class="font-bold text-white text-lg">9</span>
             Categories
           </div>
-          <div class="w-px h-6 bg-indigo-300/30"></div>
+          <div class="w-px h-6 bg-teal-300/30"></div>
           <div class="flex items-center gap-2">
-            <span class="text-amber-300 text-lg">★★★★★</span>
+            <span class="text-accent-400 text-lg">★★★★★</span>
             Trusted
           </div>
         </div>
@@ -99,7 +116,7 @@ const trustPoints = [
     <!-- Wave divider -->
     <div class="absolute bottom-0 left-0 right-0">
       <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" class="w-full h-12 md:h-16">
-        <path d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z" fill="#fafbfc"/>
+        <path d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z" fill="#f8fafa"/>
       </svg>
     </div>
   </section>
@@ -108,16 +125,16 @@ const trustPoints = [
   <section id="categories" class="bg-surface py-20">
     <div class="max-w-6xl mx-auto px-6">
       <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Shop by Category</h2>
-        <p class="text-gray-500 max-w-xl mx-auto">Discover the best products in every category — from smart tech to everyday essentials.</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-ink mb-3">Shop by Category</h2>
+        <p class="text-ink-muted max-w-xl mx-auto">Discover the best products in every category — from smart tech to everyday essentials.</p>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         {categories.map((cat) => (
           <a href={`/products?category=${cat.key}`} class="card-hover group bg-surface-raised rounded-2xl border border-gray-100 p-5 text-center">
             <div class="text-4xl mb-3">{cat.icon}</div>
-            <h3 class="font-bold text-gray-900 group-hover:text-brand-600 transition-colors text-sm">{cat.label}</h3>
-            <p class="text-xs text-gray-400 mt-1 line-clamp-2">{cat.desc}</p>
+            <h3 class="font-bold text-ink group-hover:text-brand-800 transition-colors text-sm">{cat.label}</h3>
+            <p class="text-xs text-ink-muted mt-1 line-clamp-2">{cat.desc}</p>
           </a>
         ))}
       </div>
@@ -130,12 +147,12 @@ const trustPoints = [
       <div class="max-w-6xl mx-auto px-6">
         <div class="flex items-end justify-between mb-10">
           <div>
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            <h2 class="text-3xl md:text-4xl font-bold text-ink mb-2">
               {featuredProducts.length > 0 ? '⭐ Featured Products' : 'Latest Products'}
             </h2>
-            <p class="text-gray-500">Hand-picked recommendations from our team.</p>
+            <p class="text-ink-muted">Hand-picked recommendations from our team.</p>
           </div>
-          <a href="/products" class="hidden md:inline-flex items-center gap-1 text-brand-600 font-semibold hover:underline">
+          <a href="/products" class="hidden md:inline-flex items-center gap-1 text-brand-800 font-semibold hover:underline">
             View All →
           </a>
         </div>
@@ -156,7 +173,7 @@ const trustPoints = [
                 <div class="p-5">
                   <div class="flex flex-wrap gap-1.5 mb-2">
                     {catLabel && (
-                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-600 uppercase tracking-wide">
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-800 uppercase tracking-wide">
                         {catLabel}
                       </span>
                     )}
@@ -166,20 +183,20 @@ const trustPoints = [
                       </span>
                     )}
                   </div>
-                  <h3 class="font-bold text-gray-900 group-hover:text-brand-600 transition-colors mb-1">
+                  <h3 class="font-bold text-ink group-hover:text-brand-800 transition-colors mb-1">
                     {product.name}
                   </h3>
                   {product.rating != null && (
-                    <p class="text-sm text-amber-500 mb-2">{renderStars(product.rating)} <span class="text-gray-400 text-xs">{product.rating}/5</span></p>
+                    <p class="text-sm text-amber-500 mb-2">{renderStars(product.rating)} <span class="text-ink-muted text-xs">{product.rating}/5</span></p>
                   )}
                   {product.shortDescription && (
-                    <p class="text-sm text-gray-500 line-clamp-2 mb-3">{product.shortDescription}</p>
+                    <p class="text-sm text-ink-muted line-clamp-2 mb-3">{product.shortDescription}</p>
                   )}
                   <div class="flex items-center justify-between">
                     {product.price != null && (
-                      <span class="text-xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                      <span class="text-xl font-bold text-ink">${product.price.toFixed(2)}</span>
                     )}
-                    <span class="text-xs text-brand-600 font-semibold group-hover:underline">Read Review →</span>
+                    <span class="text-xs text-brand-800 font-semibold group-hover:underline">Read Review →</span>
                   </div>
                 </div>
               </a>
@@ -188,7 +205,7 @@ const trustPoints = [
         </div>
 
         <div class="mt-8 text-center md:hidden">
-          <a href="/products" class="inline-flex items-center gap-1 text-brand-600 font-semibold hover:underline">
+          <a href="/products" class="inline-flex items-center gap-1 text-brand-800 font-semibold hover:underline">
             View All Products →
           </a>
         </div>
@@ -200,16 +217,16 @@ const trustPoints = [
   <section class="bg-surface py-20">
     <div class="max-w-6xl mx-auto px-6">
       <div class="text-center mb-14">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Why Trust PawLabs?</h2>
-        <p class="text-gray-500 max-w-xl mx-auto">We do the research so you don't have to. Every review is thorough, honest, and data-driven.</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-ink mb-3">Why Trust PawLabs?</h2>
+        <p class="text-ink-muted max-w-xl mx-auto">We do the research so you don't have to. Every review is thorough, honest, and data-driven.</p>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {trustPoints.map((point) => (
           <div class="bg-surface-raised rounded-2xl border border-gray-100 p-6 text-center card-hover">
             <div class="text-4xl mb-4">{point.icon}</div>
-            <h3 class="font-bold text-gray-900 mb-2">{point.title}</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">{point.desc}</p>
+            <h3 class="font-bold text-ink mb-2">{point.title}</h3>
+            <p class="text-sm text-ink-muted leading-relaxed">{point.desc}</p>
           </div>
         ))}
       </div>
@@ -217,7 +234,7 @@ const trustPoints = [
   </section>
 
   <!-- Comparison CTA -->
-  <section class="bg-brand-900 py-16 relative overflow-hidden">
+  <section class="bg-brand-950 py-16 relative overflow-hidden">
     <div class="absolute inset-0 opacity-5">
       <div class="absolute top-5 left-10 text-9xl">🔍</div>
       <div class="absolute bottom-5 right-10 text-8xl">⚖️</div>
@@ -227,27 +244,25 @@ const trustPoints = [
       <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
         Can't Decide? Compare Products
       </h2>
-      <p class="text-indigo-200 text-lg mb-8 max-w-2xl mx-auto">
+      <p class="text-teal-200 text-lg mb-8 max-w-2xl mx-auto">
         Use our side-by-side comparison tool to see how products stack up across price, rating, features, pros, and cons.
       </p>
-      <a href="/products" class="inline-flex items-center justify-center gap-2 bg-white text-brand-700 font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105">
-        Start Comparing
-        <span>→</span>
+      <a href="/products" class="inline-flex items-center justify-center gap-2 bg-white text-brand-800 font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105">
+        Start Comparing →
       </a>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-400 py-14">
+  <footer class="bg-ink py-14">
     <div class="max-w-6xl mx-auto px-6">
       <div class="grid md:grid-cols-4 gap-10 mb-10">
         <!-- Brand -->
         <div class="md:col-span-2">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="text-2xl">🐾</span>
-            <span class="text-xl font-bold text-white">PawLabs</span>
+          <div class="mb-4">
+            <Logo width={160} height={40} />
           </div>
-          <p class="text-sm leading-relaxed max-w-sm">
+          <p class="text-sm leading-relaxed text-gray-400 max-w-sm">
             Expert pet product reviews and recommendations. We help pet parents find the best products through honest, research-backed reviews.
           </p>
         </div>
@@ -255,31 +270,29 @@ const trustPoints = [
         <!-- Quick Links -->
         <div>
           <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wide">Explore</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="/products" class="hover:text-white transition-colors">All Products</a></li>
-            <li><a href="/products?category=smart-gadgets" class="hover:text-white transition-colors">Smart Gadgets</a></li>
-            <li><a href="/products?category=food-treats" class="hover:text-white transition-colors">Food & Treats</a></li>
-            <li><a href="/products?category=health-wellness" class="hover:text-white transition-colors">Health & Wellness</a></li>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="/products" class="hover:text-brand-400 transition-colors">All Products</a></li>
+            <li><a href="/products?category=smart-gadgets" class="hover:text-brand-400 transition-colors">Smart Gadgets</a></li>
+            <li><a href="/products?category=food-treats" class="hover:text-brand-400 transition-colors">Food & Treats</a></li>
+            <li><a href="/products?category=health-wellness" class="hover:text-brand-400 transition-colors">Health & Wellness</a></li>
           </ul>
         </div>
 
         <!-- Pet Types -->
         <div>
           <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wide">Pet Types</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="/products?pet=dog" class="hover:text-white transition-colors">🐕 Dogs</a></li>
-            <li><a href="/products?pet=cat" class="hover:text-white transition-colors">🐈 Cats</a></li>
-            <li><a href="/products?pet=bird" class="hover:text-white transition-colors">🐦 Birds</a></li>
-            <li><a href="/products?pet=small-animal" class="hover:text-white transition-colors">🐹 Small Animals</a></li>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="/products?pet=dog" class="hover:text-brand-400 transition-colors">🐕 Dogs</a></li>
+            <li><a href="/products?pet=cat" class="hover:text-brand-400 transition-colors">🐈 Cats</a></li>
+            <li><a href="/products?pet=bird" class="hover:text-brand-400 transition-colors">🐦 Birds</a></li>
+            <li><a href="/products?pet=small-animal" class="hover:text-brand-400 transition-colors">🐹 Small Animals</a></li>
           </ul>
         </div>
       </div>
 
-      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+      <div class="border-t border-gray-700/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
         <p>&copy; {new Date().getFullYear()} PawLabs. All rights reserved.</p>
-        <p class="text-gray-500">
-          Affiliate Disclosure: We may earn commissions from qualifying purchases made through links on this site.
-        </p>
+        <p>Affiliate Disclosure: We may earn commissions from qualifying purchases made through links on this site.</p>
       </div>
     </div>
   </footer>
