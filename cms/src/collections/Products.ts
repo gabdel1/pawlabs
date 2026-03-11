@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { triggerRedeploy } from '../hooks/triggerRedeploy'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -10,9 +9,6 @@ export const Products: CollectionConfig = {
   },
   access: {
     read: () => true,
-  },
-  hooks: {
-    afterChange: [triggerRedeploy],
   },
   fields: [
     {
