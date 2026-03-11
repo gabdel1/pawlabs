@@ -1,24 +1,31 @@
 ---
 /**
  * PawLabs SVG Logo — inline Astro component.
- * Renders at any size via width/height props.
+ * Use variant="white" on dark backgrounds (footer).
  */
 interface Props {
   width?: number;
   height?: number;
+  variant?: 'default' | 'white';
   class?: string;
 }
 
-const { width = 240, height = 60, class: className = '' } = Astro.props;
+const { width = 240, height = 60, variant = 'default', class: className = '' } = Astro.props;
+const isWhite = variant === 'white';
+const shieldFill = isWhite ? 'white' : '#1A535C';
+const detailFill = isWhite ? 'rgba(255,255,255,0.3)' : 'white';
+const pawFill = isWhite ? '#1A535C' : 'white';
+const textFill = isWhite ? 'white' : '#1A535C';
+const textLightFill = isWhite ? 'rgba(255,255,255,0.7)' : '#2F3542';
 ---
 
 <svg width={width} height={height} viewBox="0 0 240 60" fill="none" xmlns="http://www.w3.org/2000/svg" class={className} aria-label="PawLabs logo">
-  <path d="M32 3C20 3 10 10 10 24C10 40 32 57 32 57C32 57 54 40 54 24C54 10 44 3 32 3Z" fill="#1A535C"/>
-  <circle cx="22" cy="22" r="3.5" fill="white"/>
-  <circle cx="28" cy="14" r="3.5" fill="white"/>
-  <circle cx="36" cy="14" r="3.5" fill="white"/>
-  <circle cx="42" cy="22" r="3.5" fill="white"/>
-  <path d="M32 42C26 42 22 38 22 32C22 28 25 25 32 20C39 25 42 28 42 32C42 38 38 42 32 42ZM32 28C30.5 28 29.5 29 29.5 30.5C29.5 32 30.5 33 32 33C33.5 33 34.5 32 34.5 30.5C34.5 29 33.5 28 32 28Z" fill="white"/>
-  <text x="65" y="38" fill="#1A535C" style="font: bold 22px 'Inter', sans-serif; letter-spacing: 0.1em;">PAW</text>
-  <text x="125" y="38" fill="#2F3542" style="font: 300 22px 'Inter', sans-serif; letter-spacing: 0.3em;">LABS</text>
+  <path d="M32 3C20 3 10 10 10 24C10 40 32 57 32 57C32 57 54 40 54 24C54 10 44 3 32 3Z" fill={shieldFill}/>
+  <circle cx="22" cy="22" r="3.5" fill={isWhite ? pawFill : detailFill}/>
+  <circle cx="28" cy="14" r="3.5" fill={isWhite ? pawFill : detailFill}/>
+  <circle cx="36" cy="14" r="3.5" fill={isWhite ? pawFill : detailFill}/>
+  <circle cx="42" cy="22" r="3.5" fill={isWhite ? pawFill : detailFill}/>
+  <path d="M32 42C26 42 22 38 22 32C22 28 25 25 32 20C39 25 42 28 42 32C42 38 38 42 32 42ZM32 28C30.5 28 29.5 29 29.5 30.5C29.5 32 30.5 33 32 33C33.5 33 34.5 32 34.5 30.5C34.5 29 33.5 28 32 28Z" fill={isWhite ? pawFill : detailFill}/>
+  <text x="65" y="38" fill={textFill} style="font: bold 22px 'Inter', sans-serif; letter-spacing: 0.1em;">PAW</text>
+  <text x="125" y="38" fill={textLightFill} style="font: 300 22px 'Inter', sans-serif; letter-spacing: 0.3em;">LABS</text>
 </svg>
