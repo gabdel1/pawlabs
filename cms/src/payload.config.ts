@@ -20,7 +20,20 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     meta: {
-      titleSuffix: ' | Pet Smart Gadgets CMS',
+      titleSuffix: ' | PawLabs CMS',
+    },
+    components: {
+      views: {
+        aiGenerate: {
+          Component: '/components/AIGenerateView',
+          path: '/ai-generate',
+          meta: {
+            title: 'AI Generate',
+            description: 'Generate products from affiliate links using Grok AI',
+          },
+        },
+      },
+      afterNavLinks: ['/components/AINavLink'],
     },
   },
   collections: [Users, Media, Products, Reviews],
@@ -37,3 +50,4 @@ export default buildConfig({
   sharp,
   plugins: [],
 })
+
