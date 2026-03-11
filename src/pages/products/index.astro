@@ -1,0 +1,108 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getProducts, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
+import type { Media } from '../../lib/payload';
+
+const products = await getProducts();
+
+function renderStars(rating: number | undefined): string {
+  if (rating == null) return '';
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+}
+
+const collectionJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'All Pet Products',
+  description: 'Browse all reviewed pet products including smart gadgets, toys, food, health products, and more.',
+  url: 'https://pawlabs.org/products',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: products.length,
+    itemListElement: products.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://pawlabs.org/products/${p.slug}`,
+      name: p.name,
+    })),
+  },
+});
+---
+
+<Layout
+  title="All Pet Products - PawLabs Reviews & Comparisons"
+  description="Browse all reviewed pet products. Compare prices, ratings, and features for smart gadgets, toys, food, health products, and more."
+  canonicalUrl="/products"
+  jsonLd={collectionJsonLd}
+>
+  <main class="min-h-screen bg-gray-50">
+    <nav class="bg-white border-b border-gray-200 px-6 py-4">
+      <div class="max-w-6xl mx-auto flex items-center gap-2 text-sm text-gray-500">
+        <a href="/" class="hover:text-indigo-600 transition-colors">🐾 PawLabs</a>
+        <span>/</span>
+        <span class="text-gray-900 font-medium">Products</span>
+      </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-10">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">All Products</h1>
+
+      {products.length === 0 ? (
+        <div class="text-center py-20">
+          <p class="text-6xl mb-4">📦</p>
+          <p class="text-gray-500 text-lg">No products yet. Add some in the <a href="/admin" class="text-indigo-600 underline">CMS admin</a>.</p>
+        </div>
+      ) : (
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map((product) => {
+            const imgUrl = getMediaUrl(product.image as Media);
+            const categoryLabel = product.category ? CATEGORY_LABELS[product.category] : null;
+            return (
+              <a href={`/products/${product.slug}`} class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-indigo-100 transition-all duration-200">
+                <div class="bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6 min-h-[180px]">
+                  {imgUrl ? (
+                    <img src={imgUrl} alt={product.name} class="max-w-full max-h-36 object-contain rounded-lg group-hover:scale-105 transition-transform duration-200" />
+                  ) : (
+                    <div class="text-5xl opacity-20 group-hover:opacity-30 transition-opacity">📦</div>
+                  )}
+                </div>
+                <div class="p-5">
+                  <div class="flex flex-wrap gap-1.5 mb-2">
+                    {categoryLabel && (
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">
+                        {categoryLabel}
+                      </span>
+                    )}
+                    {product.featured && (
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
+                        ⭐ Featured
+                      </span>
+                    )}
+                  </div>
+                  <h2 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-1">
+                    {product.name}
+                  </h2>
+                  {product.rating != null && (
+                    <p class="text-sm text-amber-500 mb-2">{renderStars(product.rating)} <span class="text-gray-400">{product.rating}/5</span></p>
+                  )}
+                  {product.shortDescription && (
+                    <p class="text-sm text-gray-500 line-clamp-2 mb-3">{product.shortDescription}</p>
+                  )}
+                  <div class="flex items-center justify-between">
+                    {product.price != null && (
+                      <span class="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                    )}
+                    <span class="text-xs text-indigo-600 font-medium group-hover:underline">View Details →</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </main>
+</Layout>

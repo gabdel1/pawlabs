@@ -1,0 +1,86 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogImage?: string | null;
+  ogType?: 'website' | 'article' | 'product';
+  jsonLd?: string | string[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'Expert pet product reviews and recommendations. Compare smart gadgets, toys, health products, and more for your pets.',
+  canonicalUrl,
+  ogImage,
+  ogType = 'website',
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = 'https://pawlabs.org';
+const fullCanonical = canonicalUrl ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`) : Astro.url.href;
+const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : null;
+const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+
+<!doctype html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Primary Meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="canonical" href={fullCanonical} />
+
+    <!-- Language & Locale -->
+    <meta property="og:locale" content="en_US" />
+    <meta name="language" content="en-US" />
+    <link rel="alternate" hreflang="en-US" href={fullCanonical} />
+    <link rel="alternate" hreflang="x-default" href={fullCanonical} />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={fullCanonical} />
+    <meta property="og:site_name" content="PawLabs" />
+    {fullOgImage && <meta property="og:image" content={fullOgImage} />}
+    {fullOgImage && <meta property="og:image:width" content="1200" />}
+    {fullOgImage && <meta property="og:image:height" content="630" />}
+    {fullOgImage && <meta property="og:image:type" content="image/png" />}
+    {fullOgImage && <meta property="og:image:alt" content={title} />}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content={fullOgImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {fullOgImage && <meta name="twitter:image" content={fullOgImage} />}
+    {fullOgImage && <meta name="twitter:image:alt" content={title} />}
+
+    <!-- Additional SEO -->
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="author" content="PawLabs" />
+    <meta name="geo.region" content="US" />
+
+    <!-- JSON-LD Structured Data -->
+    {jsonLdArray.map((ld) => (
+      <script type="application/ld+json" set:html={ld} />
+    ))}
+  </head>
+  <body class="antialiased">
+    <slot />
+  </body>
+</html>

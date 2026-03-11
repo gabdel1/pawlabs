@@ -1,0 +1,204 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getProductBySlug, getReviewsForProduct, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
+import type { Product, Review, Media } from '../../lib/payload';
+import { productJsonLd, reviewJsonLd } from '../../lib/seo';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/products');
+}
+
+const product = await getProductBySlug(slug);
+
+if (!product) {
+  return new Response('Product not found', { status: 404 });
+}
+
+const reviews = await getReviewsForProduct(product.id);
+const imageUrl = getMediaUrl(product.image as Media);
+const categoryLabel = product.category ? CATEGORY_LABELS[product.category] ?? product.category : null;
+const petTypeLabel = product.petType ? PET_TYPE_LABELS[product.petType] ?? product.petType : null;
+
+// Build JSON-LD array: product + each review
+const jsonLdScripts = [
+  productJsonLd(product),
+  ...reviews.map((r) => reviewJsonLd(r, product)),
+];
+
+function renderStars(rating: number | undefined): string {
+  if (!rating) return '';
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+}
+---
+
+<Layout
+  title={`${product.name} - PawLabs Review`}
+  description={product.shortDescription || `Detailed review of ${product.name} - read our honest assessment`}
+  canonicalUrl={`/products/${product.slug}`}
+  ogType="product"
+  ogImage={imageUrl}
+  jsonLd={jsonLdScripts}
+>
+  <main class="min-h-screen bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 px-6 py-4">
+      <div class="max-w-6xl mx-auto flex items-center gap-2 text-sm text-gray-500">
+        <a href="/" class="hover:text-indigo-600 transition-colors">🐾 PawLabs</a>
+        <span>/</span>
+        <a href="/products" class="hover:text-indigo-600 transition-colors">Products</a>
+        <span>/</span>
+        <span class="text-gray-900 font-medium">{product.name}</span>
+      </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-10">
+      <!-- Product Header -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="grid md:grid-cols-2 gap-0">
+          <!-- Product Image -->
+          <div class="bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-10 min-h-[320px]">
+            {imageUrl ? (
+              <img src={imageUrl} alt={product.name} class="max-w-full max-h-80 object-contain rounded-lg" />
+            ) : (
+              <div class="text-8xl opacity-30">📦</div>
+            )}
+          </div>
+
+          <!-- Product Info -->
+          <div class="p-8 flex flex-col justify-center">
+            <div class="flex flex-wrap gap-2 mb-3">
+              {categoryLabel && (
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">
+                  {categoryLabel}
+                </span>
+              )}
+              {petTypeLabel && (
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                  🐾 {petTypeLabel}
+                </span>
+              )}
+              {product.featured && (
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">
+                  ⭐ Featured
+                </span>
+              )}
+            </div>
+
+            <h1 class="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+
+            {product.rating != null && (
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-xl text-amber-500">{renderStars(product.rating)}</span>
+                <span class="text-sm text-gray-500 font-medium">{product.rating}/5</span>
+              </div>
+            )}
+
+            {product.shortDescription && (
+              <p class="text-gray-600 mb-6 leading-relaxed">{product.shortDescription}</p>
+            )}
+
+            {product.price != null && (
+              <p class="text-3xl font-bold text-gray-900 mb-6">${product.price.toFixed(2)}</p>
+            )}
+
+            {product.affiliateUrl && (
+              <a
+                href={product.affiliateUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-indigo-200"
+              >
+                Buy Now →
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pros & Cons -->
+      {(product.pros?.length || product.cons?.length) && (
+        <div class="grid md:grid-cols-2 gap-6 mt-8">
+          {product.pros?.length && (
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-bold text-emerald-700 mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-sm">✓</span>
+                Pros
+              </h2>
+              <ul class="space-y-2">
+                {product.pros.map((pro) => (
+                  <li class="flex items-start gap-2 text-gray-700">
+                    <span class="text-emerald-500 mt-0.5 shrink-0">•</span>
+                    {pro.point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {product.cons?.length && (
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-sm">✗</span>
+                Cons
+              </h2>
+              <ul class="space-y-2">
+                {product.cons.map((con) => (
+                  <li class="flex items-start gap-2 text-gray-700">
+                    <span class="text-red-500 mt-0.5 shrink-0">•</span>
+                    {con.point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- Reviews Section -->
+      {reviews.length > 0 && (
+        <div class="mt-10">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Reviews</h2>
+          <div class="space-y-4">
+            {reviews.map((review) => (
+              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">{review.title}</h3>
+                    {review.author && (
+                      <p class="text-sm text-gray-500">by {review.author}</p>
+                    )}
+                  </div>
+                  {review.overallRating != null && (
+                    <span class="text-amber-500 font-medium">{renderStars(review.overallRating)}</span>
+                  )}
+                </div>
+                {review.summary && (
+                  <p class="text-gray-600 leading-relaxed">{review.summary}</p>
+                )}
+                {review.verdict && (
+                  <div class="mt-3">
+                    <span class={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      review.verdict === 'highly-recommended' ? 'bg-emerald-50 text-emerald-700' :
+                      review.verdict === 'recommended' ? 'bg-blue-50 text-blue-700' :
+                      review.verdict === 'average' ? 'bg-amber-50 text-amber-700' :
+                      'bg-red-50 text-red-700'
+                    }`}>
+                      {review.verdict === 'highly-recommended' ? '🏆 Highly Recommended' :
+                       review.verdict === 'recommended' ? '👍 Recommended' :
+                       review.verdict === 'average' ? '😐 Average' :
+                       '👎 Not Recommended'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </main>
+</Layout>
