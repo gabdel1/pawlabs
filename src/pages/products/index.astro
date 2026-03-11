@@ -4,6 +4,7 @@ import Logo from '../../components/Logo.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getProducts, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS, getSubcategoryLabel } from '../../lib/payload';
 import type { Media } from '../../lib/payload';
+import { productsListJsonLd } from '../../lib/seo';
 
 const products = await getProducts();
 
@@ -26,6 +27,7 @@ const breadcrumbs = [
   description="Browse expert reviews of the best pet products — smart gadgets, wellness, security, food, and more for dogs, cats, and all pets."
   canonicalUrl="/products"
   ogType="website"
+  jsonLd={productsListJsonLd(products)}
 >
   <!-- Sticky Nav -->
   <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">

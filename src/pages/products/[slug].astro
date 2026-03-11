@@ -4,7 +4,7 @@ import Logo from '../../components/Logo.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getProducts, getProductBySlug, getReviewsForProduct, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS, getSubcategoryLabel } from '../../lib/payload';
 import type { Product, Review, Media } from '../../lib/payload';
-import { productJsonLd, reviewJsonLd } from '../../lib/seo';
+import { productJsonLd, reviewJsonLd, productFaqJsonLd } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const products = await getProducts();
@@ -22,9 +22,11 @@ const subcategoryLabel = (product.category && product.subcategory) ? getSubcateg
 const petTypeLabel = product.petType ? PET_TYPE_LABELS[product.petType] ?? product.petType : null;
 const animalTypes = (product as any).animalTypes as string[] | undefined;
 
+const faqLd = productFaqJsonLd(product);
 const jsonLdScripts = [
   productJsonLd(product),
   ...reviews.map((r) => reviewJsonLd(r, product)),
+  ...(faqLd ? [faqLd] : []),
 ];
 
 function renderStars(rating: number | undefined): string {
@@ -52,6 +54,8 @@ const breadcrumbs = [
   ogType="product"
   ogImage={imageUrl}
   jsonLd={jsonLdScripts}
+  publishedTime={product.createdAt}
+  modifiedTime={product.updatedAt}
 >
   <!-- Sticky Nav -->
   <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">

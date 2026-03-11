@@ -9,6 +9,8 @@ interface Props {
   ogType?: 'website' | 'article' | 'product';
   jsonLd?: string | string[];
   noindex?: boolean;
+  publishedTime?: string;
+  modifiedTime?: string;
 }
 
 const {
@@ -19,12 +21,17 @@ const {
   ogType = 'website',
   jsonLd,
   noindex = false,
+  publishedTime,
+  modifiedTime,
 } = Astro.props;
 
 const siteUrl = 'https://pawlabs.org';
 const fullCanonical = canonicalUrl ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`) : Astro.url.href;
 const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : null;
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+// Generate a clean title with site suffix
+const pageTitle = title.includes('PawLabs') ? title : `${title} | PawLabs`;
 ---
 
 <!doctype html>
@@ -34,7 +41,15 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <!-- Google Analytics -->
+    <!-- Preconnect to critical third-party origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+
+    <!-- DNS prefetch for less critical origins -->
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+
+    <!-- Google Analytics (async, non-blocking) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XQG5KHT5MH"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
@@ -44,9 +59,13 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     </script>
 
     <!-- Primary Meta -->
-    <title>{title}</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    {noindex ? (
+      <meta name="robots" content="noindex,nofollow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    )}
     <link rel="canonical" href={fullCanonical} />
 
     <!-- Language & Locale -->
@@ -57,14 +76,15 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
 
     <!-- Impact Radius -->
     <meta name='impact-site-verification' value='6958134b-39b0-49ed-abd1-973a966d25cb'>
 
     <!-- OpenGraph -->
     <meta property="og:type" content={ogType} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={fullCanonical} />
     <meta property="og:site_name" content="PawLabs" />
@@ -73,19 +93,24 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     {fullOgImage && <meta property="og:image:height" content="630" />}
     {fullOgImage && <meta property="og:image:type" content="image/png" />}
     {fullOgImage && <meta property="og:image:alt" content={title} />}
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content={fullOgImage ? 'summary_large_image' : 'summary'} />
-    <meta name="twitter:title" content={title} />
+    <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     {fullOgImage && <meta name="twitter:image" content={fullOgImage} />}
     {fullOgImage && <meta name="twitter:image:alt" content={title} />}
 
-    <!-- Additional SEO -->
+    <!-- Additional SEO & Performance -->
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#1A535C" />
     <meta name="author" content="PawLabs" />
+    <meta name="publisher" content="PawLabs" />
     <meta name="geo.region" content="US" />
+    <meta name="rating" content="general" />
+    <meta name="referrer" content="origin-when-cross-origin" />
 
     <!-- JSON-LD Structured Data -->
     {jsonLdArray.map((ld) => (
