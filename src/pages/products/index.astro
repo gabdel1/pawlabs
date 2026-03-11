@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getProducts, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
 import type { Media } from '../../lib/payload';
 
@@ -38,14 +39,10 @@ const collectionJsonLd = JSON.stringify({
   canonicalUrl="/products"
   jsonLd={collectionJsonLd}
 >
-  <main class="min-h-screen bg-gray-50">
-    <nav class="bg-white border-b border-gray-200 px-6 py-4">
-      <div class="max-w-6xl mx-auto flex items-center gap-2 text-sm text-gray-500">
-        <a href="/" class="hover:text-indigo-600 transition-colors">🐾 PawLabs</a>
-        <span>/</span>
-        <span class="text-gray-900 font-medium">Products</span>
-      </div>
-    </nav>
+  <Breadcrumbs items={[
+    { label: '🐾 Home', href: '/' },
+    { label: 'Products' },
+  ]} />
 
     <div class="max-w-6xl mx-auto px-6 py-10">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">All Products</h1>

@@ -1,0 +1,49 @@
+---
+/**
+ * Breadcrumbs component with BreadcrumbList JSON-LD.
+ * Pure Astro — zero JavaScript shipped to the client.
+ */
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: item.label,
+    ...(item.href ? { item: `https://pawlabs.org${item.href}` } : {}),
+  })),
+});
+---
+
+<nav aria-label="Breadcrumb" class="bg-white border-b border-gray-200 px-6 py-3">
+  <div class="max-w-6xl mx-auto">
+    <ol class="flex items-center gap-1.5 text-sm text-gray-500 flex-wrap">
+      {items.map((item, i) => (
+        <li class="flex items-center gap-1.5">
+          {i > 0 && <span class="text-gray-300">/</span>}
+          {item.href ? (
+            <a href={item.href} class="hover:text-indigo-600 transition-colors">
+              {item.label}
+            </a>
+          ) : (
+            <span class="text-gray-900 font-medium">{item.label}</span>
+          )}
+        </li>
+      ))}
+    </ol>
+  </div>
+</nav>
+
+<script type="application/ld+json" set:html={jsonLd} />

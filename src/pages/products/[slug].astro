@@ -1,27 +1,24 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getProductBySlug, getReviewsForProduct, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getProducts, getProductBySlug, getReviewsForProduct, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
 import type { Product, Review, Media } from '../../lib/payload';
 import { productJsonLd, reviewJsonLd } from '../../lib/seo';
 
-const { slug } = Astro.params;
-
-if (!slug) {
-  return Astro.redirect('/products');
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
 }
 
-const product = await getProductBySlug(slug);
-
-if (!product) {
-  return new Response('Product not found', { status: 404 });
-}
-
+const { product } = Astro.props as { product: Product };
 const reviews = await getReviewsForProduct(product.id);
 const imageUrl = getMediaUrl(product.image as Media);
 const categoryLabel = product.category ? CATEGORY_LABELS[product.category] ?? product.category : null;
 const petTypeLabel = product.petType ? PET_TYPE_LABELS[product.petType] ?? product.petType : null;
 
-// Build JSON-LD array: product + each review
 const jsonLdScripts = [
   productJsonLd(product),
   ...reviews.map((r) => reviewJsonLd(r, product)),
@@ -34,6 +31,13 @@ function renderStars(rating: number | undefined): string {
   const empty = 5 - full - half;
   return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
 }
+
+const breadcrumbs = [
+  { label: '🐾 Home', href: '/' },
+  { label: 'Products', href: '/products' },
+  ...(categoryLabel ? [{ label: categoryLabel, href: `/products?category=${product.category}` }] : []),
+  { label: product.name },
+];
 ---
 
 <Layout
@@ -44,18 +48,9 @@ function renderStars(rating: number | undefined): string {
   ogImage={imageUrl}
   jsonLd={jsonLdScripts}
 >
-  <main class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 px-6 py-4">
-      <div class="max-w-6xl mx-auto flex items-center gap-2 text-sm text-gray-500">
-        <a href="/" class="hover:text-indigo-600 transition-colors">🐾 PawLabs</a>
-        <span>/</span>
-        <a href="/products" class="hover:text-indigo-600 transition-colors">Products</a>
-        <span>/</span>
-        <span class="text-gray-900 font-medium">{product.name}</span>
-      </div>
-    </nav>
+  <Breadcrumbs items={breadcrumbs} />
 
+  <main class="min-h-screen bg-gray-50">
     <div class="max-w-6xl mx-auto px-6 py-10">
       <!-- Product Header -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

@@ -1,0 +1,155 @@
+---
+/**
+ * ComparisonTable — side-by-side product comparison.
+ * Mobile-optimized with horizontal scroll.
+ * Pure Astro — zero JavaScript shipped.
+ */
+
+import type { Product, Media } from '../lib/payload';
+import { getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../lib/payload';
+
+interface Props {
+  productA: Product;
+  productB: Product;
+}
+
+const { productA, productB } = Astro.props;
+
+function renderStars(rating: number | undefined): string {
+  if (rating == null) return '—';
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+}
+
+function highlight(a: number | undefined, b: number | undefined, higherWins = true): [string, string] {
+  const win = 'text-emerald-700 font-semibold bg-emerald-50/60';
+  const normal = 'text-gray-700';
+  if (a == null || b == null || a === b) return [normal, normal];
+  if (higherWins) return [a > b ? win : normal, b > a ? win : normal];
+  return [a < b ? win : normal, b < a ? win : normal];
+}
+
+const [priceA, priceB] = highlight(productA.price, productB.price, false);
+const [ratingA, ratingB] = highlight(productA.rating, productB.rating, true);
+
+const imgA = getMediaUrl(productA.image as Media);
+const imgB = getMediaUrl(productB.image as Media);
+
+type Row = { label: string; values: [string, string]; styles: [string, string] };
+
+const rows: Row[] = [
+  {
+    label: 'Price',
+    values: [
+      productA.price != null ? `$${productA.price.toFixed(2)}` : '—',
+      productB.price != null ? `$${productB.price.toFixed(2)}` : '—',
+    ],
+    styles: [priceA, priceB],
+  },
+  {
+    label: 'Rating',
+    values: [
+      productA.rating != null ? `${renderStars(productA.rating)} ${productA.rating}/5` : '—',
+      productB.rating != null ? `${renderStars(productB.rating)} ${productB.rating}/5` : '—',
+    ],
+    styles: [ratingA, ratingB],
+  },
+  {
+    label: 'Category',
+    values: [
+      productA.category ? CATEGORY_LABELS[productA.category] ?? productA.category : '—',
+      productB.category ? CATEGORY_LABELS[productB.category] ?? productB.category : '—',
+    ],
+    styles: ['text-gray-700', 'text-gray-700'],
+  },
+  {
+    label: 'Pet Type',
+    values: [
+      productA.petType ? PET_TYPE_LABELS[productA.petType] ?? productA.petType : '—',
+      productB.petType ? PET_TYPE_LABELS[productB.petType] ?? productB.petType : '—',
+    ],
+    styles: ['text-gray-700', 'text-gray-700'],
+  },
+  {
+    label: 'Pros',
+    values: [
+      productA.pros?.map(p => p.point).join(' · ') || '—',
+      productB.pros?.map(p => p.point).join(' · ') || '—',
+    ],
+    styles: ['text-gray-700', 'text-gray-700'],
+  },
+  {
+    label: 'Cons',
+    values: [
+      productA.cons?.map(c => c.point).join(' · ') || '—',
+      productB.cons?.map(c => c.point).join(' · ') || '—',
+    ],
+    styles: ['text-gray-700', 'text-gray-700'],
+  },
+];
+---
+
+<!-- Mobile: horizontal scroll. Desktop: full table -->
+<div class="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+  <div class="min-w-[600px]">
+    <!-- Product Header Cards -->
+    <div class="grid grid-cols-[140px_1fr_1fr] gap-0 mb-0">
+      <div></div>
+      {[{ product: productA, img: imgA }, { product: productB, img: imgB }].map(({ product, img }) => (
+        <div class="p-4 text-center border-b border-gray-100">
+          <div class="w-20 h-20 mx-auto mb-3 bg-gray-50 rounded-xl flex items-center justify-center">
+            {img ? (
+              <img src={img} alt={product.name} class="max-w-full max-h-full object-contain rounded-lg" />
+            ) : (
+              <span class="text-3xl opacity-20">📦</span>
+            )}
+          </div>
+          <a href={`/products/${product.slug}`} class="text-sm font-bold text-gray-900 hover:text-indigo-600 transition-colors">
+            {product.name}
+          </a>
+          {product.price != null && (
+            <p class="text-lg font-bold text-gray-900 mt-1">${product.price.toFixed(2)}</p>
+          )}
+          {product.affiliateUrl && (
+            <a
+              href={product.affiliateUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              class="inline-block mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-1.5 px-4 rounded-lg transition-colors"
+            >
+              Buy Now →
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <!-- Comparison Rows -->
+    <table class="w-full border-collapse">
+      <thead class="sr-only">
+        <tr>
+          <th>Feature</th>
+          <th>{productA.name}</th>
+          <th>{productB.name}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, i) => (
+          <tr class={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+            <td class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide w-[140px] align-top">
+              {row.label}
+            </td>
+            <td class={`px-4 py-3 text-sm text-center align-top ${row.styles[0]}`}>
+              {row.values[0]}
+            </td>
+            <td class={`px-4 py-3 text-sm text-center align-top ${row.styles[1]}`}>
+              {row.values[1]}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
