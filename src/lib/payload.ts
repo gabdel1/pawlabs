@@ -1,10 +1,7 @@
 /**
  * Payload CMS API client for fetching data.
- * Falls back to static seed data when CMS is not running.
+ * Only fetches from the CMS database — no placeholder/fallback data.
  */
-
-import { seedProducts, CATEGORY_LABELS_EXTENDED, SUBCATEGORY_LABELS } from '../data/products';
-import type { SeedProduct } from '../data/products';
 
 const PAYLOAD_API_URL = import.meta.env.PAYLOAD_API_URL || 'http://127.0.0.1:3000/api';
 
@@ -88,18 +85,18 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): P
   return res.json() as Promise<T>;
 }
 
-/** Fetch all products — falls back to seed data */
+/** Fetch all products from CMS */
 export async function getProducts(limit = 100): Promise<Product[]> {
   try {
     const data = await fetchAPI<PayloadResponse<Product>>('products', {
       limit: String(limit),
       depth: '1',
     });
-    if (data.docs.length > 0) return data.docs;
-  } catch {
-    // CMS not running — use seed data
+    return data.docs;
+  } catch (e) {
+    console.error('[payload] Failed to fetch products:', e);
+    return [];
   }
-  return seedProducts as Product[];
 }
 
 /** Fetch a single product by slug */
@@ -109,11 +106,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       'where[slug][equals]': slug,
       depth: '1',
     });
-    if (data.docs[0]) return data.docs[0];
-  } catch {
-    // fallback
+    return data.docs[0] ?? null;
+  } catch (e) {
+    console.error('[payload] Failed to fetch product by slug:', slug, e);
+    return null;
   }
-  return (seedProducts.find(p => p.slug === slug) as Product) ?? null;
 }
 
 /** Fetch a single product by ID */
@@ -121,8 +118,9 @@ export async function getProductById(id: string): Promise<Product | null> {
   try {
     const data = await fetchAPI<Product>(`products/${id}`, { depth: '1' });
     return data;
-  } catch {
-    return (seedProducts.find(p => p.id === id) as Product) ?? null;
+  } catch (e) {
+    console.error('[payload] Failed to fetch product by ID:', id, e);
+    return null;
   }
 }
 
@@ -156,17 +154,51 @@ export async function getReviews(limit = 100): Promise<Review[]> {
 
 /** Category labels */
 export const CATEGORY_LABELS: Record<string, string> = {
-  ...CATEGORY_LABELS_EXTENDED,
-  // Legacy flat keys
+  'wellness': 'Wellness',
+  'security': 'Security',
   'smart-gadgets': 'Smart Gadgets',
-  'toys': 'Toys',
   'food-treats': 'Food & Treats',
-  'health-wellness': 'Health & Wellness',
   'grooming': 'Grooming',
   'beds-furniture': 'Beds & Furniture',
   'leashes-collars': 'Leashes & Collars',
   'travel': 'Travel',
+  'toys': 'Toys',
+  'health-wellness': 'Health & Wellness',
   'other': 'Other',
+};
+
+/** Subcategory labels */
+export const SUBCATEGORY_LABELS: Record<string, Record<string, string>> = {
+  'wellness': {
+    'litter': 'Litter',
+    'supplements': 'Supplements',
+    'dental': 'Dental Care',
+    'flea-tick': 'Flea & Tick',
+  },
+  'security': {
+    'collars': 'Collars & Trackers',
+    'cameras': 'Cameras',
+    'gates': 'Gates & Barriers',
+    'containment': 'Containment',
+  },
+  'smart-gadgets': {
+    'feeders': 'Smart Feeders',
+    'water': 'Water Fountains',
+    'doors': 'Smart Doors',
+    'toys': 'Interactive Toys',
+  },
+  'food-treats': {
+    'dry-food': 'Dry Food',
+    'wet-food': 'Wet Food',
+    'treats': 'Treats',
+    'supplements': 'Supplements',
+  },
+  'grooming': {
+    'brushes': 'Brushes & Combs',
+    'shampoo': 'Shampoos',
+    'clippers': 'Clippers & Trimmers',
+    'dryers': 'Dryers',
+  },
 };
 
 /** Get subcategory label */
@@ -199,7 +231,3 @@ export function getMediaUrl(media: Media | string | undefined | null): string | 
   if (typeof media === 'string') return null;
   return media.url ?? null;
 }
-
-/** Re-export for convenience */
-export { SUBCATEGORY_LABELS, CATEGORY_LABELS_EXTENDED };
-export type { SeedProduct };
