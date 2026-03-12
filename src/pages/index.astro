@@ -4,35 +4,32 @@ import Logo from '../components/Logo.astro';
 import { getProducts, getMediaUrl, CATEGORY_LABELS } from '../lib/payload';
 import type { Media } from '../lib/payload';
 import { websiteJsonLd, organizationJsonLd } from '../lib/seo';
+import { 
+  Activity, ShieldCheck, HeartPulse, Bone, Scissors, Bed, Link as LinkIcon, Plane, 
+  Award, Search, ChevronRight, Star, StarHalf, ArrowUpRight, Sparkles 
+} from 'lucide-astro';
 
 const products = await getProducts();
 const featuredProducts = products.filter(p => p.featured).slice(0, 6);
 const recentProducts = products.slice(0, 6);
 
-function renderStars(rating: number | undefined): string {
-  if (rating == null) return '';
-  const full = Math.floor(rating);
-  const half = rating % 1 >= 0.5 ? 1 : 0;
-  const empty = 5 - full - half;
-  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
-}
 
 const categories = [
-  { key: 'smart-gadgets', icon: '📡', label: 'Smart Gadgets', desc: 'GPS trackers, smart feeders, cameras & more' },
-  { key: 'toys', icon: '🎾', label: 'Toys', desc: 'Interactive toys that keep pets entertained' },
-  { key: 'food-treats', icon: '🦴', label: 'Food & Treats', desc: 'Premium nutrition and healthy snacks' },
-  { key: 'health-wellness', icon: '💊', label: 'Health & Wellness', desc: 'Supplements, dental care, and wellness tools' },
-  { key: 'grooming', icon: '✂️', label: 'Grooming', desc: 'Brushes, shampoos, and grooming kits' },
-  { key: 'beds-furniture', icon: '🛏️', label: 'Beds & Furniture', desc: 'Cozy beds, trees, and pet furniture' },
-  { key: 'leashes-collars', icon: '🦮', label: 'Leashes & Collars', desc: 'Stylish and durable walking gear' },
-  { key: 'travel', icon: '✈️', label: 'Travel', desc: 'Carriers, car seats, and travel bowls' },
+  { key: 'smart-gadgets', icon: Activity, label: 'Smart Tech', desc: 'GPS trackers, smart feeders, cameras & more' },
+  { key: 'wellness', icon: HeartPulse, label: 'Wellness', desc: 'Litter, supplements, dental & flea care' },
+  { key: 'security', icon: ShieldCheck, label: 'Security', desc: 'Cameras, collars, trackers & containment' },
+  { key: 'food-treats', icon: Bone, label: 'Food & Treats', desc: 'Premium nutrition and healthy snacks' },
+  { key: 'grooming', icon: Scissors, label: 'Grooming', desc: 'Brushes, shampoos, and grooming kits' },
+  { key: 'beds-furniture', icon: Bed, label: 'Furniture', desc: 'Cozy beds, trees, and pet furniture' },
+  { key: 'leashes-collars', icon: LinkIcon, label: 'Gear', desc: 'Stylish and durable walking gear' },
+  { key: 'travel', icon: Plane, label: 'Travel', desc: 'Carriers, car seats, and travel bowls' },
 ];
 
 const trustPoints = [
-  { icon: '🔬', title: 'Research-Backed Reviews', desc: 'Every product is tested and reviewed using real-world data, not just marketing claims.' },
-  { icon: '🤝', title: 'Transparent Comparisons', desc: 'Side-by-side vs tables so you can see exactly how products stack up against each other.' },
-  { icon: '💰', title: 'Best Price Discovery', desc: 'We link directly to the best deals — no hidden fees, no middleman markup.' },
-  { icon: '🐾', title: 'Pet-First Approach', desc: 'Our recommendations prioritize your pet\'s safety, health, and happiness above all.' },
+  { icon: Award, title: 'Research-Backed', desc: 'Every product tested with real-world data, eschewing marketing claims.' },
+  { icon: Search, title: 'Total Transparency', desc: 'Side-by-side comparisons so you see how products truly stack up.' },
+  { icon: ShieldCheck, title: 'Best Value', desc: 'We link to the best deals — absolutely no hidden fees or middlemen.' },
+  { icon: HeartPulse, title: 'Pet-First Philosophy', desc: 'Safety, health, and undeniable happiness above all in our criteria.' },
 ];
 ---
 
@@ -43,160 +40,213 @@ const trustPoints = [
   ogType="website"
   jsonLd={[websiteJsonLd(), organizationJsonLd()]}
 >
-  <!-- Sticky Nav -->
-  <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-      <a href="/">
-        <Logo width={160} height={40} />
-      </a>
-      <div class="flex items-center gap-6">
-        <a href="/products" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors">Products</a>
-        <a href="#categories" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors hidden sm:inline">Categories</a>
-        <a href="/products" class="bg-brand-800 hover:bg-brand-900 text-white text-sm font-semibold py-2 px-5 rounded-xl transition-colors">
-          Browse All
+  <!-- Floating Pill Navigation (Modern 2026 style) -->
+  <nav class="fixed top-6 left-0 right-0 z-50 flex justify-center px-6 pointer-events-none">
+    <div class="glass-pill px-2 py-2 pr-6 rounded-full flex items-center justify-between w-full max-w-5xl pointer-events-auto reveal">
+      <div class="flex items-center gap-8 pl-4">
+        <a href="/" class="hover:opacity-80 transition-opacity">
+          <Logo width={130} height={32} />
         </a>
       </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/products" class="nav-link text-ink text-sm font-semibold tracking-wide">Products</a>
+        <a href="#categories" class="nav-link text-ink text-sm font-semibold tracking-wide">Categories</a>
+        <a href="/products" class="nav-link text-ink text-sm font-semibold tracking-wide">Reviews</a>
+      </div>
+      <a href="/products" class="btn-primary bg-ink text-white text-sm font-bold py-3 px-7 rounded-full transition-transform ml-4">
+        Browse All
+      </a>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero-gradient relative overflow-hidden">
-    <div class="absolute inset-0 opacity-[0.07]">
-      <div class="absolute top-10 left-10 text-8xl">🐕</div>
-      <div class="absolute top-20 right-20 text-7xl">🐈</div>
-      <div class="absolute bottom-16 left-1/4 text-6xl">🐦</div>
-      <div class="absolute bottom-10 right-1/3 text-8xl">🐾</div>
-    </div>
+  <!-- Asymmetrical Hero Section -->
+  <section class="relative min-h-[90vh] flex items-center pt-32 pb-20 overflow-hidden noise">
+    <!-- Sophisticated Background -->
+    <div class="absolute inset-0 bg-surface -z-20"></div>
+    <div class="absolute inset-0 hero-gradient -z-10 opacity-80"></div>
+    
+    <!-- Floating Orbs -->
+    <div class="glow-orb w-[600px] h-[600px] bg-brand-300/20 top-[-100px] left-[-200px] animate-orb"></div>
+    <div class="glow-orb w-[500px] h-[500px] bg-accent-400/10 bottom-[100px] right-[-100px] animate-orb" style="animation-delay: -5s;"></div>
 
-    <div class="max-w-6xl mx-auto px-6 py-20 md:py-28 relative z-10">
-      <div class="text-center">
-        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot"></span>
-          <span class="text-white/90 text-sm font-medium">Updated for 2026</span>
+    <div class="max-w-7xl mx-auto px-6 w-full relative z-10">
+      <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <!-- Hero Text -->
+        <div class="lg:col-span-7 reveal">
+          <div class="inline-flex items-center gap-2.5 glass-pill rounded-full px-4 py-2 mb-8 scale-reveal reveal-delay-1 border !border-white/40">
+            <Sparkles class="w-4 h-4 text-brand-600" />
+            <span class="text-ink-light text-xs font-bold tracking-widest uppercase">Curated for 2026</span>
+          </div>
+
+          <h1 class="display-heading text-6xl md:text-7xl lg:text-[5.5rem] tracking-tight text-ink mb-8 leading-[1.05] text-balance">
+            Elevate Your Pet's 
+            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-brand-700 to-brand-400">Lifestyle.</span>
+          </h1>
+
+          <p class="text-lg md:text-xl text-ink-muted max-w-xl mb-12 leading-relaxed font-medium text-pretty reveal-delay-2">
+            Research-backed reviews, uncompromising comparisons, and the absolute best gear on the market—curated for modern pet parents.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-5 reveal-delay-3">
+            <a href="/products" class="group btn-primary bg-ink text-white font-bold py-4 px-10 rounded-full text-base transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-ink/20 inline-flex items-center justify-center gap-3">
+              Explore Products
+              <ArrowUpRight class="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </a>
+            <a href="#categories" class="group inline-flex items-center justify-center gap-3 bg-white/50 backdrop-blur-md border border-white/60 text-ink font-bold py-4 px-10 rounded-full text-base transition-all duration-300 hover:bg-white/80">
+              Shop by Category
+            </a>
+          </div>
         </div>
 
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
-          Find the <span class="text-accent-400">Perfect Product</span><br />
-          for Your Pet
-        </h1>
-
-        <p class="text-lg md:text-xl text-teal-100 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Research-backed reviews, honest comparisons, and the best deals on smart gadgets, toys, food, and everything pet-related.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/products" class="group inline-flex items-center justify-center gap-2 bg-white text-brand-800 font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105">
-            Browse All Products
-            <span class="group-hover:translate-x-1 transition-transform">→</span>
-          </a>
-          <a href="#categories" class="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm border border-white/25 text-white font-semibold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:bg-white/20">
-            Explore Categories
-          </a>
-        </div>
-
-        <div class="mt-12 flex items-center justify-center gap-8 text-teal-200 text-sm">
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-white text-lg">{products.length}</span>
-            Products Reviewed
-          </div>
-          <div class="w-px h-6 bg-teal-300/30"></div>
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-white text-lg">9</span>
-            Categories
-          </div>
-          <div class="w-px h-6 bg-teal-300/30"></div>
-          <div class="flex items-center gap-2">
-            <span class="text-accent-400 text-lg">★★★★★</span>
-            Trusted
+        <!-- Hero Visual (Asymmetrical composition) -->
+        <div class="lg:col-span-5 relative hidden md:block reveal reveal-delay-4">
+          <div class="relative w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden glass-card p-4 border border-white/60 shadow-2xl shadow-brand-900/10 transform rotate-2 hover:rotate-0 transition-transform duration-700">
+            <div class="w-full h-full rounded-[2rem] bg-brand-100 overflow-hidden relative">
+              <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=2688&auto=format&fit=crop" alt="Premium Dog" class="w-full h-full object-cover mix-blend-multiply opacity-80 scale-105 hover:scale-100 transition-transform duration-1000" />
+              <div class="absolute inset-0 bg-gradient-to-t from-brand-900/40 to-transparent"></div>
+              
+              <!-- Floating stat card -->
+              <div class="absolute bottom-6 left-6 right-6 glass-pill p-5 rounded-2xl flex items-center justify-between transform -translate-y-2 hover:translate-y-0 transition-transform">
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-ink-light uppercase tracking-wider mb-1">Trusted Reviews</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-2xl font-bold font-display text-ink">{products.length}+</span>
+                    <span class="text-brand-600 flex"><Star class="w-4 h-4 fill-current"/><Star class="w-4 h-4 fill-current"/><Star class="w-4 h-4 fill-current"/></span>
+                  </div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg">
+                  <Activity class="w-5 h-5 text-brand-600" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Wave divider -->
-    <div class="absolute bottom-0 left-0 right-0">
-      <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" class="w-full h-12 md:h-16">
-        <path d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z" fill="#f8fafa"/>
-      </svg>
     </div>
   </section>
 
-  <!-- Categories Section -->
-  <section id="categories" class="bg-surface py-20">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-ink mb-3">Shop by Category</h2>
-        <p class="text-ink-muted max-w-xl mx-auto">Discover the best products in every category — from smart tech to everyday essentials.</p>
+  <!-- Categories — Refined Bento Grid -->
+  <section id="categories" class="bg-surface py-32 relative noise">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 reveal">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-6">
+            <Search class="w-3.5 h-3.5" /> Explore
+          </div>
+          <h2 class="display-heading text-4xl md:text-5xl text-ink mb-4">Meticulously Organized.</h2>
+          <p class="text-ink-muted text-lg text-balance">Navigate our comprehensive library by category to locate precisely what your companion requires.</p>
+        </div>
+        <a href="/products" class="inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 transition-colors group">
+          View All Categories
+          <ArrowUpRight class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+        </a>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {categories.map((cat) => (
-          <a href={`/products?category=${cat.key}`} class="card-hover group bg-surface-raised rounded-2xl border border-gray-100 p-5 text-center">
-            <div class="text-4xl mb-3">{cat.icon}</div>
-            <h3 class="font-bold text-ink group-hover:text-brand-800 transition-colors text-sm">{cat.label}</h3>
-            <p class="text-xs text-ink-muted mt-1 line-clamp-2">{cat.desc}</p>
-          </a>
-        ))}
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        {categories.map((cat, i) => {
+          const IconComponent = cat.icon;
+          const isLarge = i === 0 || i === 3; // Make some cards span 2 columns
+
+          return (
+            <a
+              href={`/products?category=${cat.key}`}
+              class={`card-hover group glass-card rounded-3xl p-8 relative overflow-hidden reveal reveal-delay-${Math.min((i % 4) + 1, 6)} ${isLarge ? 'sm:col-span-2' : ''}`}
+            >
+              <div class="flex items-start justify-between mb-8">
+                <div class="icon-layer w-14 h-14 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-700 transition-all duration-300">
+                  <IconComponent class="w-7 h-7" />
+                </div>
+                <div class="w-8 h-8 rounded-full bg-surface-raised border border-brand-100 flex items-center justify-center text-ink-muted group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
+                  <ArrowUpRight class="w-4 h-4" />
+                </div>
+              </div>
+              <h3 class="font-display font-bold text-ink text-xl group-hover:text-brand-700 transition-colors mb-2">{cat.label}</h3>
+              <p class="text-sm text-ink-muted max-w-sm line-clamp-2">{cat.desc}</p>
+              
+              <!-- Subtle background glow on hover -->
+              <div class="absolute -right-20 -bottom-20 w-40 h-40 bg-brand-200/40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            </a>
+          );
+        })}
       </div>
     </div>
   </section>
 
   <!-- Featured Products -->
   {(featuredProducts.length > 0 || recentProducts.length > 0) && (
-    <section class="bg-surface-raised py-20">
-      <div class="max-w-6xl mx-auto px-6">
-        <div class="flex items-end justify-between mb-10">
-          <div>
-            <h2 class="text-3xl md:text-4xl font-bold text-ink mb-2">
-              {featuredProducts.length > 0 ? '⭐ Featured Products' : 'Latest Products'}
-            </h2>
-            <p class="text-ink-muted">Hand-picked recommendations from our team.</p>
+    <section class="bg-white py-32 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20 reveal">
+          <div class="inline-flex items-center gap-2 badge bg-accent-100 text-accent-700 mb-6">
+            <Star class="w-3.5 h-3.5 fill-current" /> Hand-Picked
           </div>
-          <a href="/products" class="hidden md:inline-flex items-center gap-1 text-brand-800 font-semibold hover:underline">
-            View All →
-          </a>
+          <h2 class="display-heading text-4xl md:text-5xl text-ink mb-4">
+            {featuredProducts.length > 0 ? 'Featured Equipment' : 'Latest Additions'}
+          </h2>
+          <p class="text-ink-muted text-lg max-w-2xl mx-auto">The definitive selections from our extensive testing lab.</p>
         </div>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(featuredProducts.length > 0 ? featuredProducts : recentProducts).map((product) => {
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {(featuredProducts.length > 0 ? featuredProducts : recentProducts).map((product, i) => {
             const imgUrl = getMediaUrl(product.image as Media);
             const catLabel = product.category ? CATEGORY_LABELS[product.category] : null;
+            
             return (
-              <a href={`/products/${product.slug}`} class="card-hover group bg-surface-raised rounded-2xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8 min-h-[200px]">
-                  {imgUrl ? (
-                    <img src={imgUrl} alt={product.name} class="max-w-full max-h-40 object-contain rounded-lg group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                  ) : (
-                    <div class="text-6xl opacity-15 group-hover:opacity-25 transition-opacity">📦</div>
-                  )}
-                </div>
-                <div class="p-5">
-                  <div class="flex flex-wrap gap-1.5 mb-2">
+              <a href={`/products/${product.slug}`} class={`card-hover group glass-card rounded-[2rem] overflow-hidden reveal reveal-delay-${Math.min((i % 3) + 1, 4)} border-transparent hover:border-brand-200`}>
+                <div class="relative bg-surface aspect-[4/3] overflow-hidden p-6 flex flex-col justify-between">
+                  <!-- Badges Top layer -->
+                  <div class="flex flex-wrap gap-2 relative z-10">
                     {catLabel && (
-                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-800 uppercase tracking-wide">
+                      <span class="badge bg-white/80 backdrop-blur-md text-ink-light border border-white/50 shadow-sm shadow-ink/5">
                         {catLabel}
                       </span>
                     )}
                     {product.featured && (
-                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 uppercase tracking-wide">
-                        ⭐ Featured
+                      <span class="badge bg-accent-400/90 backdrop-blur-md text-ink font-bold border border-accent-300 shadow-sm">
+                        Featured
                       </span>
                     )}
                   </div>
-                  <h3 class="font-bold text-ink group-hover:text-brand-800 transition-colors mb-1">
+                  
+                  {/* Image Layer */}
+                  <div class="absolute inset-0 image-layer transition-transform duration-700 ease-out flex items-center justify-center p-8 bg-gradient-to-br from-brand-50 to-white">
+                    {imgUrl ? (
+                      <img src={imgUrl} alt={product.name} class="w-full h-full object-contain filter drop-shadow-2xl mix-blend-multiply" loading="lazy" />
+                    ) : (
+                      <div class="text-7xl opacity-5">📦</div>
+                    )}
+                  </div>
+                </div>
+
+                <div class="p-8 bg-white glass-card-border-top relative z-20">
+                  <h3 class="font-display font-bold text-ink text-xl group-hover:text-brand-700 transition-colors mb-3 leading-tight">
                     {product.name}
                   </h3>
+                  
                   {product.rating != null && (
-                    <p class="text-sm text-amber-500 mb-2">{renderStars(product.rating)} <span class="text-ink-muted text-xs">{product.rating}/5</span></p>
+                    <div class="flex items-center gap-2 mb-4">
+                      <div class="flex items-center gap-0.5 text-accent-500">
+                        {Array.from({ length: Math.floor(product.rating) }).map(() => <Star class="w-4 h-4 fill-current" />)}
+                        {product.rating % 1 >= 0.5 && <StarHalf class="w-4 h-4 fill-current" />}
+                        {Array.from({ length: 5 - Math.floor(product.rating) - (product.rating % 1 >= 0.5 ? 1 : 0) }).map(() => <Star class="w-4 h-4 text-gray-300" />)}
+                      </div>
+                      <span class="font-bold text-ink-light text-sm">{product.rating.toFixed(1)}</span>
+                    </div>
                   )}
+                  
                   {product.shortDescription && (
-                    <p class="text-sm text-ink-muted line-clamp-2 mb-3">{product.shortDescription}</p>
+                    <p class="text-sm text-ink-muted line-clamp-2 mb-6 text-pretty">{product.shortDescription}</p>
                   )}
-                  <div class="flex items-center justify-between">
+                  
+                  <div class="flex items-center justify-between pt-4 border-t border-surface">
                     {product.price != null && (
-                      <span class="text-xl font-bold text-ink">${product.price.toFixed(2)}</span>
+                      <span class="text-2xl font-bold font-display text-ink tracking-tight">${product.price.toFixed(2)}</span>
                     )}
-                    <span class="text-xs text-brand-800 font-semibold group-hover:underline">Read Review →</span>
+                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface text-brand-700 group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
+                      <ChevronRight class="w-5 h-5" />
+                    </span>
                   </div>
                 </div>
               </a>
@@ -204,95 +254,99 @@ const trustPoints = [
           })}
         </div>
 
-        <div class="mt-8 text-center md:hidden">
-          <a href="/products" class="inline-flex items-center gap-1 text-brand-800 font-semibold hover:underline">
-            View All Products →
+        <div class="mt-16 text-center reveal reveal-delay-4">
+          <a href="/products" class="btn-primary inline-flex items-center justify-center gap-2 bg-ink text-white font-bold py-4 px-10 rounded-full text-base transition-all duration-300 hover:shadow-xl">
+            View Complete Catalog
           </a>
         </div>
       </div>
     </section>
   )}
 
-  <!-- Trust / How It Works -->
-  <section class="bg-surface py-20">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-14">
-        <h2 class="text-3xl md:text-4xl font-bold text-ink mb-3">Why Trust PawLabs?</h2>
-        <p class="text-ink-muted max-w-xl mx-auto">We do the research so you don't have to. Every review is thorough, honest, and data-driven.</p>
+  <!-- Trust Matrix (Refined) -->
+  <section class="bg-ink py-32 relative overflow-hidden">
+    <!-- Dark decorative elements -->
+    <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-900/40 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+    <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent-900/10 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/2"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="text-center mb-20 reveal">
+        <h2 class="display-heading text-4xl md:text-5xl text-white mb-6">Our Methodology.</h2>
+        <p class="text-ink-muted max-w-2xl mx-auto text-lg text-balance opacity-80">We conduct rigorous analysis so you can make confident decisions. Our reviews are inherently objective.</p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {trustPoints.map((point) => (
-          <div class="bg-surface-raised rounded-2xl border border-gray-100 p-6 text-center card-hover">
-            <div class="text-4xl mb-4">{point.icon}</div>
-            <h3 class="font-bold text-ink mb-2">{point.title}</h3>
-            <p class="text-sm text-ink-muted leading-relaxed">{point.desc}</p>
-          </div>
-        ))}
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {trustPoints.map((point, i) => {
+          const IconComponent = point.icon;
+          return (
+            <div class={`glass-card-dark rounded-3xl p-8 card-hover reveal reveal-delay-${i + 1}`}>
+              <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-accent-400 mb-6 border border-white/5">
+                <IconComponent class="w-6 h-6" />
+              </div>
+              <h3 class="font-display font-bold text-white mb-3 text-xl">{point.title}</h3>
+              <p class="text-sm text-ink-muted leading-relaxed opacity-90">{point.desc}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   </section>
 
   <!-- Comparison CTA -->
-  <section class="bg-brand-950 py-16 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-5">
-      <div class="absolute top-5 left-10 text-9xl">🔍</div>
-      <div class="absolute bottom-5 right-10 text-8xl">⚖️</div>
-    </div>
-
-    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
-        Can't Decide? Compare Products
+  <section class="relative py-32 overflow-hidden subtle-bg-glow border-t border-surface">
+    <div class="max-w-4xl mx-auto px-6 text-center reveal">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-100 text-brand-700 mb-8 border border-white shadow-xl shadow-brand-200/50">
+        <ShieldCheck class="w-10 h-10" />
+      </div>
+      <h2 class="display-heading text-5xl md:text-6xl text-ink mb-8 text-balance">
+        Uncertain? <span class="gradient-text">Compare Them.</span>
       </h2>
-      <p class="text-teal-200 text-lg mb-8 max-w-2xl mx-auto">
-        Use our side-by-side comparison tool to see how products stack up across price, rating, features, pros, and cons.
+      <p class="text-ink-muted text-xl mb-12 max-w-2xl mx-auto font-medium text-pretty">
+        Utilize our robust side-by-side comparison engine to evaluate features, pricing, and independent ratings seamlessly.
       </p>
-      <a href="/products" class="inline-flex items-center justify-center gap-2 bg-white text-brand-800 font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105">
-        Start Comparing →
+      <a href="/products#compare" class="btn-primary inline-flex items-center justify-center gap-3 bg-brand-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-brand-600/30">
+        Start Comparing <ArrowUpRight class="w-5 h-5" />
       </a>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="bg-ink py-14">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="grid md:grid-cols-4 gap-10 mb-10">
+  <!-- Modern Footer -->
+  <footer class="bg-surface py-20 border-t border-ink/5">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-4 gap-12 lg:gap-16 mb-16">
         <!-- Brand -->
         <div class="md:col-span-2">
-          <div class="mb-4">
-            <Logo width={160} height={40} variant="white" />
+          <div class="mb-8">
+            <Logo width={160} height={40} />
           </div>
-          <p class="text-sm leading-relaxed text-gray-400 max-w-sm">
-            Expert pet product reviews and recommendations. We help pet parents find the best products through honest, research-backed reviews.
+          <p class="text-base leading-relaxed text-ink-muted max-w-sm text-pretty font-medium">
+            Empowering pet parents through rigorous testing, honest reviews, and data-driven recommendations.
           </p>
         </div>
 
-        <!-- Quick Links -->
+        <!-- Links -->
         <div>
-          <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wide">Explore</h4>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="/products" class="hover:text-brand-400 transition-colors">All Products</a></li>
-            <li><a href="/products?category=smart-gadgets" class="hover:text-brand-400 transition-colors">Smart Gadgets</a></li>
-            <li><a href="/products?category=food-treats" class="hover:text-brand-400 transition-colors">Food & Treats</a></li>
-            <li><a href="/products?category=health-wellness" class="hover:text-brand-400 transition-colors">Health & Wellness</a></li>
+          <h4 class="font-display text-ink font-bold mb-6 text-sm uppercase tracking-widest">Library</h4>
+          <ul class="space-y-4 text-sm font-medium text-ink-muted">
+            <li><a href="/products" class="hover:text-brand-600 transition-colors">Complete Catalog</a></li>
+            <li><a href="/products?category=smart-gadgets" class="hover:text-brand-600 transition-colors">Smart Tech</a></li>
+            <li><a href="/products?category=wellness" class="hover:text-brand-600 transition-colors">Health & Wellness</a></li>
+            <li><a href="/#categories" class="hover:text-brand-600 transition-colors">All Categories</a></li>
           </ul>
         </div>
-
-        <!-- Pet Types -->
         <div>
-          <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wide">Pet Types</h4>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="/products?pet=dog" class="hover:text-brand-400 transition-colors">🐕 Dogs</a></li>
-            <li><a href="/products?pet=cat" class="hover:text-brand-400 transition-colors">🐈 Cats</a></li>
-            <li><a href="/products?pet=bird" class="hover:text-brand-400 transition-colors">🐦 Birds</a></li>
-            <li><a href="/products?pet=small-animal" class="hover:text-brand-400 transition-colors">🐹 Small Animals</a></li>
+          <h4 class="font-display text-ink font-bold mb-6 text-sm uppercase tracking-widest">Platform</h4>
+          <ul class="space-y-4 text-sm font-medium text-ink-muted">
+            <li><a href="/about" class="hover:text-brand-600 transition-colors">Our Methodology</a></li>
+            <li><a href="/contact" class="hover:text-brand-600 transition-colors">Contact Us</a></li>
+            <li><a href="/admin" class="hover:text-brand-600 transition-colors">Admin Login</a></li>
           </ul>
         </div>
       </div>
 
-      <div class="border-t border-gray-700/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+      <div class="border-t border-ink/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-ink-light font-medium">
         <p>&copy; {new Date().getFullYear()} PawLabs. All rights reserved.</p>
-        <p>Affiliate Disclosure: We may earn commissions from qualifying purchases made through links on this site.</p>
+        <p class="text-ink-muted">Affiliate Disclosure: We may earn commissions from qualifying purchases.</p>
       </div>
     </div>
   </footer>

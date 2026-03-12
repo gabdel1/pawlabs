@@ -1,0 +1,320 @@
+---
+/**
+ * /compare — Client-side comparison page.
+ * 
+ * All product data is embedded at build time as JSON.
+ * The page reads ?products=slug1,slug2,... from the URL and renders
+ * the comparison table + AI verdict entirely client-side.
+ */
+
+import Layout from '../../layouts/Layout.astro';
+import Logo from '../../components/Logo.astro';
+import { getProducts, getReviewsForProduct, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
+import type { Product, Media } from '../../lib/payload';
+
+// Fetch all products + reviews at build time
+const allProducts = await getProducts();
+const reviewMap: Record<string, any[]> = {};
+for (const p of allProducts) {
+  reviewMap[p.slug] = await getReviewsForProduct(p.id);
+}
+
+// Serialize product data with image URLs resolved
+const productsData = allProducts.map(p => ({
+  ...p,
+  imageUrl: getMediaUrl(p.image as Media),
+  reviews: reviewMap[p.slug] || [],
+}));
+
+// CMS API base URL — used client-side for the verdict API call
+// In production the CMS is proxied through the same domain (pawlabs.org)
+const cmsBaseUrl = import.meta.env.SITE || 'https://pawlabs.org';
+---
+
+<Layout
+  title="Product Comparison - PawLabs"
+  description="Compare pet products side-by-side. Analyze prices, ratings, features, pros and cons."
+  canonicalUrl="/compare"
+  ogType="article"
+>
+  <!-- Sticky Nav -->
+  <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <a href="/">
+        <Logo width={160} height={40} />
+      </a>
+      <div class="flex items-center gap-6">
+        <a href="/products" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors">Products</a>
+        <a href="/products#compare" class="bg-brand-800 hover:bg-brand-900 text-white text-sm font-semibold py-2 px-5 rounded-xl transition-colors">
+          New Comparison
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="compare-main" class="min-h-screen bg-surface">
+    <!-- Empty state (shown when no products selected or loading) -->
+    <div id="compare-empty" class="text-center py-32">
+      <div class="w-24 h-24 rounded-[2rem] bg-brand-50 text-brand-400 flex items-center justify-center mb-6 border border-brand-100 shadow-xl shadow-brand-100/50 mx-auto">
+        <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+      </div>
+      <h1 class="text-2xl font-bold text-ink mb-3">Select Products to Compare</h1>
+      <p class="text-ink-muted mb-8">Go to the products page and choose products from the same category to compare.</p>
+      <a href="/products#compare" class="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
+        Browse Products →
+      </a>
+    </div>
+
+    <!-- Comparison content (hidden by default, shown by JS) -->
+    <div id="compare-content" class="hidden max-w-7xl mx-auto px-6 py-10">
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <div id="compare-category-badge" class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4"></div>
+        <h1 id="compare-title" class="text-3xl md:text-4xl font-bold text-ink mb-3"></h1>
+        <p class="text-ink-muted">Side-by-side product comparison — which one should you buy?</p>
+      </div>
+
+      <!-- Comparison Table -->
+      <div id="compare-table" class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto"></div>
+
+      <!-- Pros & Cons -->
+      <div id="compare-proscons" class="grid gap-6 mt-8"></div>
+
+      <!-- AI Verdict -->
+      <div id="verdict-section" class="mt-8 rounded-2xl overflow-hidden" style="border: 2px solid #d1d5db; background: #ffffff;">
+        <div class="text-center py-6 px-8" style="background: linear-gradient(135deg, #064e3b, #065f46); border-bottom: 3px solid #10b981;">
+          <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">🏆 The PawLabs Verdict</h2>
+          <p class="text-emerald-200 text-sm">Our take after crunching the numbers — price, ratings, real user feedback, and everything in between</p>
+        </div>
+        <div id="verdict-content" class="p-8 md:p-10">
+          <div id="verdict-loading" class="flex flex-col items-center justify-center py-8">
+            <div class="verdict-spinner mb-4"></div>
+            <p class="text-gray-700 font-medium">Our AI is analyzing all products...</p>
+            <p class="text-gray-400 text-sm mt-1">This takes a few seconds</p>
+          </div>
+          <div id="verdict-result" class="hidden verdict-prose"></div>
+          <div id="verdict-error" class="hidden text-center py-8">
+            <p class="text-red-600 font-medium">Failed to generate verdict</p>
+            <button id="verdict-retry" class="mt-4 text-sm text-emerald-700 underline cursor-pointer hover:text-emerald-900 font-medium">Try Again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review links -->
+      <div id="compare-links" class="grid gap-4 mt-8"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-ink py-10">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <Logo width={120} height={30} variant="white" />
+      <p class="text-gray-500 text-xs">Affiliate Disclosure: We may earn commissions from qualifying purchases.</p>
+    </div>
+  </footer>
+
+  <script is:inline define:vars={{ productsData, categoryLabels: CATEGORY_LABELS, petTypeLabels: PET_TYPE_LABELS, cmsBaseUrl }}>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const slugs = (params.get('products') || '').split(',').filter(Boolean);
+
+      if (slugs.length < 2) return; // show empty state
+
+      // Find matching products
+      const products = slugs
+        .map(slug => productsData.find(p => p.slug === slug))
+        .filter(Boolean);
+
+      if (products.length < 2) return;
+
+      // Verify same category
+      const category = products[0].category;
+      if (!products.every(p => p.category === category)) return;
+
+      // Hide empty state, show content
+      document.getElementById('compare-empty').classList.add('hidden');
+      document.getElementById('compare-content').classList.remove('hidden');
+
+      // Render header
+      const categoryLabel = categoryLabels[category] || category || 'Products';
+      document.getElementById('compare-category-badge').textContent = categoryLabel;
+
+      const titleEl = document.getElementById('compare-title');
+      if (products.length === 2) {
+        titleEl.innerHTML = `${products[0].name} <span class="text-brand-500">vs</span> ${products[1].name}`;
+      } else {
+        titleEl.textContent = `${categoryLabel} — ${products.length}-Way Comparison`;
+      }
+
+      // Render comparison table
+      renderTable(products);
+      renderProsCons(products);
+      renderLinks(products);
+      fetchVerdict(products);
+    });
+
+    function renderStars(rating) {
+      if (rating == null) return '—';
+      const full = Math.floor(rating);
+      const half = rating % 1 >= 0.5 ? 1 : 0;
+      const empty = 5 - full - half;
+      return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+    }
+
+    function renderTable(products) {
+      const container = document.getElementById('compare-table');
+      const prices = products.map(p => p.price).filter(p => p != null);
+      const ratings = products.map(p => p.rating).filter(r => r != null);
+      const bestPrice = prices.length ? Math.min(...prices) : null;
+      const bestRating = ratings.length ? Math.max(...ratings) : null;
+
+      const colW = `140px repeat(${products.length}, 1fr)`;
+
+      // Header row
+      let html = `<div style="display:grid;grid-template-columns:${colW};min-width:${Math.max(500, products.length * 200)}px">`;
+      html += '<div></div>';
+      products.forEach(p => {
+        html += `<div class="p-4 text-center border-b border-gray-100">
+          <div class="w-20 h-20 mx-auto mb-3 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden">
+            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="max-w-full max-h-full object-contain rounded-lg" />` : '<span class="text-3xl opacity-20">📦</span>'}
+          </div>
+          <a href="/products/${p.slug}" class="text-sm font-bold text-gray-900 hover:text-brand-800 transition-colors">${p.name}</a>
+          ${p.price != null ? `<p class="text-lg font-bold text-gray-900 mt-1">$${p.price.toFixed(2)}</p>` : ''}
+          ${p.affiliateUrl ? `<a href="${p.affiliateUrl}" target="_blank" rel="noopener noreferrer nofollow" class="inline-block mt-2 bg-brand-800 hover:bg-brand-900 text-white text-xs font-semibold py-1.5 px-4 rounded-lg transition-colors">Buy Now →</a>` : ''}
+        </div>`;
+      });
+      html += '</div>';
+
+      // Data rows
+      const rows = [
+        { label: 'Price', values: products.map(p => p.price != null ? `$${p.price.toFixed(2)}` : '—'), highlight: products.map(p => p.price != null && p.price === bestPrice) },
+        { label: 'Rating', values: products.map(p => p.rating != null ? `${renderStars(p.rating)} ${p.rating}/5` : '—'), highlight: products.map(p => p.rating != null && p.rating === bestRating) },
+        { label: 'Category', values: products.map(p => categoryLabels[p.category] || p.category || '—'), highlight: products.map(() => false) },
+        { label: 'Pet Type', values: products.map(p => petTypeLabels[p.petType] || p.petType || '—'), highlight: products.map(() => false) },
+        { label: 'Pros', values: products.map(p => p.pros?.map(pr => pr.point).join(' · ') || '—'), highlight: products.map(() => false) },
+        { label: 'Cons', values: products.map(p => p.cons?.map(c => c.point).join(' · ') || '—'), highlight: products.map(() => false) },
+      ];
+
+      html += '<table class="w-full border-collapse">';
+      rows.forEach((row, i) => {
+        html += `<tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}">`;
+        html += `<td class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide w-[140px] align-top">${row.label}</td>`;
+        row.values.forEach((val, j) => {
+          const hl = row.highlight[j] ? 'text-emerald-700 font-semibold bg-emerald-50/60' : 'text-gray-700';
+          html += `<td class="px-4 py-3 text-sm text-center align-top ${hl}">${val}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</table>';
+
+      container.innerHTML = html;
+    }
+
+    function renderProsCons(products) {
+      const container = document.getElementById('compare-proscons');
+      container.style.gridTemplateColumns = `repeat(${Math.min(products.length, 3)}, 1fr)`;
+      let html = '';
+      products.forEach(p => {
+        html += `<div>
+          <h3 class="text-lg font-bold text-ink mb-4">${p.name}</h3>
+          ${p.pros?.length ? `<div class="bg-surface-raised rounded-xl border border-gray-100 p-5 mb-4">
+            <h4 class="text-sm font-semibold text-emerald-700 mb-3">✓ Pros</h4>
+            <ul class="space-y-1.5">${p.pros.map(pr => `<li class="flex items-start gap-2 text-sm text-ink-light"><span class="text-emerald-500 shrink-0">•</span> ${pr.point}</li>`).join('')}</ul>
+          </div>` : ''}
+          ${p.cons?.length ? `<div class="bg-surface-raised rounded-xl border border-gray-100 p-5">
+            <h4 class="text-sm font-semibold text-red-700 mb-3">✗ Cons</h4>
+            <ul class="space-y-1.5">${p.cons.map(c => `<li class="flex items-start gap-2 text-sm text-ink-light"><span class="text-red-500 shrink-0">•</span> ${c.point}</li>`).join('')}</ul>
+          </div>` : ''}
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderLinks(products) {
+      const container = document.getElementById('compare-links');
+      container.style.gridTemplateColumns = `repeat(${Math.min(products.length, 3)}, 1fr)`;
+      container.innerHTML = products.map(p =>
+        `<a href="/products/${p.slug}" class="card-hover bg-surface-raised rounded-xl border border-gray-100 p-5 flex items-center gap-4">
+          <span class="text-3xl">📖</span>
+          <div>
+            <p class="font-bold text-ink">${p.name}</p>
+            <p class="text-sm text-brand-800">Read Full Review →</p>
+          </div>
+        </a>`
+      ).join('');
+    }
+
+    function fetchVerdict(products) {
+      const loading = document.getElementById('verdict-loading');
+      const result = document.getElementById('verdict-result');
+      const error = document.getElementById('verdict-error');
+      const retryBtn = document.getElementById('verdict-retry');
+
+      async function doFetch() {
+        loading.classList.remove('hidden');
+        result.classList.add('hidden');
+        error.classList.add('hidden');
+
+        try {
+          const productSlugs = products.map(p => p.slug).filter(Boolean);
+          const res = await fetch(`${cmsBaseUrl}/api/ai/verdict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ products, slugs: productSlugs }),
+          });
+          if (!res.ok) throw new Error(`API error: ${res.status}`);
+          const data = await res.json();
+          if (data.success && data.verdict) {
+            result.innerHTML = data.verdict;
+            loading.classList.add('hidden');
+            result.classList.remove('hidden');
+          } else {
+            throw new Error(data.error || 'Unknown error');
+          }
+        } catch (err) {
+          console.error('Verdict error:', err);
+          loading.classList.add('hidden');
+          error.classList.remove('hidden');
+        }
+      }
+
+      retryBtn?.addEventListener('click', doFetch);
+      doFetch();
+    }
+  </script>
+</Layout>
+
+<style>
+  .verdict-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #10b981;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .verdict-prose h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #064e3b;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #d1fae5;
+  }
+  .verdict-prose h3:first-child { margin-top: 0; }
+  .verdict-prose p {
+    color: #374151;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .verdict-prose strong {
+    color: #065f46;
+    font-weight: 700;
+  }
+</style>

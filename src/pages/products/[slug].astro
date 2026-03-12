@@ -16,6 +16,7 @@ export async function getStaticPaths() {
 
 const { product } = Astro.props as { product: Product };
 const reviews = await getReviewsForProduct(product.id);
+const allProducts = (await getProducts()).filter(p => p.slug !== product.slug && p.category === product.category);
 const imageUrl = getMediaUrl(product.image as Media);
 const categoryLabel = product.category ? CATEGORY_LABELS[product.category] ?? product.category : null;
 const subcategoryLabel = (product.category && product.subcategory) ? getSubcategoryLabel(product.category, product.subcategory) : null;
@@ -37,7 +38,6 @@ function renderStars(rating: number | undefined): string {
   return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
 }
 
-// Hierarchical breadcrumbs: Home > Category > Subcategory > Product
 const breadcrumbs = [
   { label: '🐾 Home', href: '/' },
   { label: 'Products', href: '/products' },
@@ -57,83 +57,85 @@ const breadcrumbs = [
   publishedTime={product.createdAt}
   modifiedTime={product.updatedAt}
 >
-  <!-- Sticky Nav -->
-  <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-      <a href="/">
-        <Logo width={160} height={40} />
+  <!-- Glass Nav -->
+  <nav class="glass-light fixed top-0 left-0 right-0 z-50 border-b border-white/30">
+    <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <a href="/" class="hover:opacity-80 transition-opacity">
+        <Logo width={150} height={38} />
       </a>
-      <div class="flex items-center gap-6">
-        <a href="/products" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors">Products</a>
-        <a href="/products" class="bg-brand-800 hover:bg-brand-900 text-white text-sm font-semibold py-2 px-5 rounded-xl transition-colors">
+      <div class="flex items-center gap-5">
+        <a href="/products" class="text-ink-light text-sm font-medium hover:text-brand-700 transition-colors">Products</a>
+        <a href="/products" class="btn-shimmer bg-brand-800 hover:bg-brand-900 text-white text-sm font-semibold py-2.5 px-6 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-brand-800/25">
           Browse All
         </a>
       </div>
     </div>
   </nav>
 
-  <Breadcrumbs items={breadcrumbs} />
+  <div class="pt-16">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
 
   <main class="min-h-screen bg-surface">
-    <div class="max-w-6xl mx-auto px-6 py-10">
-      <!-- Product Header -->
-      <div class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 py-10">
+      <!-- Product Header Card -->
+      <div class="glass-card rounded-3xl overflow-hidden reveal">
         <div class="grid md:grid-cols-2 gap-0">
           <!-- Product Image -->
-          <div class="bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-10 min-h-[320px]">
+          <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 flex items-center justify-center min-h-[350px] md:min-h-[450px] overflow-hidden relative">
             {imageUrl ? (
-              <img src={imageUrl} alt={product.name} class="max-w-full max-h-80 object-contain rounded-lg" />
+              <img src={imageUrl} alt={product.name} class="w-full h-full object-cover" />
             ) : (
-              <div class="text-8xl opacity-30">📦</div>
+              <div class="text-9xl opacity-10">📦</div>
+            )}
+            {product.featured && (
+              <div class="absolute top-4 left-4">
+                <span class="badge bg-amber-400 text-amber-900 shadow-lg shadow-amber-200/50">⭐ Featured</span>
+              </div>
             )}
           </div>
 
           <!-- Product Info -->
-          <div class="p-8 flex flex-col justify-center">
-            <div class="flex flex-wrap gap-2 mb-3">
+          <div class="p-8 md:p-10 flex flex-col justify-center">
+            <div class="flex flex-wrap gap-2 mb-4">
               {categoryLabel && (
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-50 text-brand-800">
+                <span class="badge bg-brand-50 text-brand-800">
                   {categoryLabel}
                 </span>
               )}
               {subcategoryLabel && (
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-50 text-teal-700">
+                <span class="badge bg-teal-50 text-teal-700">
                   {subcategoryLabel}
                 </span>
               )}
               {animalTypes && animalTypes.length > 0 ? (
                 animalTypes.map((type) => (
-                  <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                  <span class="badge bg-emerald-50 text-emerald-700">
                     🐾 {PET_TYPE_LABELS[type] ?? type}
                   </span>
                 ))
               ) : petTypeLabel && (
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                <span class="badge bg-emerald-50 text-emerald-700">
                   🐾 {petTypeLabel}
-                </span>
-              )}
-              {product.featured && (
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">
-                  ⭐ Featured
                 </span>
               )}
             </div>
 
-            <h1 class="text-3xl font-bold text-ink mb-3">{product.name}</h1>
+            <h1 class="display-heading text-3xl md:text-4xl text-ink mb-4">{product.name}</h1>
 
             {product.rating != null && (
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-xl text-amber-500">{renderStars(product.rating)}</span>
-                <span class="text-sm text-ink-muted font-medium">{product.rating}/5</span>
+              <div class="flex items-center gap-3 mb-5">
+                <span class="text-2xl text-amber-500">{renderStars(product.rating)}</span>
+                <span class="text-ink-muted font-medium">{product.rating}/5</span>
               </div>
             )}
 
             {product.shortDescription && (
-              <p class="text-ink-light mb-6 leading-relaxed">{product.shortDescription}</p>
+              <p class="text-ink-light mb-7 leading-relaxed text-lg">{product.shortDescription}</p>
             )}
 
             {product.price != null && (
-              <p class="text-3xl font-bold text-ink mb-6">${product.price.toFixed(2)}</p>
+              <p class="text-4xl font-bold text-ink mb-7 display-heading">${product.price.toFixed(2)}</p>
             )}
 
             {product.affiliateUrl && (
@@ -141,7 +143,7 @@ const breadcrumbs = [
                 href={product.affiliateUrl}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                class="inline-flex items-center justify-center gap-2 bg-brand-800 hover:bg-brand-900 text-white font-semibold py-3.5 px-8 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-brand-200 text-lg"
+                class="btn-shimmer inline-flex items-center justify-center gap-2 bg-brand-800 hover:bg-brand-900 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 hover:shadow-xl hover:shadow-brand-800/30 text-lg self-start"
               >
                 Check Price on Amazon →
               </a>
@@ -154,32 +156,32 @@ const breadcrumbs = [
       {(product.pros?.length || product.cons?.length) && (
         <div class="grid md:grid-cols-2 gap-6 mt-8">
           {product.pros?.length && (
-            <div class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 class="text-lg font-bold text-emerald-700 mb-4 flex items-center gap-2">
-                <span class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-sm">✓</span>
+            <div class="glass-card rounded-3xl p-7 reveal reveal-delay-1">
+              <h2 class="text-lg font-bold text-emerald-700 mb-5 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-lg">✓</span>
                 What We Love
               </h2>
-              <ul class="space-y-2.5">
+              <ul class="space-y-3">
                 {product.pros.map((pro) => (
-                  <li class="flex items-start gap-2.5 text-ink-light">
-                    <span class="text-emerald-500 mt-0.5 shrink-0 font-bold">+</span>
-                    {pro.point}
+                  <li class="flex items-start gap-3 text-ink-light">
+                    <span class="text-emerald-500 mt-0.5 shrink-0 font-bold text-lg">+</span>
+                    <span class="leading-relaxed">{pro.point}</span>
                   </li>
                 ))}
               </ul>
             </div>
           )}
           {product.cons?.length && (
-            <div class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 class="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
-                <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-sm">✗</span>
+            <div class="glass-card rounded-3xl p-7 reveal reveal-delay-2">
+              <h2 class="text-lg font-bold text-red-700 mb-5 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-lg">✗</span>
                 Watch Out For
               </h2>
-              <ul class="space-y-2.5">
+              <ul class="space-y-3">
                 {product.cons.map((con) => (
-                  <li class="flex items-start gap-2.5 text-ink-light">
-                    <span class="text-red-500 mt-0.5 shrink-0 font-bold">−</span>
-                    {con.point}
+                  <li class="flex items-start gap-3 text-ink-light">
+                    <span class="text-red-500 mt-0.5 shrink-0 font-bold text-lg">−</span>
+                    <span class="leading-relaxed">{con.point}</span>
                   </li>
                 ))}
               </ul>
@@ -190,58 +192,53 @@ const breadcrumbs = [
 
       <!-- Full Review Body -->
       {product.reviewBody && (
-        <article class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 p-8 md:p-10 mt-8">
-          <div class="prose prose-lg max-w-none
-            prose-headings:text-ink prose-headings:font-bold
-            prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
-            prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
-            prose-p:text-ink-light prose-p:leading-relaxed prose-p:mb-4
-            prose-strong:text-ink
-            prose-a:text-brand-800 prose-a:underline hover:prose-a:text-brand-600"
-            set:html={product.reviewBody}
-          />
+        <article class="glass-card rounded-3xl p-8 md:p-12 mt-8 reveal reveal-delay-3">
+          <div class="review-prose max-w-none" set:html={product.reviewBody} />
         </article>
       )}
 
       <!-- CTA Section -->
       {product.affiliateUrl && (
-        <div class="bg-brand-950 rounded-2xl p-8 md:p-10 mt-8 text-center">
-          <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">
-            Ready to Buy the {product.name}?
-          </h2>
-          <p class="text-teal-200 mb-6 max-w-xl mx-auto">
-            Get the best price and free shipping. We earn a small commission at no extra cost to you — it helps us keep reviewing products!
-          </p>
-          <a
-            href={product.affiliateUrl}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            class="inline-flex items-center justify-center gap-2 bg-white text-brand-800 font-bold py-4 px-10 rounded-2xl text-lg transition-all duration-200 hover:shadow-2xl hover:shadow-white/20 hover:scale-105"
-          >
-            Check Price on Amazon →
-          </a>
-          {product.price != null && (
-            <p class="text-teal-300 text-sm mt-4">Current price: ${product.price.toFixed(2)}</p>
-          )}
+        <div class="relative rounded-3xl overflow-hidden mt-8 grain reveal">
+          <div class="absolute inset-0 hero-gradient"></div>
+          <div class="relative z-10 p-8 md:p-12 text-center">
+            <h2 class="display-heading text-3xl md:text-4xl text-white mb-4">
+              Ready to Buy the {product.name}?
+            </h2>
+            <p class="text-teal-100/70 mb-8 max-w-xl mx-auto text-lg font-light">
+              Get the best price and free shipping. We earn a small commission at no extra cost to you — it helps us keep reviewing products!
+            </p>
+            <a
+              href={product.affiliateUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              class="btn-shimmer inline-flex items-center justify-center gap-2 bg-white text-brand-800 font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-white/20 hover:scale-[1.03]"
+            >
+              Check Price on Amazon →
+            </a>
+            {product.price != null && (
+              <p class="text-teal-200/60 text-sm mt-5">Current price: ${product.price.toFixed(2)}</p>
+            )}
+          </div>
         </div>
       )}
 
       <!-- CMS Reviews -->
       {reviews.length > 0 && (
-        <div class="mt-10">
-          <h2 class="text-2xl font-bold text-ink mb-6">Community Reviews</h2>
-          <div class="space-y-4">
+        <div class="mt-12 reveal">
+          <h2 class="display-heading text-3xl text-ink mb-8">Community Reviews</h2>
+          <div class="space-y-5">
             {reviews.map((review) => (
-              <div class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-start justify-between mb-3">
+              <div class="glass-card rounded-3xl p-7">
+                <div class="flex items-start justify-between mb-4">
                   <div>
-                    <h3 class="text-lg font-semibold text-ink">{review.title}</h3>
+                    <h3 class="text-lg font-bold text-ink">{review.title}</h3>
                     {review.author && (
-                      <p class="text-sm text-ink-muted">by {review.author}</p>
+                      <p class="text-sm text-ink-muted mt-0.5">by {review.author}</p>
                     )}
                   </div>
                   {review.overallRating != null && (
-                    <span class="text-amber-500 font-medium">{renderStars(review.overallRating)}</span>
+                    <span class="text-amber-500 font-medium text-lg">{renderStars(review.overallRating)}</span>
                   )}
                 </div>
                 {review.summary && (
@@ -255,9 +252,32 @@ const breadcrumbs = [
     </div>
   </main>
 
+  <!-- Compare With Section -->
+  {allProducts.length > 0 && (
+    <section class="bg-white py-16 border-t border-surface relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="mb-8 reveal">
+          <h2 class="display-heading text-2xl md:text-3xl text-ink mb-2">Compare {product.name} With</h2>
+          <p class="text-ink-muted font-medium">See how it stacks up against other products in our catalog.</p>
+        </div>
+        <div class="flex flex-wrap gap-3 reveal reveal-delay-1">
+          {allProducts.map((other) => (
+            <a
+              href={`/compare?products=${product.slug},${other.slug}`}
+              class="compare-product-pill inline-flex items-center gap-2.5 glass-card rounded-2xl px-5 py-3 text-sm font-semibold text-ink hover:text-brand-700 hover:border-brand-200"
+            >
+              <svg class="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+              vs {other.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- Footer -->
-  <footer class="bg-ink py-10">
-    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+  <footer class="bg-ink py-12">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <Logo width={120} height={30} variant="white" />
       <p class="text-gray-500 text-xs">
         Affiliate Disclosure: We may earn commissions from qualifying purchases.

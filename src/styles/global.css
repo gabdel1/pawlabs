@@ -1,61 +1,318 @@
 @import "tailwindcss";
 
-/* Custom fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* 2026 CSS Awards Design System — PawLabs 
+   Editorial typography, ultra-refined spacing, 
+   glassmorphism details, and silky-smooth micro-interactions. */
 
+/* Using localized Google Fonts links in Layout.astro */
 @theme {
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
 
-  /* Teal palette — derived from logo #1A535C */
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-200: #99f6e4;
-  --color-brand-300: #5eead4;
-  --color-brand-400: #2dd4bf;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-brand-800: #1A535C;
-  --color-brand-900: #134e4a;
-  --color-brand-950: #0c312f;
+  /* Elevated Deep Emerald & Chartreuse accents */
+  --color-brand-50: #F2FDF8;
+  --color-brand-100: #DEFAF0;
+  --color-brand-200: #BFF3DE;
+  --color-brand-300: #93EAC7;
+  --color-brand-400: #62D7AA;
+  --color-brand-500: #3ABF8E;
+  --color-brand-600: #26996F;
+  --color-brand-700: #207A5B;
+  --color-brand-800: #1C614A;
+  --color-brand-900: #18503E;
+  --color-brand-950: #06281D;
 
-  /* Charcoal — from logo #2F3542 */
-  --color-ink: #2F3542;
-  --color-ink-light: #57606f;
-  --color-ink-muted: #747d8c;
+  /* Midnight Obsidian (replaces Ink) */
+  --color-ink: #0A0F1A;
+  --color-ink-light: #2A3649;
+  --color-ink-muted: #5A6982;
 
-  /* Accent warm — paw pad highlight */
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #f59e0b;
+  /* Accent — Vivid Lime/Chartreuse */
+  --color-accent-300: #D4FF59;
+  --color-accent-400: #C2F030;
+  --color-accent-500: #A2D600;
 
-  --color-surface: #f8fafa;
-  --color-surface-raised: #ffffff;
+  /* Ultra-clean Surfaces */
+  --color-surface: #F8F9FA;
+  --color-surface-raised: #FFFFFF;
 }
 
-/* Smooth scrolling */
+/* ─── Base ─────────────────────────────────── */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-surface);
 }
 
-/* Hero gradient — teal dark to teal light */
+body {
+  overflow-x: hidden;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* ─── Typography & Display ─────────────────── */
+.display-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* ─── Hero Gradients (Refined Asymmetry) ───── */
 .hero-gradient {
-  background: linear-gradient(135deg, #0c312f 0%, #1A535C 35%, #0f766e 65%, #14b8a6 100%);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(38, 153, 111, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(194, 240, 48, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(20, 122, 91, 0.1) 0%, transparent 80%),
+    linear-gradient(145deg, #FFFFFF 0%, #F2FDF8 60%, #E6FAEE 100%);
 }
 
-/* Subtle card hover lift */
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.subtle-bg-glow {
+  background: 
+    radial-gradient(circle at 50% -20%, rgba(38, 153, 111, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #F8F9FA 0%, #FFFFFF 100%);
 }
+
+/* ─── Glassmorphism Details ────────────────── */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 4px 24px -6px rgba(10, 15, 26, 0.08),
+    0 1px 2px rgba(10, 15, 26, 0.02);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(10, 15, 26, 0.04);
+  box-shadow:
+    0 1px 3px rgba(10, 15, 26, 0.02),
+    0 10px 40px -10px rgba(10, 15, 26, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-dark {
+  background: rgba(10, 15, 26, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Card Interactions ────────────────────── */
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px rgba(26, 83, 92, 0.15);
+  transform: translateY(-8px) scale(1.01);
+  box-shadow:
+    0 24px 48px -12px rgba(10, 15, 26, 0.12),
+    0 4px 12px rgba(10, 15, 26, 0.04);
+  border-color: rgba(38, 153, 111, 0.1);
 }
 
-/* Pulsing dot animation */
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+.card-hover:hover .icon-layer {
+  transform: scale(1.1) rotate(-5deg);
+  color: var(--color-brand-600);
 }
-.animate-pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
+
+.card-hover:hover .image-layer {
+  transform: scale(1.08);
+}
+
+/* ─── Text & Badge Highlights ──────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #BFF3DE 0%, #C2F030 50%, #62D7AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.badge {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.3s ease;
+}
+
+/* ─── Custom Interactions ──────────────────── */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--color-brand-600);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Modern Button Shimmer */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.2),
+    transparent
+  );
+  transition: left 0.6s ease;
+  z-index: -1;
+}
+.btn-primary:hover::before {
+  left: 100%;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px var(--color-brand-700);
+}
+
+/* ─── Sleek Animations ─────────────────────── */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0; /* Keep hidden until JS/animation kicks in */
+  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.reveal-delay-1 { animation-delay: 0.1s; }
+.reveal-delay-2 { animation-delay: 0.2s; }
+.reveal-delay-3 { animation-delay: 0.3s; }
+.reveal-delay-4 { animation-delay: 0.4s; }
+.reveal-delay-5 { animation-delay: 0.5s; }
+.reveal-delay-6 { animation-delay: 0.6s; }
+
+/* ─── Noise Texture Overlay (Refined) ──────── */
+.noise {
+  position: relative;
+}
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.02;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Decorative Orbs */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+.animate-orb {
+  animation: floatOrb 10s ease-in-out infinite;
+}
+
+/* Prose/Review Overrides */
+.review-prose {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  line-height: 1.8;
+  font-size: 1.125rem;
+}
+.review-prose h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-size: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 1.25rem;
+  color: var(--color-ink);
+}
+.review-prose p {
+  margin-bottom: 1.5rem;
+  color: var(--color-ink-light);
+}
+.review-prose a {
+  color: var(--color-brand-600);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: all 0.2s ease;
+}
+.review-prose a:hover {
+  text-decoration-color: transparent;
+  background: var(--color-brand-50);
+}
+
+/* ─── Compare Mode ─────────────────────────── */
+.compare-toggle-btn.compare-active {
+  background: var(--color-brand-600);
+  color: white;
+  border-color: var(--color-brand-600);
+  box-shadow: 0 4px 16px -4px rgba(38, 153, 111, 0.4);
+}
+
+.compare-toggle-btn.compare-active:hover {
+  background: #c0392b;
+  border-color: #c0392b;
+}
+
+.compare-bar {
+  will-change: transform;
+}
+
+/* Glass variants */
+.glass-light {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+.glass-card-border-top {
+  border-top: 1px solid rgba(10, 15, 26, 0.04);
+}
+
+/* ─── Compare With Section ─────────────────── */
+.compare-product-pill {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.compare-product-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px rgba(10, 15, 26, 0.12);
 }

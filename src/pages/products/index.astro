@@ -5,111 +5,162 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getProducts, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS, getSubcategoryLabel } from '../../lib/payload';
 import type { Media } from '../../lib/payload';
 import { productsListJsonLd } from '../../lib/seo';
+import { 
+  Search, ChevronRight, Star, StarHalf, PackageSearch 
+} from 'lucide-astro';
 
 const products = await getProducts();
 
-function renderStars(rating: number | undefined): string {
-  if (rating == null) return '';
-  const full = Math.floor(rating);
-  const half = rating % 1 >= 0.5 ? 1 : 0;
-  const empty = 5 - full - half;
-  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
-}
 
 const breadcrumbs = [
-  { label: '🐾 Home', href: '/' },
-  { label: 'Products' },
+  { label: 'Home', href: '/' },
+  { label: 'Catalog' },
 ];
 ---
 
 <Layout
-  title="All Pet Products - PawLabs Reviews & Comparisons"
+  title="Complete Catalog - PawLabs Reviews & Comparisons"
   description="Browse expert reviews of the best pet products — smart gadgets, wellness, security, food, and more for dogs, cats, and all pets."
   canonicalUrl="/products"
   ogType="website"
   jsonLd={productsListJsonLd(products)}
 >
-  <!-- Sticky Nav -->
-  <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-      <a href="/">
-        <Logo width={160} height={40} />
-      </a>
-      <div class="flex items-center gap-6">
-        <a href="/products" class="text-brand-800 text-sm font-semibold">Products</a>
-        <a href="/#categories" class="text-ink-light text-sm font-medium hover:text-brand-800 transition-colors hidden sm:inline">Categories</a>
+  <!-- Floating Pill Navigation -->
+  <nav class="fixed top-6 left-0 right-0 z-50 flex justify-center px-6 pointer-events-none">
+    <div class="glass-pill px-2 py-2 pr-6 rounded-full flex items-center justify-between w-full max-w-5xl pointer-events-auto">
+      <div class="flex items-center gap-8 pl-4">
+        <a href="/" class="hover:opacity-80 transition-opacity">
+          <Logo width={130} height={32} />
+        </a>
       </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/products" class="nav-link text-brand-700 text-sm font-bold tracking-wide">Products</a>
+        <a href="/#categories" class="nav-link text-ink text-sm font-semibold tracking-wide">Categories</a>
+        <a href="/products" class="nav-link text-ink text-sm font-semibold tracking-wide">Reviews</a>
+      </div>
+      <a href="/products" class="btn-primary bg-ink text-white text-sm font-bold py-3 px-7 rounded-full transition-transform ml-4">
+        Browse All
+      </a>
     </div>
   </nav>
 
-  <Breadcrumbs items={breadcrumbs} />
+  <main class="min-h-screen bg-surface noise pt-36">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <div class="mb-12 reveal">
+        <Breadcrumbs items={breadcrumbs} />
+      </div>
 
-  <main class="min-h-screen bg-surface">
-    <div class="max-w-6xl mx-auto px-6 py-10">
-      <h1 class="text-3xl md:text-4xl font-bold text-ink mb-2">All Products</h1>
-      <p class="text-ink-muted mb-8">Expert reviews and honest comparisons — {products.length} product{products.length !== 1 ? 's' : ''} reviewed.</p>
+      <div class="mb-16 reveal reveal-delay-1 flex xl:items-end xl:justify-between flex-col xl:flex-row gap-6">
+        <div>
+          <h1 class="display-heading text-5xl md:text-6xl text-ink mb-4 text-balance">Complete Catalog</h1>
+          <p class="text-ink-muted text-lg max-w-2xl text-pretty font-medium">Impartial analysis and comparative data across {products.length} superior selections in pet equipment.</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <button
+            id="compare-toggle"
+            class="compare-toggle-btn inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold transition-all duration-300 border border-ink/10 bg-white text-ink hover:border-brand-500 hover:text-brand-700 cursor-pointer"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            <span>Compare</span>
+          </button>
+          <div class="glass flex items-center gap-3 px-4 py-3 rounded-2xl w-full max-w-xs border border-ink/10 bg-white">
+            <Search class="w-5 h-5 text-ink-muted" />
+            <input type="text" placeholder="Search catalog..." class="bg-transparent border-none outline-none font-medium text-ink w-full placeholder:text-ink-muted/50" />
+          </div>
+        </div>
+      </div>
 
       {products.length === 0 ? (
-        <div class="text-center py-20">
-          <p class="text-6xl mb-4">📦</p>
-          <p class="text-ink-muted text-lg">No products yet. Add some in the <a href="/admin" class="text-brand-800 underline">CMS admin</a>.</p>
+        <div class="text-center py-32 reveal flex flex-col items-center justify-center">
+          <div class="w-24 h-24 rounded-[2rem] bg-brand-50 text-brand-400 flex items-center justify-center mb-6 border border-brand-100 shadow-xl shadow-brand-100/50">
+            <PackageSearch class="w-12 h-12" />
+          </div>
+          <p class="text-ink-muted text-xl mb-8 font-medium">The catalog is currently being updated.</p>
+          <a href="/admin" class="btn-primary inline-flex items-center justify-center gap-2 bg-ink text-white font-bold py-4 px-10 rounded-full text-base transition-all duration-300">
+            Access CMS Admin <ChevronRight class="w-5 h-5" />
+          </a>
         </div>
       ) : (
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => {
+        <div id="products-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+          {products.map((product, i) => {
             const imgUrl = getMediaUrl(product.image as Media);
             const categoryLabel = product.category ? CATEGORY_LABELS[product.category] : null;
-            const subcategoryLabel = (product.category && product.subcategory) ? getSubcategoryLabel(product.category, product.subcategory) : null;
             const animalTypes = (product as any).animalTypes as string[] | undefined;
+            
             return (
-              <a href={`/products/${product.slug}`} class="card-hover group bg-surface-raised rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6 min-h-[180px]">
-                  {imgUrl ? (
-                    <img src={imgUrl} alt={product.name} class="max-w-full max-h-36 object-contain rounded-lg group-hover:scale-105 transition-transform duration-200" />
-                  ) : (
-                    <div class="text-6xl opacity-15 group-hover:opacity-25 transition-opacity">📦</div>
-                  )}
-                </div>
-                <div class="p-5">
-                  <div class="flex flex-wrap gap-1.5 mb-2">
-                    {categoryLabel && (
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-800">
-                        {categoryLabel}
-                      </span>
-                    )}
-                    {subcategoryLabel && (
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">
-                        {subcategoryLabel}
-                      </span>
-                    )}
-                    {animalTypes && animalTypes.map((type) => (
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-                        {PET_TYPE_LABELS[type] ?? type}
-                      </span>
-                    ))}
-                    {product.featured && (
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
-                        ⭐ Featured
-                      </span>
-                    )}
+              <div class={`product-card-wrapper relative reveal reveal-delay-${Math.min((i % 3) + 1, 4)}`} data-slug={product.slug} data-name={product.name} data-category={product.category || ''}>
+                {/* Compare checkbox overlay — hidden by default */}
+                <button
+                  class="compare-checkbox absolute top-4 right-4 z-30 w-10 h-10 rounded-xl border-2 border-brand-300 bg-white/90 backdrop-blur-md flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 cursor-pointer hover:border-brand-600 hover:scale-110 shadow-lg"
+                  aria-label={`Select ${product.name} for comparison`}
+                >
+                  <svg class="check-icon w-5 h-5 text-white opacity-0 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </button>
+
+                <a href={`/products/${product.slug}`} class="product-card-link card-hover group glass-card rounded-[2rem] overflow-hidden border-transparent hover:border-brand-200 block">
+                  <div class="relative bg-surface aspect-[4/3] overflow-hidden p-6 flex flex-col justify-between">
+                    {/* Badges Top layer */}
+                    <div class="flex flex-wrap gap-2 relative z-10">
+                      {categoryLabel && (
+                        <span class="badge bg-white/80 backdrop-blur-md text-ink-light border border-white/50 shadow-sm shadow-ink/5">
+                          {categoryLabel}
+                        </span>
+                      )}
+                      {product.featured && (
+                        <span class="badge bg-accent-400/90 backdrop-blur-md text-ink font-bold border border-accent-300 shadow-sm">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Image Layer */}
+                    <div class="absolute inset-0 image-layer transition-transform duration-700 ease-out flex items-center justify-center p-8 bg-gradient-to-br from-brand-50 to-white">
+                      {imgUrl ? (
+                        <img src={imgUrl} alt={product.name} class="w-full h-full object-contain filter drop-shadow-2xl mix-blend-multiply" loading="lazy" />
+                      ) : (
+                        <div class="text-7xl opacity-5"><PackageSearch class="w-16 h-16"/></div>
+                      )}
+                    </div>
                   </div>
-                  <h2 class="font-bold text-ink group-hover:text-brand-800 transition-colors mb-1">
-                    {product.name}
-                  </h2>
-                  {product.rating != null && (
-                    <p class="text-sm text-amber-500 mb-1">{renderStars(product.rating)} <span class="text-ink-muted text-xs">{product.rating}/5</span></p>
-                  )}
-                  {product.shortDescription && (
-                    <p class="text-sm text-ink-muted line-clamp-2 mb-3">{product.shortDescription}</p>
-                  )}
-                  <div class="flex items-center justify-between">
-                    {product.price != null && (
-                      <span class="text-lg font-bold text-ink">${product.price.toFixed(2)}</span>
+
+                  <div class="p-8 bg-white glass-card-border-top relative z-20">
+                    <h2 class="font-display font-bold text-ink text-xl group-hover:text-brand-700 transition-colors mb-2 leading-tight">
+                      {product.name}
+                    </h2>
+                    
+                    <div class="flex items-center gap-3 mb-4">
+                      {product.rating != null && (
+                        <div class="flex items-center gap-2">
+                          <div class="flex items-center gap-0.5 text-accent-500">
+                            {Array.from({ length: Math.floor(product.rating) }).map(() => <Star class="w-4 h-4 fill-current" />)}
+                            {product.rating % 1 >= 0.5 && <StarHalf class="w-4 h-4 fill-current" />}
+                            {Array.from({ length: 5 - Math.floor(product.rating) - (product.rating % 1 >= 0.5 ? 1 : 0) }).map(() => <Star class="w-4 h-4 text-gray-300" />)}
+                          </div>
+                          <span class="font-bold text-ink-light text-sm">{product.rating.toFixed(1)}</span>
+                        </div>
+                      )}
+                      {animalTypes && animalTypes.map((type) => (
+                        <span class="text-xs font-bold text-ink-muted uppercase tracking-widest px-2 border-l border-surface">
+                          {PET_TYPE_LABELS[type] ?? type}
+                        </span>
+                      ))}
+                    </div>
+
+                    {product.shortDescription && (
+                      <p class="text-sm text-ink-muted line-clamp-2 mb-6 text-pretty">{product.shortDescription}</p>
                     )}
-                    <span class="text-xs text-brand-800 font-medium group-hover:underline">Read Review →</span>
+                    
+                    <div class="flex items-center justify-between pt-4 border-t border-surface">
+                      {product.price != null && (
+                        <span class="text-2xl font-bold font-display text-ink tracking-tight">${product.price.toFixed(2)}</span>
+                      )}
+                      <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface text-brand-700 group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
+                        <ChevronRight class="w-5 h-5" />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </a>
+                </a>
+              </div>
             );
           })}
         </div>
@@ -117,13 +168,190 @@ const breadcrumbs = [
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-ink py-10">
-    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-      <Logo width={120} height={30} variant="white" />
-      <p class="text-gray-500 text-xs">
-        Affiliate Disclosure: We may earn commissions from qualifying purchases.
+  <!-- Sticky Compare Bar (hidden by default) -->
+  <div id="compare-bar" class="compare-bar fixed bottom-0 left-0 right-0 z-50 translate-y-full transition-transform duration-500 ease-out pointer-events-none">
+    <div class="max-w-5xl mx-auto px-6 pb-6">
+      <div class="glass-pill rounded-2xl px-6 py-4 flex items-center justify-between gap-6 shadow-2xl shadow-ink/20 pointer-events-auto border !border-brand-200">
+        <div class="flex items-center gap-4 min-w-0 overflow-hidden">
+          <div class="flex items-center gap-2 shrink-0">
+            <svg class="w-5 h-5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            <span id="compare-count" class="font-bold text-ink text-sm">0 selected</span>
+          </div>
+          <div id="compare-pills" class="flex items-center gap-2 flex-wrap min-w-0"></div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <button id="compare-clear" class="text-sm font-medium text-ink-muted hover:text-red-600 transition-colors cursor-pointer">Clear</button>
+          <a id="compare-go-btn" href="#" class="compare-go-btn inline-flex items-center gap-2 bg-brand-600 text-white font-bold text-sm py-3 px-6 rounded-xl transition-all duration-300 opacity-50 pointer-events-none hover:bg-brand-700 hover:shadow-lg">
+            Compare Now
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modern Simple Footer -->
+  <footer class="bg-surface py-16 border-t border-ink/5 relative z-10">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      <Logo width={140} height={34} />
+      <p class="text-ink-muted text-sm font-medium">
+        &copy; {new Date().getFullYear()} PawLabs. Affiliate Disclosure: We may earn commissions.
       </p>
     </div>
   </footer>
+
+  <!-- Compare Mode Script -->
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('compare-toggle');
+      const bar = document.getElementById('compare-bar');
+      const pillsContainer = document.getElementById('compare-pills');
+      const countLabel = document.getElementById('compare-count');
+      const goBtn = document.getElementById('compare-go-btn');
+      const clearBtn = document.getElementById('compare-clear');
+      const cards = document.querySelectorAll('.product-card-wrapper');
+      const checkboxes = document.querySelectorAll('.compare-checkbox');
+
+      let compareMode = false;
+      let selected = []; // { slug, name, category }
+      let lockedCategory = null;
+
+      function activateCompareMode() {
+        compareMode = true;
+        toggle.classList.add('compare-active');
+        toggle.querySelector('span').textContent = 'Exit Compare';
+        checkboxes.forEach(cb => {
+          cb.classList.remove('opacity-0', 'pointer-events-none');
+          cb.classList.add('opacity-100');
+        });
+        bar.classList.remove('translate-y-full');
+        updateUI();
+      }
+
+      function deactivateCompareMode() {
+        compareMode = false;
+        toggle.classList.remove('compare-active');
+        toggle.querySelector('span').textContent = 'Compare';
+        checkboxes.forEach(cb => {
+          cb.classList.add('opacity-0', 'pointer-events-none');
+          cb.classList.remove('opacity-100');
+        });
+        bar.classList.add('translate-y-full');
+        selected = [];
+        lockedCategory = null;
+        updateUI();
+      }
+
+      function updateUI() {
+        // Determine locked category
+        lockedCategory = selected.length > 0 ? selected[0].category : null;
+
+        // Update count label
+        countLabel.textContent = selected.length === 0
+          ? 'Select products'
+          : `${selected.length} selected`;
+
+        // Update pills
+        pillsContainer.innerHTML = '';
+        selected.forEach(s => {
+          const pill = document.createElement('span');
+          pill.className = 'inline-flex items-center gap-1 text-xs font-semibold text-brand-800 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-lg';
+          // Truncate long names
+          const shortName = s.name.length > 25 ? s.name.substring(0, 22) + '…' : s.name;
+          pill.textContent = shortName;
+          pillsContainer.appendChild(pill);
+        });
+
+        // Update go button — need at least 2 products
+        if (selected.length >= 2) {
+          const slugs = selected.map(s => s.slug).join(',');
+          goBtn.href = `/compare?products=${slugs}`;
+          goBtn.classList.remove('opacity-50', 'pointer-events-none');
+        } else {
+          goBtn.href = '#';
+          goBtn.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+        // Update card visuals — category filtering + selection state
+        cards.forEach(card => {
+          const slug = card.dataset.slug;
+          const category = card.dataset.category;
+          const checkbox = card.querySelector('.compare-checkbox');
+          const checkIcon = checkbox.querySelector('.check-icon');
+          const isSelected = selected.some(s => s.slug === slug);
+          const isSameCategory = !lockedCategory || category === lockedCategory;
+
+          // Dim cards of different categories
+          if (compareMode && lockedCategory && !isSameCategory) {
+            card.style.opacity = '0.35';
+            card.style.pointerEvents = 'none';
+            checkbox.classList.add('opacity-0', 'pointer-events-none');
+            checkbox.classList.remove('opacity-100');
+          } else if (compareMode) {
+            card.style.opacity = '1';
+            card.style.pointerEvents = 'auto';
+            checkbox.classList.remove('opacity-0', 'pointer-events-none');
+            checkbox.classList.add('opacity-100');
+          }
+
+          // Selection visual
+          if (isSelected) {
+            checkbox.classList.add('bg-brand-600', 'border-brand-600');
+            checkbox.classList.remove('bg-white/90', 'border-brand-300');
+            checkIcon.classList.remove('opacity-0');
+            checkIcon.classList.add('opacity-100');
+            card.querySelector('.product-card-link').classList.add('ring-2', 'ring-brand-400', 'ring-offset-2');
+          } else {
+            checkbox.classList.remove('bg-brand-600', 'border-brand-600');
+            checkbox.classList.add('bg-white/90', 'border-brand-300');
+            checkIcon.classList.add('opacity-0');
+            checkIcon.classList.remove('opacity-100');
+            card.querySelector('.product-card-link').classList.remove('ring-2', 'ring-brand-400', 'ring-offset-2');
+          }
+        });
+      }
+
+      toggle.addEventListener('click', () => {
+        if (compareMode) {
+          deactivateCompareMode();
+        } else {
+          activateCompareMode();
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        selected = [];
+        lockedCategory = null;
+        updateUI();
+      });
+
+      checkboxes.forEach(cb => {
+        cb.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const card = cb.closest('.product-card-wrapper');
+          const slug = card.dataset.slug;
+          const name = card.dataset.name;
+          const category = card.dataset.category;
+
+          const idx = selected.findIndex(s => s.slug === slug);
+          if (idx > -1) {
+            selected.splice(idx, 1);
+            // If all deselected, unlock category
+            if (selected.length === 0) lockedCategory = null;
+          } else {
+            // Only allow same category
+            if (lockedCategory && category !== lockedCategory) return;
+            selected.push({ slug, name, category });
+          }
+          updateUI();
+        });
+      });
+
+      // Auto-activate if URL has #compare
+      if (window.location.hash === '#compare') {
+        activateCompareMode();
+      }
+    });
+  </script>
 </Layout>

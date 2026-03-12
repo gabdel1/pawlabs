@@ -18,7 +18,7 @@ export function organizationJsonLd(): string {
     '@type': 'Organization',
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
+    logo: `${SITE_URL}/favicon.png`,
     description: SITE_DESCRIPTION,
     foundingDate: '2026',
     sameAs: [],
@@ -44,7 +44,7 @@ export function websiteJsonLd(): string {
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/favicon.svg`,
+        url: `${SITE_URL}/favicon.png`,
       },
     },
     potentialAction: {
