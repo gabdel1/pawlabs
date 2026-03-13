@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     products: Product;
     reviews: Review;
+    verdicts: Verdict;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    verdicts: VerdictsSelect<false> | VerdictsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -305,6 +307,41 @@ export interface Review {
   createdAt: string;
 }
 /**
+ * Cached AI verdicts for product comparisons
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "verdicts".
+ */
+export interface Verdict {
+  id: number;
+  /**
+   * Sorted, comma-joined product slugs (e.g. "product-a,product-b")
+   */
+  productKey: string;
+  /**
+   * The AI-generated HTML verdict
+   */
+  verdict: string;
+  /**
+   * Array of product slugs used in this comparison
+   */
+  productSlugs?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Product category for this comparison
+   */
+  category?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -343,6 +380,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reviews';
         value: number | Review;
+      } | null)
+    | ({
+        relationTo: 'verdicts';
+        value: number | Verdict;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -488,6 +529,18 @@ export interface ReviewsSelect<T extends boolean = true> {
   author?: T;
   publishedDate?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "verdicts_select".
+ */
+export interface VerdictsSelect<T extends boolean = true> {
+  productKey?: T;
+  verdict?: T;
+  productSlugs?: T;
+  category?: T;
   updatedAt?: T;
   createdAt?: T;
 }
