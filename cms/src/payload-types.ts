@@ -72,6 +72,7 @@ export interface Config {
     products: Product;
     reviews: Review;
     verdicts: Verdict;
+    guides: Guide;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     verdicts: VerdictsSelect<false> | VerdictsSelect<true>;
+    guides: GuidesSelect<false> | GuidesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -342,6 +344,54 @@ export interface Verdict {
   createdAt: string;
 }
 /**
+ * AI-generated multi-product guides and roundups
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guides".
+ */
+export interface Guide {
+  id: number;
+  title: string;
+  /**
+   * URL-friendly identifier
+   */
+  slug: string;
+  guideType?: ('ultimate-guide' | 'essentials' | 'roundup' | 'comparison') | null;
+  /**
+   * Short excerpt for SEO meta descriptions and cards
+   */
+  summary?: string | null;
+  /**
+   * Full guide body as HTML
+   */
+  content?: string | null;
+  /**
+   * Products featured in this guide
+   */
+  products: (number | Product)[];
+  category?:
+    | (
+        | 'smart-gadgets'
+        | 'toys'
+        | 'food-treats'
+        | 'health-wellness'
+        | 'grooming'
+        | 'beds-furniture'
+        | 'leashes-collars'
+        | 'travel'
+        | 'mixed'
+        | 'other'
+      )
+    | null;
+  petType?: ('dog' | 'cat' | 'bird' | 'fish' | 'small-animal' | 'reptile' | 'universal') | null;
+  author?: string | null;
+  featuredImage?: (number | null) | Media;
+  publishedDate?: string | null;
+  status?: ('draft' | 'published') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -384,6 +434,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'verdicts';
         value: number | Verdict;
+      } | null)
+    | ({
+        relationTo: 'guides';
+        value: number | Guide;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -541,6 +595,26 @@ export interface VerdictsSelect<T extends boolean = true> {
   verdict?: T;
   productSlugs?: T;
   category?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guides_select".
+ */
+export interface GuidesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  guideType?: T;
+  summary?: T;
+  content?: T;
+  products?: T;
+  category?: T;
+  petType?: T;
+  author?: T;
+  featuredImage?: T;
+  publishedDate?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

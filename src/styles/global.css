@@ -43,12 +43,16 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-surface);
+  min-height: 100dvh;
 }
 
 body {
   overflow-x: hidden;
   color: var(--color-ink);
   font-family: var(--font-sans);
+  /* Safe-area-insets for notched/rounded devices */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* ─── Typography & Display ─────────────────── */
@@ -57,6 +61,17 @@ body {
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.05;
+}
+
+/* Fluid display sizes — scales smoothly from mobile to desktop */
+.display-fluid-xl {
+  font-size: clamp(2.25rem, 4vw + 1rem, 5.5rem);
+}
+.display-fluid-lg {
+  font-size: clamp(2rem, 3vw + 0.75rem, 3.75rem);
+}
+.display-fluid-md {
+  font-size: clamp(1.75rem, 2.5vw + 0.5rem, 3rem);
 }
 
 .text-balance {
@@ -102,6 +117,8 @@ body {
     0 1px 3px rgba(10, 15, 26, 0.02),
     0 10px 40px -10px rgba(10, 15, 26, 0.04);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Container query context for intrinsic responsiveness */
+  container-type: inline-size;
 }
 
 .glass-card-dark {
@@ -111,22 +128,33 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* ─── Card Interactions ────────────────────── */
-.card-hover:hover {
-  transform: translateY(-8px) scale(1.01);
-  box-shadow:
-    0 24px 48px -12px rgba(10, 15, 26, 0.12),
-    0 4px 12px rgba(10, 15, 26, 0.04);
-  border-color: rgba(38, 153, 111, 0.1);
+/* ─── Card Interactions (hover-capable devices only) ── */
+@media (hover: hover) {
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow:
+      0 24px 48px -12px rgba(10, 15, 26, 0.12),
+      0 4px 12px rgba(10, 15, 26, 0.04);
+    border-color: rgba(38, 153, 111, 0.1);
+  }
+
+  .card-hover:hover .icon-layer {
+    transform: scale(1.1) rotate(-5deg);
+    color: var(--color-brand-600);
+  }
+
+  .card-hover:hover .image-layer {
+    transform: scale(1.08);
+  }
 }
 
-.card-hover:hover .icon-layer {
-  transform: scale(1.1) rotate(-5deg);
-  color: var(--color-brand-600);
-}
-
-.card-hover:hover .image-layer {
-  transform: scale(1.08);
+/* Touch devices: subtle active state instead of hover */
+@media (hover: none) {
+  .card-hover:active {
+    transform: scale(0.98);
+    box-shadow:
+      0 2px 8px rgba(10, 15, 26, 0.08);
+  }
 }
 
 /* ─── Text & Badge Highlights ──────────────── */
@@ -167,9 +195,11 @@ body {
   transform-origin: right;
   transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
 }
-.nav-link:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
+@media (hover: hover) {
+  .nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 }
 
 /* Modern Button Shimmer */
@@ -177,6 +207,8 @@ body {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  /* Touch-friendly minimum tap target */
+  min-height: 44px;
 }
 .btn-primary::before {
   content: '';
@@ -192,12 +224,14 @@ body {
   transition: left 0.6s ease;
   z-index: -1;
 }
-.btn-primary:hover::before {
-  left: 100%;
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px var(--color-brand-700);
+@media (hover: hover) {
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px var(--color-brand-700);
+  }
 }
 
 /* ─── Sleek Animations ─────────────────────── */
@@ -312,7 +346,119 @@ body {
 .compare-product-pill {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.compare-product-pill:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -8px rgba(10, 15, 26, 0.12);
+@media (hover: hover) {
+  .compare-product-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -8px rgba(10, 15, 26, 0.12);
+  }
+}
+
+/* ─── Mobile Utilities (2026) ──────────────── */
+
+/* Scroll-snap horizontal container for pills/tabs */
+.scroll-x-snap {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  gap: 0.5rem;
+  padding-bottom: 4px;
+}
+.scroll-x-snap::-webkit-scrollbar {
+  display: none;
+}
+.scroll-x-snap > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Mobile drawer overlay */
+.mobile-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(10, 15, 26, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  width: min(85vw, 320px);
+  background: var(--color-surface-raised);
+  padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -8px 0 40px rgba(10, 15, 26, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-drawer a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-ink);
+  transition: background 0.2s ease;
+  min-height: 48px;
+}
+.mobile-drawer a:hover,
+.mobile-drawer a:active {
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+}
+
+/* Hamburger button */
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hamburger-btn:active {
+  background: rgba(10, 15, 26, 0.05);
+}
+
+/* Safe-area bottom padding for fixed bottom bars */
+.safe-bottom {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+/* Mobile content prose adjustments */
+@media (max-width: 640px) {
+  .review-prose {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .review-prose h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
 }

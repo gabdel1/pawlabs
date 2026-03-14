@@ -10,6 +10,7 @@ import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { Reviews } from './collections/Reviews'
 import { Verdicts } from './collections/Verdicts'
+import { Guides } from './collections/Guides'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,11 +34,19 @@ export default buildConfig({
             description: 'Generate products from affiliate links using Grok AI',
           },
         },
+        aiGuide: {
+          Component: '/components/AIGuideView',
+          path: '/ai-guide',
+          meta: {
+            title: 'AI Guide Generator',
+            description: 'Generate multi-product guides and roundups using Grok AI',
+          },
+        },
       },
       afterNavLinks: ['/components/AINavLink'],
     },
   },
-  collections: [Users, Media, Products, Reviews, Verdicts],
+  collections: [Users, Media, Products, Reviews, Verdicts, Guides],
   plugins: [],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',
@@ -204,6 +213,59 @@ Return ONLY valid HTML (no markdown, no code fences). Use these tags:
             { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
           );
         }
+      }
+    },
+    {
+      path: '/ai/generate',
+      method: 'post',
+      handler: async (req) => {
+        const CORS = { 'Access-Control-Allow-Origin': '*' };
+        try {
+          if (!req.user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: CORS });
+          }
+
+          const rawBody = await req.json();
+          const { url, context, action } = rawBody || {};
+
+          if (!url) {
+            return Response.json({ error: 'URL is required' }, { status: 400, headers: CORS });
+          }
+
+          // Import lib dynamically since this file is part of config
+          const { generateWithGrok } = await import('./lib/grok');
+          const product = await generateWithGrok(url, context);
+
+          if (action === 'save') {
+            const saved = await req.payload.create({
+              collection: 'products',
+              data: product,
+            });
+            return Response.json({ success: true, saved }, { headers: CORS });
+          }
+
+          return Response.json({ success: true, product }, { headers: CORS });
+        } catch (error: any) {
+          console.error('AI Generate error:', error);
+          return Response.json(
+            { error: error.message || 'Failed to generate product' },
+            { status: 500, headers: CORS }
+          );
+        }
+      }
+    },
+    {
+      path: '/ai/generate',
+      method: 'options',
+      handler: async () => {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        });
       }
     },
     {

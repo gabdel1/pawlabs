@@ -73,6 +73,24 @@ export interface Media {
   height?: number;
 }
 
+export interface Guide {
+  id: string;
+  title: string;
+  slug: string;
+  guideType?: string;
+  summary?: string;
+  content?: string;
+  products?: (Product | string)[];
+  category?: string;
+  petType?: string;
+  author?: string;
+  featuredImage?: Media | string;
+  publishedDate?: string;
+  status?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
   const url = new URL(`${PAYLOAD_API_URL}/${endpoint}`);
   if (params) {
@@ -230,4 +248,42 @@ export function getMediaUrl(media: Media | string | undefined | null): string | 
   if (!media) return null;
   if (typeof media === 'string') return null;
   return media.url ?? null;
+}
+
+/** Guide type labels */
+export const GUIDE_TYPE_LABELS: Record<string, string> = {
+  'ultimate-guide': 'Ultimate Guide',
+  'essentials': 'Essentials Roundup',
+  'roundup': 'Product Roundup',
+  'comparison': 'Comparison Guide',
+};
+
+/** Fetch all published guides */
+export async function getGuides(limit = 100): Promise<Guide[]> {
+  try {
+    const data = await fetchAPI<PayloadResponse<Guide>>('guides', {
+      'where[status][equals]': 'published',
+      limit: String(limit),
+      depth: '2',
+      sort: '-publishedDate',
+    });
+    return data.docs;
+  } catch (e) {
+    console.error('[payload] Failed to fetch guides:', e);
+    return [];
+  }
+}
+
+/** Fetch a single guide by slug */
+export async function getGuideBySlug(slug: string): Promise<Guide | null> {
+  try {
+    const data = await fetchAPI<PayloadResponse<Guide>>('guides', {
+      'where[slug][equals]': slug,
+      depth: '2',
+    });
+    return data.docs[0] ?? null;
+  } catch (e) {
+    console.error('[payload] Failed to fetch guide by slug:', slug, e);
+    return null;
+  }
 }
