@@ -9,6 +9,12 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 }
 
+/** Must match Products.ts collection options exactly */
+const VALID_CATEGORIES = new Set([
+  'smart-gadgets', 'toys', 'food-treats', 'health-wellness',
+  'grooming', 'beds-furniture', 'leashes-collars', 'travel', 'other',
+])
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
 }
@@ -47,6 +53,12 @@ export async function POST(req: NextRequest) {
       delete saveData.animalTypes
       delete saveData.subcategory // not in Products schema
       delete saveData.reviewBody // not a direct field in Products schema
+
+      // Final safety: ensure category is a valid Products.ts option
+      if (saveData.category && !VALID_CATEGORIES.has(saveData.category)) {
+        console.warn(`[AI Generate] Invalid category "${saveData.category}", falling back to "other"`)
+        saveData.category = 'other'
+      }
 
       const saved = await payload.create({
         collection: 'products',

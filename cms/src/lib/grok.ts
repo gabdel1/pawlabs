@@ -5,6 +5,78 @@
 
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions';
 
+/** Valid product categories — must match Products.ts collection options */
+const VALID_CATEGORIES = [
+  'smart-gadgets',
+  'toys',
+  'food-treats',
+  'health-wellness',
+  'grooming',
+  'beds-furniture',
+  'leashes-collars',
+  'travel',
+  'other',
+] as const;
+
+type ValidCategory = typeof VALID_CATEGORIES[number];
+
+/** Map common AI-hallucinated category names to valid ones */
+const CATEGORY_ALIASES: Record<string, ValidCategory> = {
+  'wellness': 'health-wellness',
+  'health': 'health-wellness',
+  'security': 'smart-gadgets',
+  'cameras': 'smart-gadgets',
+  'tech': 'smart-gadgets',
+  'gadgets': 'smart-gadgets',
+  'food': 'food-treats',
+  'treats': 'food-treats',
+  'nutrition': 'food-treats',
+  'furniture': 'beds-furniture',
+  'beds': 'beds-furniture',
+  'leashes': 'leashes-collars',
+  'collars': 'leashes-collars',
+  'harnesses': 'leashes-collars',
+  'gear': 'leashes-collars',
+  'walking': 'leashes-collars',
+  'toy': 'toys',
+  'interactive': 'toys',
+  'play': 'toys',
+  'chew': 'toys',
+  'outdoor': 'travel',
+  'carrier': 'travel',
+};
+
+/** Snap a possibly-invalid category string to a valid one */
+function normalizeCategory(raw: string): ValidCategory {
+  const lower = raw.toLowerCase().trim();
+
+  // Exact match
+  if ((VALID_CATEGORIES as readonly string[]).includes(lower)) {
+    return lower as ValidCategory;
+  }
+
+  // Check aliases
+  if (CATEGORY_ALIASES[lower]) {
+    return CATEGORY_ALIASES[lower];
+  }
+
+  // Substring match: check if any valid category is contained in or contains the raw value
+  for (const valid of VALID_CATEGORIES) {
+    if (lower.includes(valid) || valid.includes(lower)) {
+      return valid;
+    }
+  }
+
+  // Keyword match: check if any alias keyword appears in the raw value
+  for (const [keyword, mapped] of Object.entries(CATEGORY_ALIASES)) {
+    if (lower.includes(keyword)) {
+      return mapped;
+    }
+  }
+
+  return 'other';
+}
+
 export interface GeneratedProduct {
   name: string;
   slug: string;
@@ -51,7 +123,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no code 
   "slug": "url-friendly-slug",
   "shortDescription": "One compelling sentence, 20 words max",
   "price": 99.99,
-  "category": "one of: wellness, security, smart-gadgets, food-treats, grooming, beds-furniture, travel",
+  "category": "MUST be exactly one of: smart-gadgets, toys, food-treats, health-wellness, grooming, beds-furniture, leashes-collars, travel, other",
   "subcategory": "specific sub (e.g. litter, collars, feeders, cameras, brushes, dry-food, supplements, treats)",
   "animalTypes": ["dog", "cat", etc.],
   "rating": 4.5,
@@ -123,6 +195,9 @@ Remember: Write like a real person. Opinionated. Specific. No AI slop. Make me F
   }
 
   product.affiliateUrl = url;
+
+  // Validate & normalize category to a valid option
+  product.category = normalizeCategory(product.category || 'other');
 
   return product;
 }
