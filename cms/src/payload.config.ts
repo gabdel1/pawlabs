@@ -11,6 +11,7 @@ import { Products } from './collections/Products'
 import { Reviews } from './collections/Reviews'
 import { Verdicts } from './collections/Verdicts'
 import { Guides } from './collections/Guides'
+import { Breeds } from './collections/Breeds'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -42,11 +43,19 @@ export default buildConfig({
             description: 'Generate multi-product guides and roundups using Grok AI',
           },
         },
+        aiBreed: {
+          Component: '/components/AIBreedView',
+          path: '/ai-breed',
+          meta: {
+            title: 'AI Breed Generator',
+            description: 'Generate breed profiles with traits and ratings using Grok AI',
+          },
+        },
       },
       afterNavLinks: ['/components/AINavLink'],
     },
   },
-  collections: [Users, Media, Products, Reviews, Verdicts, Guides],
+  collections: [Users, Media, Products, Reviews, Verdicts, Guides, Breeds],
   plugins: [],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',

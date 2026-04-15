@@ -73,6 +73,7 @@ export interface Config {
     reviews: Review;
     verdicts: Verdict;
     guides: Guide;
+    breeds: Breed;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     verdicts: VerdictsSelect<false> | VerdictsSelect<true>;
     guides: GuidesSelect<false> | GuidesSelect<true>;
+    breeds: BreedsSelect<false> | BreedsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -392,6 +394,160 @@ export interface Guide {
   createdAt: string;
 }
 /**
+ * Dog and cat breed profiles with detailed traits and ratings
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "breeds".
+ */
+export interface Breed {
+  id: number;
+  name: string;
+  /**
+   * URL-friendly identifier (e.g. golden-retriever)
+   */
+  slug: string;
+  petType: 'dog' | 'cat';
+  status?: ('draft' | 'published') | null;
+  featured?: boolean | null;
+  image?: (number | null) | Media;
+  /**
+   * One-liner for cards and SEO (max 160 chars)
+   */
+  shortDescription?: string | null;
+  breedGroup?:
+    | (
+        | 'sporting'
+        | 'working'
+        | 'herding'
+        | 'toy'
+        | 'terrier'
+        | 'hound'
+        | 'non-sporting'
+        | 'foundation-stock'
+        | 'natural'
+        | 'hybrid'
+        | 'mutation'
+        | 'crossbreed'
+      )
+    | null;
+  size?: ('small' | 'medium' | 'large' | 'giant') | null;
+  heightMin?: number | null;
+  heightMax?: number | null;
+  weightMin?: number | null;
+  weightMax?: number | null;
+  lifeExpectancyMin?: number | null;
+  lifeExpectancyMax?: number | null;
+  coatType?:
+    | ('smooth' | 'double' | 'wire' | 'curly' | 'silky' | 'hairless' | 'long' | 'short' | 'medium' | 'rough')
+    | null;
+  coatLength?: ('short' | 'medium' | 'long' | 'hairless') | null;
+  colors?:
+    | {
+        color: string;
+        id?: string | null;
+      }[]
+    | null;
+  origin?: string | null;
+  /**
+   * e.g. "Retrieving game", "Herding sheep", "Companion"
+   */
+  breedRole?: string | null;
+  /**
+   * Key temperament descriptors (e.g. Loyal, Energetic, Gentle)
+   */
+  temperament?:
+    | {
+        trait: string;
+        id?: string | null;
+      }[]
+    | null;
+  strengths?:
+    | {
+        point: string;
+        id?: string | null;
+      }[]
+    | null;
+  weaknesses?:
+    | {
+        point: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Rate each trait from 1 (lowest) to 10 (highest). These power the breed comparison charts.
+   */
+  traits?: {
+    /**
+     * How loving and cuddly with family (1 = lowest, 10 = highest)
+     */
+    affectionLevel?: number | null;
+    /**
+     * Patience and safety around children (1 = lowest, 10 = highest)
+     */
+    childFriendly?: number | null;
+    /**
+     * Gets along with other dogs and cats (1 = lowest, 10 = highest)
+     */
+    petFriendly?: number | null;
+    /**
+     * How they react to new people (1 = lowest, 10 = highest)
+     */
+    strangerFriendly?: number | null;
+    /**
+     * Ease of training and willingness to learn (1 = lowest, 10 = highest)
+     */
+    trainability?: number | null;
+    /**
+     * Daily energy and exercise requirements (1 = lowest, 10 = highest)
+     */
+    energyLevel?: number | null;
+    /**
+     * Amount of grooming and maintenance required (1 = lowest, 10 = highest)
+     */
+    groomingNeeds?: number | null;
+    /**
+     * How much they shed (1 = lowest, 10 = highest)
+     */
+    sheddingLevel?: number | null;
+    /**
+     * Tendency to bark or vocalize (1 = lowest, 10 = highest)
+     */
+    barkingLevel?: number | null;
+    /**
+     * Problem-solving ability and learning speed (1 = lowest, 10 = highest)
+     */
+    intelligence?: number | null;
+    /**
+     * Play drive and fun factor (1 = lowest, 10 = highest)
+     */
+    playfulness?: number | null;
+    /**
+     * Alertness and protective instincts (1 = lowest, 10 = highest)
+     */
+    watchdogAbility?: number | null;
+    /**
+     * Adjusting to new environments and changes (1 = lowest, 10 = highest)
+     */
+    adaptability?: number | null;
+    /**
+     * Overall genetic health and disease resistance (1 = lowest, 10 = highest)
+     */
+    healthRobustness?: number | null;
+  };
+  /**
+   * HTML content covering the breed's origin story and history
+   */
+  breedHistory?: string | null;
+  /**
+   * HTML article covering all traits in detail — temperament, health, exercise, diet, grooming, training, living conditions, and who this breed is for
+   */
+  article?: string | null;
+  author?: string | null;
+  publishedDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -438,6 +594,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'guides';
         value: number | Guide;
+      } | null)
+    | ({
+        relationTo: 'breeds';
+        value: number | Breed;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -615,6 +775,79 @@ export interface GuidesSelect<T extends boolean = true> {
   featuredImage?: T;
   publishedDate?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "breeds_select".
+ */
+export interface BreedsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  petType?: T;
+  status?: T;
+  featured?: T;
+  image?: T;
+  shortDescription?: T;
+  breedGroup?: T;
+  size?: T;
+  heightMin?: T;
+  heightMax?: T;
+  weightMin?: T;
+  weightMax?: T;
+  lifeExpectancyMin?: T;
+  lifeExpectancyMax?: T;
+  coatType?: T;
+  coatLength?: T;
+  colors?:
+    | T
+    | {
+        color?: T;
+        id?: T;
+      };
+  origin?: T;
+  breedRole?: T;
+  temperament?:
+    | T
+    | {
+        trait?: T;
+        id?: T;
+      };
+  strengths?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
+  weaknesses?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
+  traits?:
+    | T
+    | {
+        affectionLevel?: T;
+        childFriendly?: T;
+        petFriendly?: T;
+        strangerFriendly?: T;
+        trainability?: T;
+        energyLevel?: T;
+        groomingNeeds?: T;
+        sheddingLevel?: T;
+        barkingLevel?: T;
+        intelligence?: T;
+        playfulness?: T;
+        watchdogAbility?: T;
+        adaptability?: T;
+        healthRobustness?: T;
+      };
+  breedHistory?: T;
+  article?: T;
+  author?: T;
+  publishedDate?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,0 +1,292 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getBreeds, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
+import type { Media } from '../../lib/payload';
+import { Search, ChevronRight, Heart, Zap, Brain, Dog, Cat, PawPrint, Star as StarIcon } from 'lucide-astro';
+
+const breeds = await getBreeds();
+
+const petTypeSet = new Set<string>();
+const groupSet = new Set<string>();
+const sizeSet = new Set<string>();
+breeds.forEach(b => {
+  if (b.petType) petTypeSet.add(b.petType);
+  if (b.breedGroup) groupSet.add(b.breedGroup);
+  if (b.size) sizeSet.add(b.size);
+});
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Breeds' },
+];
+---
+
+<Layout
+  title="Dog & Cat Breed Profiles — PawLabs"
+  description="Explore detailed breed profiles with trait ratings, temperament data, and expert articles for dogs and cats."
+  canonicalUrl="/breeds"
+  ogType="website"
+>
+  <Nav activePage="breeds" />
+
+  <main class="min-h-screen bg-surface noise pt-32 sm:pt-36">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div class="mb-8 sm:mb-12 reveal">
+        <Breadcrumbs items={breadcrumbs} />
+      </div>
+
+      <div class="mb-10 sm:mb-16 reveal reveal-delay-1 flex xl:items-end xl:justify-between flex-col xl:flex-row gap-4 sm:gap-6">
+        <div>
+          <h1 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4 text-balance">Breed Profiles</h1>
+          <p class="text-ink-muted text-base sm:text-lg max-w-2xl text-pretty font-medium">
+            In-depth profiles with trait ratings, temperament data, and expert insights for {breeds.length} breeds.
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <div class="glass flex items-center gap-3 px-4 py-3 rounded-2xl w-full sm:max-w-xs border border-ink/10 bg-white min-h-[44px]">
+            <Search class="w-5 h-5 text-ink-muted" />
+            <input id="breed-search" type="text" placeholder="Search breeds..." class="bg-transparent border-none outline-none font-medium text-ink w-full placeholder:text-ink-muted/50" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="flex flex-wrap gap-2 mb-8 reveal reveal-delay-2">
+        <button class="breed-filter-pill active" data-filter="all" data-filter-type="petType">All</button>
+        <button class="breed-filter-pill inline-flex items-center gap-1.5" data-filter="dog" data-filter-type="petType"><Dog class="w-4 h-4" /> Dogs</button>
+        <button class="breed-filter-pill inline-flex items-center gap-1.5" data-filter="cat" data-filter-type="petType"><Cat class="w-4 h-4" /> Cats</button>
+        <span class="w-px h-8 bg-ink/10 mx-1 self-center"></span>
+        {Array.from(groupSet).sort().map(group => (
+          <button class="breed-filter-pill" data-filter={group} data-filter-type="group">
+            {BREED_GROUP_LABELS[group] || group}
+          </button>
+        ))}
+        <span class="w-px h-8 bg-ink/10 mx-1 self-center"></span>
+        {Array.from(sizeSet).sort().map(size => (
+          <button class="breed-filter-pill" data-filter={size} data-filter-type="size">
+            {SIZE_LABELS[size] || size}
+          </button>
+        ))}
+      </div>
+
+      <!-- Breed Grid -->
+      {breeds.length === 0 ? (
+        <div class="text-center py-24 reveal reveal-delay-2">
+          <div class="mb-4 flex justify-center"><PawPrint class="w-16 h-16 text-brand-400" /></div>
+          <h2 class="text-xl font-bold text-ink mb-2">No breed profiles yet</h2>
+          <p class="text-ink-muted">Check back soon — we're adding breed profiles regularly.</p>
+        </div>
+      ) : (
+        <div id="breed-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {breeds.map((breed, i) => {
+            const imageUrl = getMediaUrl(breed.image as Media);
+            const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
+            const isDog = breed.petType === 'dog';
+            const avgRating = breed.traits
+              ? Math.round(Object.values(breed.traits).reduce((sum: number, v: any) => sum + (typeof v === 'number' ? v : 0), 0) / 14 * 10) / 10
+              : null;
+
+            return (
+              <a
+                href={`/breeds/${breed.slug}`}
+                class="breed-card group glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl reveal"
+                style={`animation-delay: ${Math.min(i * 60, 400)}ms`}
+                data-name={breed.name.toLowerCase()}
+                data-pet-type={breed.petType || ''}
+                data-group={breed.breedGroup || ''}
+                data-size={breed.size || ''}
+              >
+                {/* Image */}
+                <div class="relative aspect-[4/3] bg-brand-50 overflow-hidden">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={breed.name}
+                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="w-full h-full flex items-center justify-center opacity-30">
+                      {breed.petType === 'cat' ? <Cat class="w-16 h-16 text-ink" /> : <Dog class="w-16 h-16 text-ink" />}
+                    </div>
+                  )}
+                  {/* Pet type badge */}
+                  <div class="absolute top-3 left-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm shadow-sm">
+                      <span class="inline-flex items-center gap-1">{isDog ? <Dog class="w-3.5 h-3.5" /> : <Cat class="w-3.5 h-3.5" />} {isDog ? 'Dog' : 'Cat'}</span>
+                    </span>
+                  </div>
+                  {breed.featured && (
+                    <div class="absolute top-3 right-3">
+                      <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-400/90 text-amber-900 backdrop-blur-sm shadow-sm inline-flex items-center gap-1">
+                        <StarIcon class="w-3 h-3 fill-current" /> Featured
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Card Content */}
+                <div class="p-5">
+                  <div class="flex items-start justify-between mb-2">
+                    <h3 class="font-display font-bold text-ink text-lg leading-tight group-hover:text-brand-700 transition-colors">
+                      {breed.name}
+                    </h3>
+                    <ChevronRight class="w-5 h-5 text-ink-muted group-hover:text-brand-600 transition-colors shrink-0 mt-0.5" />
+                  </div>
+
+                  {/* Quick info badges */}
+                  <div class="flex flex-wrap gap-1.5 mb-3">
+                    {groupLabel && (
+                      <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">
+                        {groupLabel}
+                      </span>
+                    )}
+                    {breed.size && (
+                      <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                        {SIZE_LABELS[breed.size] || breed.size}
+                      </span>
+                    )}
+                  </div>
+
+                  {breed.shortDescription && (
+                    <p class="text-sm text-ink-muted line-clamp-2 mb-3">{breed.shortDescription}</p>
+                  )}
+
+                  {/* Mini trait bars */}
+                  {breed.traits && (
+                    <div class="space-y-1.5">
+                      {[
+                        { key: 'affectionLevel', label: 'Affection', icon: '❤️' },
+                        { key: 'trainability', label: 'Trainability', icon: '🎓' },
+                        { key: 'energyLevel', label: 'Energy', icon: '⚡' },
+                      ].map(({ key, label, icon }) => {
+                        const val = (breed.traits as any)?.[key] || 0;
+                        const pct = (val / 10) * 100;
+                        const color = val >= 7 ? 'bg-emerald-500' : val >= 4 ? 'bg-amber-500' : 'bg-red-500';
+                        return (
+                          <div class="flex items-center gap-2 text-xs">
+                            <span class="w-12 text-ink-muted font-medium truncate">{label}</span>
+                            <div class="flex-1 h-1.5 bg-ink/5 rounded-full overflow-hidden">
+                              <div class={`h-full rounded-full ${color}`} style={`width:${pct}%`}></div>
+                            </div>
+                            <span class="w-5 text-right font-bold text-ink/70">{val}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-ink text-white/70 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-sm">© 2026 PawLabs. Independent pet product reviews & breed profiles.</p>
+      <p class="text-xs mt-2 text-white/40">Our breed profiles are researched from kennel club standards and expert sources.</p>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  @reference "../../styles/global.css";
+
+  .breed-filter-pill {
+    @apply text-xs font-bold px-4 py-2 rounded-full border border-ink/10 bg-white text-ink/70 cursor-pointer transition-all duration-200 hover:border-brand-500 hover:text-brand-700 min-h-[36px];
+  }
+  .breed-filter-pill.active {
+    @apply bg-ink text-white border-ink;
+  }
+</style>
+
+<script>
+  // Search
+  const searchInput = document.getElementById('breed-search') as HTMLInputElement;
+  const cards = document.querySelectorAll<HTMLElement>('.breed-card');
+
+  searchInput?.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase().trim();
+    cards.forEach(card => {
+      const name = card.dataset.name || '';
+      card.style.display = !q || name.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Filter pills
+  const pills = document.querySelectorAll<HTMLElement>('.breed-filter-pill');
+  let activeFilters: Record<string, string> = {};
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const filterVal = pill.dataset.filter || 'all';
+      const filterType = pill.dataset.filterType || 'petType';
+
+      if (filterVal === 'all') {
+        // Reset all filters
+        activeFilters = {};
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      } else {
+        // Remove "all" active state
+        pills.forEach(p => {
+          if (p.dataset.filter === 'all') p.classList.remove('active');
+        });
+
+        // Toggle this filter
+        if (activeFilters[filterType] === filterVal) {
+          delete activeFilters[filterType];
+          pill.classList.remove('active');
+          // If no filters active, re-activate "all"
+          if (Object.keys(activeFilters).length === 0) {
+            pills.forEach(p => { if (p.dataset.filter === 'all') p.classList.add('active'); });
+          }
+        } else {
+          // Deactivate same-type pills
+          pills.forEach(p => {
+            if (p.dataset.filterType === filterType && p.dataset.filter !== 'all') {
+              p.classList.remove('active');
+            }
+          });
+          activeFilters[filterType] = filterVal;
+          pill.classList.add('active');
+        }
+      }
+
+      // Apply filters
+      cards.forEach(card => {
+        let visible = true;
+        if (activeFilters['petType'] && card.dataset.petType !== activeFilters['petType']) visible = false;
+        if (activeFilters['group'] && card.dataset.group !== activeFilters['group']) visible = false;
+        if (activeFilters['size'] && card.dataset.size !== activeFilters['size']) visible = false;
+        card.style.display = visible ? '' : 'none';
+      });
+    });
+  });
+
+  // Mobile menu
+  const hamburger = document.getElementById('hamburger-btn');
+  const overlay = document.getElementById('mobile-overlay');
+  const drawer = document.getElementById('mobile-drawer');
+  const drawerClose = document.getElementById('drawer-close');
+
+  function openDrawer() {
+    overlay?.classList.add('active');
+    drawer?.classList.add('active');
+    hamburger?.setAttribute('aria-expanded', 'true');
+  }
+  function closeDrawer() {
+    overlay?.classList.remove('active');
+    drawer?.classList.remove('active');
+    hamburger?.setAttribute('aria-expanded', 'false');
+  }
+  hamburger?.addEventListener('click', openDrawer);
+  overlay?.addEventListener('click', closeDrawer);
+  drawerClose?.addEventListener('click', closeDrawer);
+</script>

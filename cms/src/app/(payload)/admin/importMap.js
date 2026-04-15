@@ -24,6 +24,7 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { default as default_196f273aeb2b3d67f69c1294b381fa4a } from '../../../components/AINavLink'
 import { default as default_cf509d19bea54057a6df394586110095 } from '../../../components/AIGenerateView'
 import { default as default_9d910196ec18200914c3072ef487fe6e } from '../../../components/AIGuideView'
+import { default as default_11c622fe3bbf630b825fd0d05cc6059b } from '../../../components/AIBreedView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
@@ -53,5 +54,6 @@ export const importMap = {
   "/components/AINavLink#default": default_196f273aeb2b3d67f69c1294b381fa4a,
   "/components/AIGenerateView#default": default_cf509d19bea54057a6df394586110095,
   "/components/AIGuideView#default": default_9d910196ec18200914c3072ef487fe6e,
+  "/components/AIBreedView#default": default_11c622fe3bbf630b825fd0d05cc6059b,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

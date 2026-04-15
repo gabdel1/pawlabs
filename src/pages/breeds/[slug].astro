@@ -1,0 +1,382 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getBreeds, getBreedBySlug, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS, TRAIT_LABELS } from '../../lib/payload';
+import type { Breed, Media } from '../../lib/payload';
+import { Dog, Cat, Star as StarIcon } from 'lucide-astro';
+
+export async function getStaticPaths() {
+  const breeds = await getBreeds();
+  return breeds.map((breed) => ({
+    params: { slug: breed.slug },
+    props: { breed },
+  }));
+}
+
+const { breed } = Astro.props as { breed: Breed };
+const allBreeds = (await getBreeds()).filter(b => b.slug !== breed.slug && b.petType === breed.petType);
+const imageUrl = getMediaUrl(breed.image as Media);
+const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
+const sizeLabel = breed.size ? SIZE_LABELS[breed.size] ?? breed.size : null;
+const petLabel = breed.petType === 'dog' ? 'Dog' : 'Cat';
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Breeds', href: '/breeds' },
+  ...(breed.petType ? [{ label: breed.petType === 'dog' ? 'Dogs' : 'Cats', href: `/breeds?type=${breed.petType}` }] : []),
+  { label: breed.name },
+];
+
+const traitEntries = breed.traits
+  ? (Object.entries(breed.traits) as [string, number][]).filter(([_, v]) => typeof v === 'number')
+  : [];
+
+function traitColor(val: number): string {
+  if (val >= 8) return '#059669';
+  if (val >= 6) return '#16a34a';
+  if (val >= 4) return '#d97706';
+  return '#dc2626';
+}
+
+function traitBg(val: number): string {
+  if (val >= 8) return 'bg-emerald-500';
+  if (val >= 6) return 'bg-emerald-400';
+  if (val >= 4) return 'bg-amber-500';
+  return 'bg-red-500';
+}
+
+// JSON-LD for breed
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: `${breed.name} Breed Profile`,
+  description: breed.shortDescription || `Complete ${breed.name} breed profile with traits, ratings, and expert analysis.`,
+  author: { '@type': 'Organization', name: 'PawLabs' },
+  datePublished: breed.publishedDate || breed.createdAt,
+  dateModified: breed.updatedAt,
+};
+---
+
+<Layout
+  title={`${breed.name} — Breed Profile & Traits | PawLabs`}
+  description={breed.shortDescription || `Complete ${breed.name} breed profile with trait ratings, temperament, health info, and expert analysis.`}
+  canonicalUrl={`/breeds/${breed.slug}`}
+  ogType="article"
+  ogImage={imageUrl}
+  jsonLd={[JSON.stringify(jsonLd)]}
+  publishedTime={breed.publishedDate || breed.createdAt}
+  modifiedTime={breed.updatedAt}
+>
+  <Nav activePage="breeds" />
+
+  <div class="pt-32 sm:pt-36">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <main class="min-h-screen bg-surface noise">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+      <!-- Hero / Header Card -->
+      <div class="glass-card rounded-3xl overflow-hidden mb-8 reveal">
+        <div class="flex flex-col lg:flex-row">
+          {/* Image */}
+          <div class="lg:w-2/5 relative">
+            <div class="aspect-square lg:aspect-auto lg:h-full bg-brand-50 overflow-hidden">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={breed.name}
+                  class="w-full h-full object-cover"
+                />
+              ) : (
+                <div class="w-full h-full min-h-[300px] flex items-center justify-center opacity-20">
+                  {breed.petType === 'cat' ? <Cat class="w-24 h-24 text-ink" /> : <Dog class="w-24 h-24 text-ink" />}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Info */}
+          <div class="lg:w-3/5 p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="badge bg-brand-50 text-brand-700 inline-flex items-center gap-1">
+                {breed.petType === 'dog' ? <Dog class="w-3.5 h-3.5" /> : <Cat class="w-3.5 h-3.5" />}
+                {petLabel}
+              </span>
+              {groupLabel && <span class="badge bg-slate-100 text-slate-700">{groupLabel}</span>}
+              {sizeLabel && <span class="badge bg-slate-100 text-slate-700">{sizeLabel}</span>}
+              {breed.featured && <span class="badge bg-amber-100 text-amber-800 inline-flex items-center gap-1"><StarIcon class="w-3.5 h-3.5 fill-current" /> Featured</span>}
+            </div>
+
+            <h1 class="font-display font-black text-ink text-3xl sm:text-4xl lg:text-5xl mb-3 text-balance">
+              {breed.name}
+            </h1>
+
+            {breed.shortDescription && (
+              <p class="text-ink-muted text-base sm:text-lg mb-4 text-pretty">{breed.shortDescription}</p>
+            )}
+
+            {breed.breedRole && (
+              <p class="text-sm text-ink-muted mb-4">
+                <span class="font-bold text-ink">Original Role:</span> {breed.breedRole}
+              </p>
+            )}
+
+            {/* Quick Stats */}
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              {breed.heightMin && breed.heightMax && (
+                <div class="text-center p-3 rounded-xl bg-white/60 border border-ink/5">
+                  <div class="text-xs font-bold uppercase text-ink-muted tracking-wider mb-1">Height</div>
+                  <div class="font-display font-bold text-ink text-sm">{breed.heightMin}"–{breed.heightMax}"</div>
+                </div>
+              )}
+              {breed.weightMin && breed.weightMax && (
+                <div class="text-center p-3 rounded-xl bg-white/60 border border-ink/5">
+                  <div class="text-xs font-bold uppercase text-ink-muted tracking-wider mb-1">Weight</div>
+                  <div class="font-display font-bold text-ink text-sm">{breed.weightMin}–{breed.weightMax} lbs</div>
+                </div>
+              )}
+              {breed.lifeExpectancyMin && breed.lifeExpectancyMax && (
+                <div class="text-center p-3 rounded-xl bg-white/60 border border-ink/5">
+                  <div class="text-xs font-bold uppercase text-ink-muted tracking-wider mb-1">Life Span</div>
+                  <div class="font-display font-bold text-ink text-sm">{breed.lifeExpectancyMin}–{breed.lifeExpectancyMax} yrs</div>
+                </div>
+              )}
+              {breed.origin && (
+                <div class="text-center p-3 rounded-xl bg-white/60 border border-ink/5">
+                  <div class="text-xs font-bold uppercase text-ink-muted tracking-wider mb-1">Origin</div>
+                  <div class="font-display font-bold text-ink text-sm">{breed.origin}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Temperament Tags */}
+            {breed.temperament && breed.temperament.length > 0 && (
+              <div class="flex flex-wrap gap-1.5">
+                {breed.temperament.map(t => (
+                  <span class="text-xs font-semibold px-3 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                    {t.trait}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="flex flex-col lg:flex-row gap-8">
+
+        <!-- Left: Content -->
+        <div class="lg:w-2/3 space-y-8">
+
+          <!-- Strengths & Weaknesses -->
+          {(breed.strengths?.length || breed.weaknesses?.length) && (
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 reveal reveal-delay-1">
+              {breed.strengths && breed.strengths.length > 0 && (
+                <div class="glass-card rounded-2xl p-6">
+                  <h2 class="font-display font-bold text-emerald-700 text-base mb-4 flex items-center gap-2">
+                    <span class="text-lg">💪</span> Strengths
+                  </h2>
+                  <ul class="space-y-2">
+                    {breed.strengths.map(s => (
+                      <li class="flex items-start gap-2 text-sm text-ink">
+                        <span class="text-emerald-500 font-bold mt-0.5">+</span>
+                        <span>{s.point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {breed.weaknesses && breed.weaknesses.length > 0 && (
+                <div class="glass-card rounded-2xl p-6">
+                  <h2 class="font-display font-bold text-red-600 text-base mb-4 flex items-center gap-2">
+                    <span class="text-lg">⚠️</span> Weaknesses
+                  </h2>
+                  <ul class="space-y-2">
+                    {breed.weaknesses.map(w => (
+                      <li class="flex items-start gap-2 text-sm text-ink">
+                        <span class="text-red-500 font-bold mt-0.5">−</span>
+                        <span>{w.point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          <!-- Breed History -->
+          {breed.breedHistory && (
+            <div class="glass-card rounded-2xl p-6 sm:p-8 reveal reveal-delay-2">
+              <h2 class="font-display font-bold text-ink text-xl mb-4 flex items-center gap-2">
+                <span class="text-lg">📜</span> Breed History
+              </h2>
+              <div class="breed-prose" set:html={breed.breedHistory} />
+            </div>
+          )}
+
+          <!-- Full Article -->
+          {breed.article && (
+            <div class="glass-card rounded-2xl p-6 sm:p-8 reveal reveal-delay-3">
+              <div class="breed-prose" set:html={breed.article} />
+            </div>
+          )}
+        </div>
+
+        <!-- Right: Sidebar with Trait Ratings -->
+        <div class="lg:w-1/3">
+          <div class="lg:sticky lg:top-24 space-y-6">
+
+            <!-- Trait Ratings Chart -->
+            {traitEntries.length > 0 && (
+              <div class="glass-card rounded-2xl p-6 reveal reveal-delay-1">
+                <h2 class="font-display font-bold text-ink text-lg mb-5 flex items-center gap-2">
+                  <span>📊</span> Trait Ratings
+                </h2>
+                <div class="space-y-3">
+                  {traitEntries.map(([key, val]) => {
+                    const label = TRAIT_LABELS[key] || key;
+                    const pct = (val / 10) * 100;
+                    const color = traitColor(val);
+                    return (
+                      <div>
+                        <div class="flex justify-between items-center mb-1">
+                          <span class="text-xs font-semibold text-ink/80">{label}</span>
+                          <span class="text-xs font-bold" style={`color:${color}`}>{val}/10</span>
+                        </div>
+                        <div class="h-2.5 bg-ink/5 rounded-full overflow-hidden">
+                          <div
+                            class="h-full rounded-full transition-all duration-700"
+                            style={`width:${pct}%;background:${color}`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <!-- Coat & Colors -->
+            <div class="glass-card rounded-2xl p-6 reveal reveal-delay-2">
+              <h2 class="font-display font-bold text-ink text-lg mb-4">Coat & Colors</h2>
+              <div class="space-y-3 text-sm">
+                {breed.coatType && (
+                  <div class="flex justify-between">
+                    <span class="text-ink-muted font-medium">Coat Type</span>
+                    <span class="font-semibold text-ink capitalize">{breed.coatType}</span>
+                  </div>
+                )}
+                {breed.coatLength && (
+                  <div class="flex justify-between">
+                    <span class="text-ink-muted font-medium">Coat Length</span>
+                    <span class="font-semibold text-ink capitalize">{breed.coatLength}</span>
+                  </div>
+                )}
+                {breed.colors && breed.colors.length > 0 && (
+                  <div>
+                    <span class="text-ink-muted font-medium block mb-2">Colors</span>
+                    <div class="flex flex-wrap gap-1.5">
+                      {breed.colors.map(c => (
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-ink/5 text-ink/70">{c.color}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Similar Breeds -->
+            {allBreeds.length > 0 && (
+              <div class="glass-card rounded-2xl p-6 reveal reveal-delay-3">
+                <h2 class="font-display font-bold text-ink text-lg mb-4">Similar Breeds</h2>
+                <div class="space-y-3">
+                  {allBreeds.slice(0, 5).map(b => {
+                    const bImg = getMediaUrl(b.image as Media);
+                    return (
+                      <a href={`/breeds/${b.slug}`} class="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-ink/5 transition-colors group">
+                        <div class="w-12 h-12 rounded-xl bg-brand-50 overflow-hidden shrink-0">
+                          {bImg ? (
+                            <img src={bImg} alt={b.name} class="w-full h-full object-cover" loading="lazy" />
+                          ) : (
+                            <div class="w-full h-full flex items-center justify-center opacity-30">
+                              {b.petType === 'cat' ? <Cat class="w-6 h-6 text-ink" /> : <Dog class="w-6 h-6 text-ink" />}
+                            </div>
+                          )}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="font-semibold text-sm text-ink group-hover:text-brand-700 transition-colors truncate">{b.name}</div>
+                          {b.breedGroup && (
+                            <div class="text-xs text-ink-muted">{BREED_GROUP_LABELS[b.breedGroup] || b.breedGroup}</div>
+                          )}
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-ink text-white/70 py-12 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-sm">© 2026 PawLabs. Independent pet product reviews & breed profiles.</p>
+      <p class="text-xs mt-2 text-white/40">Breed data sourced from kennel club standards and expert veterinary resources.</p>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  @reference "../../styles/global.css";
+
+  .breed-prose :global(h2) {
+    @apply font-display font-bold text-ink text-xl sm:text-2xl mt-8 mb-3;
+  }
+  .breed-prose :global(h3) {
+    @apply font-display font-bold text-ink text-lg mt-6 mb-2;
+  }
+  .breed-prose :global(p) {
+    @apply text-ink/85 text-[15px] leading-relaxed mb-4;
+  }
+  .breed-prose :global(strong) {
+    @apply font-bold text-ink;
+  }
+  .breed-prose :global(a) {
+    @apply text-brand-700 underline decoration-brand-300 underline-offset-2 hover:decoration-brand-600 transition-colors;
+  }
+  .breed-prose :global(ul), .breed-prose :global(ol) {
+    @apply pl-5 mb-4 space-y-1 text-ink/85 text-[15px];
+  }
+  .breed-prose :global(blockquote) {
+    @apply border-l-4 border-brand-300 pl-4 italic text-ink/70 my-4;
+  }
+</style>
+
+<script>
+  // Mobile menu
+  const hamburger = document.getElementById('hamburger-btn');
+  const overlay = document.getElementById('mobile-overlay');
+  const drawer = document.getElementById('mobile-drawer');
+  const drawerClose = document.getElementById('drawer-close');
+
+  function openDrawer() {
+    overlay?.classList.add('active');
+    drawer?.classList.add('active');
+    hamburger?.setAttribute('aria-expanded', 'true');
+  }
+  function closeDrawer() {
+    overlay?.classList.remove('active');
+    drawer?.classList.remove('active');
+    hamburger?.setAttribute('aria-expanded', 'false');
+  }
+  hamburger?.addEventListener('click', openDrawer);
+  overlay?.addEventListener('click', closeDrawer);
+  drawerClose?.addEventListener('click', closeDrawer);
+</script>

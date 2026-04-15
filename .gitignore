@@ -28,3 +28,16 @@ cms/.next/
 cms/node_modules/
 cms/database.db
 cms/media/
+
+# Image supervisor
+.image-supervisor.pid
+.image-supervisor.log
+public/media/
+
+# CMS supervisor
+.cms.pid
+.cms.log
+.cms-build.log
+
+# Payload data cache
+.cache/

@@ -7,6 +7,7 @@
 
 import type { Product, Media } from '../lib/payload';
 import { getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../lib/payload';
+import { Package } from 'lucide-astro';
 
 interface Props {
   products: Product[];
@@ -91,7 +92,7 @@ const rows: Row[] = [
               {img ? (
                 <img src={img} alt={product.name} class="max-w-full max-h-full object-contain rounded-lg" />
               ) : (
-                <span class="text-3xl opacity-20">📦</span>
+                <Package class="w-8 h-8 text-ink opacity-20" />
               )}
             </div>
             <a href={`/products/${product.slug}`} class="text-sm font-bold text-gray-900 hover:text-brand-800 transition-colors">
