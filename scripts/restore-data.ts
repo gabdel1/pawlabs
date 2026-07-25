@@ -256,7 +256,7 @@ async function main() {
     const health = await fetch(`${API}/media?limit=1`);
     if (!health.ok) throw new Error('CMS not healthy');
   } catch {
-    console.error('❌ CMS is not running. Start it with: cd /srv/pet && ./scripts/cms.sh start');
+    console.error('❌ CMS is not running. Start it with: sudo systemctl start pawlabs-cms');
     process.exit(1);
   }
 
