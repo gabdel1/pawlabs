@@ -1,0 +1,233 @@
+---
+/**
+ * Reusable newsletter signup component.
+ *
+ * Variants:
+ *  - "hero"   — large, prominent block (homepage)
+ *  - "inline" — compact card (sidebars, within content)
+ *  - "banner" — full-width strip (between sections)
+ *
+ * Context props let us auto-tag subscribers in Brevo for segmentation.
+ */
+import { Mail, ArrowRight, Check, PawPrint } from 'lucide-astro';
+
+interface Props {
+  variant?: 'hero' | 'inline' | 'banner';
+  /** Heading override */
+  heading?: string;
+  /** Subtitle override */
+  subtitle?: string;
+  /** Inferred from page for Brevo tagging */
+  source?: string;
+  breed?: string;
+}
+
+const {
+  variant = 'inline',
+  heading,
+  subtitle,
+  source = '',
+  breed = '',
+} = Astro.props;
+
+const defaultHeadings: Record<string, string> = {
+  hero: 'New Breed Profiles, Weekly',
+  inline: 'Stay in the Loop',
+  banner: 'Find Your Breed',
+};
+
+const defaultSubtitles: Record<string, string> = {
+  hero: 'New breed profiles, updated trait ratings, and fresh head-to-head comparisons — one email per week. No spam, no fluff.',
+  inline: 'One email per week with new breed profiles and comparisons.',
+  banner: 'Join dog people who get our weekly breed profiles, care notes, and head-to-head comparisons — free.',
+};
+
+const h = heading || defaultHeadings[variant];
+const sub = subtitle || defaultSubtitles[variant];
+
+const uid = `nl-${variant}-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+{variant === 'hero' && (
+  <div
+    class="newsletter-form glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-brand-100/60 relative overflow-hidden"
+    data-nl-id={uid}
+    data-source={source}
+    data-breed={breed}
+  >
+    <div class="absolute -right-16 -top-16 w-48 h-48 bg-brand-200/30 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center">
+            <Mail class="w-4 h-4 text-brand-700" />
+          </div>
+          <h3 class="font-display font-bold text-ink text-lg sm:text-xl">{h}</h3>
+        </div>
+        <p class="text-sm text-ink-muted font-medium max-w-lg">{sub}</p>
+      </div>
+      <form class="nl-form flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto md:min-w-[360px]" data-nl-id={uid}>
+        <div class="relative flex-1">
+          <input
+            type="email"
+            required
+            placeholder="Your email address"
+            class="nl-email w-full bg-white border border-ink/10 rounded-xl px-4 py-3 text-sm font-medium text-ink placeholder:text-ink-muted/50 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all min-h-[44px]"
+          />
+        </div>
+        <button
+          type="submit"
+          class="nl-submit bg-ink hover:bg-ink-light text-white font-bold text-sm px-6 py-3 rounded-xl inline-flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg min-h-[44px] shrink-0"
+        >
+          Subscribe <ArrowRight class="w-4 h-4" />
+        </button>
+      </form>
+    </div>
+    <div class="nl-success hidden relative z-10 flex items-center gap-3 py-2">
+      <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+        <Check class="w-4 h-4 text-emerald-700" />
+      </div>
+      <p class="text-sm font-semibold text-emerald-800">You're in! Check your inbox for a welcome email.</p>
+    </div>
+    <div class="nl-error hidden relative z-10 text-sm font-medium text-red-600 mt-2"></div>
+    <p class="relative z-10 text-[10px] text-ink-muted/60 mt-3 font-medium">No spam, ever. Unsubscribe in one click.</p>
+  </div>
+)}
+
+{variant === 'inline' && (
+  <div
+    class="newsletter-form glass-card rounded-2xl p-5 sm:p-6 border border-brand-100/40"
+    data-nl-id={uid}
+    data-source={source}
+    data-breed={breed}
+  >
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-7 h-7 rounded-lg bg-brand-100 flex items-center justify-center">
+        <Mail class="w-3.5 h-3.5 text-brand-700" />
+      </div>
+      <h4 class="font-display font-bold text-ink text-sm">{h}</h4>
+    </div>
+    <p class="text-xs text-ink-muted font-medium mb-3">{sub}</p>
+    <form class="nl-form flex flex-col gap-2" data-nl-id={uid}>
+      <input
+        type="email"
+        required
+        placeholder="Your email address"
+        class="nl-email w-full bg-white border border-ink/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-ink placeholder:text-ink-muted/50 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all min-h-[40px]"
+      />
+      <button
+        type="submit"
+        class="nl-submit bg-ink hover:bg-ink-light text-white font-bold text-xs px-5 py-2.5 rounded-xl inline-flex items-center justify-center gap-1.5 transition-all duration-200 hover:shadow-lg min-h-[40px]"
+      >
+        Subscribe <ArrowRight class="w-3.5 h-3.5" />
+      </button>
+    </form>
+    <div class="nl-success hidden flex items-center gap-2 py-2">
+      <Check class="w-4 h-4 text-emerald-600" />
+      <p class="text-xs font-semibold text-emerald-700">You're in! Welcome aboard.</p>
+    </div>
+    <div class="nl-error hidden text-xs font-medium text-red-600 mt-1.5"></div>
+    <p class="text-[9px] text-ink-muted/50 mt-2 font-medium">No spam. Unsubscribe anytime.</p>
+  </div>
+)}
+
+{variant === 'banner' && (
+  <div
+    class="newsletter-form relative overflow-hidden rounded-2xl sm:rounded-3xl"
+    data-nl-id={uid}
+    data-source={source}
+    data-breed={breed}
+  >
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-800 via-brand-900 to-ink"></div>
+    <div class="absolute inset-0 opacity-[0.04]" style="background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')"></div>
+    <div class="relative z-10 px-6 sm:px-10 py-8 sm:py-10 flex flex-col md:flex-row md:items-center gap-5 md:gap-10">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2.5 mb-2">
+          <PawPrint class="w-5 h-5 text-brand-300" />
+          <span class="text-[10px] font-bold uppercase tracking-widest text-brand-300">Free Weekly Newsletter</span>
+        </div>
+        <h3 class="font-display font-bold text-white text-xl sm:text-2xl mb-1.5">{h}</h3>
+        <p class="text-sm text-white/60 font-medium max-w-lg">{sub}</p>
+      </div>
+      <div class="w-full md:w-auto md:min-w-[360px]">
+        <form class="nl-form flex flex-col sm:flex-row gap-2 sm:gap-3" data-nl-id={uid}>
+          <div class="relative flex-1">
+            <input
+              type="email"
+              required
+              placeholder="Your email address"
+              class="nl-email w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder:text-white/40 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/30 transition-all min-h-[44px]"
+            />
+          </div>
+          <button
+            type="submit"
+            class="nl-submit bg-white hover:bg-brand-50 text-brand-900 font-bold text-sm px-6 py-3 rounded-xl inline-flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg min-h-[44px] shrink-0"
+          >
+            Subscribe <ArrowRight class="w-4 h-4" />
+          </button>
+        </form>
+        <div class="nl-success hidden flex items-center gap-2 py-2">
+          <Check class="w-4 h-4 text-brand-300" />
+          <p class="text-sm font-semibold text-brand-200">You're in! Check your inbox.</p>
+        </div>
+        <div class="nl-error hidden text-sm font-medium text-red-300 mt-2"></div>
+        <p class="text-[10px] text-white/30 mt-2 font-medium">No spam, ever. Unsubscribe in one click.</p>
+      </div>
+    </div>
+  </div>
+)}
+
+<script>
+  const CMS_URL = 'https://pawlabs.org';
+
+  document.querySelectorAll<HTMLFormElement>('.nl-form').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const wrapper = form.closest<HTMLElement>('.newsletter-form');
+      if (!wrapper) return;
+
+      const emailInput = form.querySelector<HTMLInputElement>('.nl-email');
+      const submitBtn = form.querySelector<HTMLButtonElement>('.nl-submit');
+      const successEl = wrapper.querySelector<HTMLElement>('.nl-success');
+      const errorEl = wrapper.querySelector<HTMLElement>('.nl-error');
+      if (!emailInput || !submitBtn) return;
+
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      // Disable button
+      const origText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="animate-pulse">Subscribing…</span>';
+      errorEl?.classList.add('hidden');
+
+      try {
+        const res = await fetch(`${CMS_URL}/api/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            source: wrapper.dataset.source || '',
+            breed: wrapper.dataset.breed || '',
+          }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          form.classList.add('hidden');
+          successEl?.classList.remove('hidden');
+        } else {
+          throw new Error(data.error || 'Subscription failed');
+        }
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origText;
+      }
+    });
+  });
+</script>

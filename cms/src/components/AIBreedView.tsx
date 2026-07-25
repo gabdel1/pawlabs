@@ -65,8 +65,8 @@ const TRAIT_LABELS: Record<keyof TraitRatings, string> = {
 const navItems = [
   { label: 'Users', href: '/admin/collections/users' },
   { label: 'Media', href: '/admin/collections/media' },
-  { label: 'Products', href: '/admin/collections/products' },
   { label: 'Breeds', href: '/admin/collections/breeds' },
+  { label: 'Comparisons', href: '/admin/collections/comparisons' },
 ]
 
 function TraitBar({ label, value }: { label: string; value: number }) {

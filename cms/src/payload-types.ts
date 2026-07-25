@@ -69,11 +69,8 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
-    products: Product;
-    reviews: Review;
-    verdicts: Verdict;
-    guides: Guide;
     breeds: Breed;
+    comparisons: Comparison;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -83,11 +80,8 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    products: ProductsSelect<false> | ProductsSelect<true>;
-    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
-    verdicts: VerdictsSelect<false> | VerdictsSelect<true>;
-    guides: GuidesSelect<false> | GuidesSelect<true>;
     breeds: BreedsSelect<false> | BreedsSelect<true>;
+    comparisons: ComparisonsSelect<false> | ComparisonsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -170,228 +164,6 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-}
-/**
- * Pet products for affiliate marketing reviews
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products".
- */
-export interface Product {
-  id: number;
-  name: string;
-  /**
-   * URL-friendly identifier (e.g. smart-pet-feeder)
-   */
-  slug: string;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Brief summary for product cards and SEO meta descriptions
-   */
-  shortDescription?: string | null;
-  /**
-   * Current retail price
-   */
-  price?: number | null;
-  /**
-   * Affiliate link (Amazon, Chewy, etc.)
-   */
-  affiliateUrl?: string | null;
-  image?: (number | null) | Media;
-  gallery?:
-    | {
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  category?:
-    | (
-        | 'smart-gadgets'
-        | 'toys'
-        | 'food-treats'
-        | 'health-wellness'
-        | 'grooming'
-        | 'beds-furniture'
-        | 'leashes-collars'
-        | 'travel'
-        | 'other'
-      )
-    | null;
-  petType?: ('dog' | 'cat' | 'bird' | 'fish' | 'small-animal' | 'reptile' | 'universal') | null;
-  featured?: boolean | null;
-  /**
-   * Rating out of 5 stars
-   */
-  rating?: number | null;
-  pros?:
-    | {
-        point: string;
-        id?: string | null;
-      }[]
-    | null;
-  cons?:
-    | {
-        point: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * In-depth product reviews for affiliate content
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "reviews".
- */
-export interface Review {
-  id: number;
-  title: string;
-  /**
-   * URL-friendly identifier
-   */
-  slug: string;
-  product: number | Product;
-  /**
-   * Full in-depth review body
-   */
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Short excerpt for SEO meta descriptions and cards
-   */
-  summary?: string | null;
-  /**
-   * Rating out of 5 stars
-   */
-  overallRating?: number | null;
-  ratingBreakdown?: {
-    quality?: number | null;
-    valueForMoney?: number | null;
-    easeOfUse?: number | null;
-    durability?: number | null;
-  };
-  verdict?: ('highly-recommended' | 'recommended' | 'average' | 'not-recommended') | null;
-  /**
-   * Override the product affiliate link for this specific review
-   */
-  affiliateUrl?: string | null;
-  featuredImage?: (number | null) | Media;
-  author?: string | null;
-  publishedDate?: string | null;
-  status?: ('draft' | 'published') | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Cached AI verdicts for product comparisons
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "verdicts".
- */
-export interface Verdict {
-  id: number;
-  /**
-   * Sorted, comma-joined product slugs (e.g. "product-a,product-b")
-   */
-  productKey: string;
-  /**
-   * The AI-generated HTML verdict
-   */
-  verdict: string;
-  /**
-   * Array of product slugs used in this comparison
-   */
-  productSlugs?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  /**
-   * Product category for this comparison
-   */
-  category?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * AI-generated multi-product guides and roundups
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "guides".
- */
-export interface Guide {
-  id: number;
-  title: string;
-  /**
-   * URL-friendly identifier
-   */
-  slug: string;
-  guideType?: ('ultimate-guide' | 'essentials' | 'roundup' | 'comparison') | null;
-  /**
-   * Short excerpt for SEO meta descriptions and cards
-   */
-  summary?: string | null;
-  /**
-   * Full guide body as HTML
-   */
-  content?: string | null;
-  /**
-   * Products featured in this guide
-   */
-  products: (number | Product)[];
-  category?:
-    | (
-        | 'smart-gadgets'
-        | 'toys'
-        | 'food-treats'
-        | 'health-wellness'
-        | 'grooming'
-        | 'beds-furniture'
-        | 'leashes-collars'
-        | 'travel'
-        | 'mixed'
-        | 'other'
-      )
-    | null;
-  petType?: ('dog' | 'cat' | 'bird' | 'fish' | 'small-animal' | 'reptile' | 'universal') | null;
-  author?: string | null;
-  featuredImage?: (number | null) | Media;
-  publishedDate?: string | null;
-  status?: ('draft' | 'published') | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * Dog and cat breed profiles with detailed traits and ratings
@@ -548,6 +320,63 @@ export interface Breed {
   createdAt: string;
 }
 /**
+ * AI-generated head-to-head dog breed comparisons
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comparisons".
+ */
+export interface Comparison {
+  id: number;
+  title: string;
+  /**
+   * URL-friendly identifier
+   */
+  slug: string;
+  /**
+   * Short excerpt for SEO meta descriptions and cards
+   */
+  summary?: string | null;
+  /**
+   * Full article body as HTML
+   */
+  content?: string | null;
+  /**
+   * The breeds compared in this article (at least two)
+   */
+  breeds: (number | Breed)[];
+  /**
+   * Trait keys used by the comparison table. Leave empty to use defaults.
+   */
+  comparisonCriteria?:
+    | {
+        criterion:
+          | 'lowShedding'
+          | 'apartmentFriendly'
+          | 'watchdogAbility'
+          | 'energyLevel'
+          | 'trainability'
+          | 'childFriendly'
+          | 'petFriendly'
+          | 'easyGrooming'
+          | 'barkingControl'
+          | 'adaptability'
+          | 'intelligence'
+          | 'healthRobustness';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Closing verdict block shown below the comparison table.
+   */
+  verdict?: string | null;
+  author?: string | null;
+  featuredImage?: (number | null) | Media;
+  publishedDate?: string | null;
+  status?: ('draft' | 'published') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -580,24 +409,12 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'products';
-        value: number | Product;
-      } | null)
-    | ({
-        relationTo: 'reviews';
-        value: number | Review;
-      } | null)
-    | ({
-        relationTo: 'verdicts';
-        value: number | Verdict;
-      } | null)
-    | ({
-        relationTo: 'guides';
-        value: number | Guide;
-      } | null)
-    | ({
         relationTo: 'breeds';
         value: number | Breed;
+      } | null)
+    | ({
+        relationTo: 'comparisons';
+        value: number | Comparison;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -683,103 +500,6 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products_select".
- */
-export interface ProductsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  description?: T;
-  shortDescription?: T;
-  price?: T;
-  affiliateUrl?: T;
-  image?: T;
-  gallery?:
-    | T
-    | {
-        image?: T;
-        id?: T;
-      };
-  category?: T;
-  petType?: T;
-  featured?: T;
-  rating?: T;
-  pros?:
-    | T
-    | {
-        point?: T;
-        id?: T;
-      };
-  cons?:
-    | T
-    | {
-        point?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "reviews_select".
- */
-export interface ReviewsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  product?: T;
-  content?: T;
-  summary?: T;
-  overallRating?: T;
-  ratingBreakdown?:
-    | T
-    | {
-        quality?: T;
-        valueForMoney?: T;
-        easeOfUse?: T;
-        durability?: T;
-      };
-  verdict?: T;
-  affiliateUrl?: T;
-  featuredImage?: T;
-  author?: T;
-  publishedDate?: T;
-  status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "verdicts_select".
- */
-export interface VerdictsSelect<T extends boolean = true> {
-  productKey?: T;
-  verdict?: T;
-  productSlugs?: T;
-  category?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "guides_select".
- */
-export interface GuidesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  guideType?: T;
-  summary?: T;
-  content?: T;
-  products?: T;
-  category?: T;
-  petType?: T;
-  author?: T;
-  featuredImage?: T;
-  publishedDate?: T;
-  status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "breeds_select".
  */
 export interface BreedsSelect<T extends boolean = true> {
@@ -848,6 +568,30 @@ export interface BreedsSelect<T extends boolean = true> {
   article?: T;
   author?: T;
   publishedDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comparisons_select".
+ */
+export interface ComparisonsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  summary?: T;
+  content?: T;
+  breeds?: T;
+  comparisonCriteria?:
+    | T
+    | {
+        criterion?: T;
+        id?: T;
+      };
+  verdict?: T;
+  author?: T;
+  featuredImage?: T;
+  publishedDate?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

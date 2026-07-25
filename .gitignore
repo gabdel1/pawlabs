@@ -41,3 +41,9 @@ public/media/
 
 # Payload data cache
 .cache/
+
+# Claude Code worktrees and session state
+.claude/
+
+# Rotated legacy CMS supervisor logs
+.cms.log.*.gz

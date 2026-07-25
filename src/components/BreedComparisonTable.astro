@@ -1,0 +1,374 @@
+---
+import type { Breed } from '../lib/payload';
+
+interface Props {
+  breeds: Breed[];
+  selectedCriteria?: string[];
+}
+
+const { breeds, selectedCriteria = [] } = Astro.props;
+
+const DEFAULT_CRITERIA = [
+  'lowShedding',
+  'apartmentFriendly',
+  'watchdogAbility',
+  'trainability',
+  'childFriendly',
+  'energyLevel',
+  'easyGrooming',
+];
+
+const activeCriteria = selectedCriteria.length > 0 ? selectedCriteria : DEFAULT_CRITERIA;
+
+const tableBreeds = breeds.map((breed) => {
+  const traits = breed.traits || {};
+  const weightRange = breed.weightMin && breed.weightMax ? `${breed.weightMin}-${breed.weightMax} lb` : '—';
+  const lifespan = breed.lifeExpectancyMin && breed.lifeExpectancyMax ? `${breed.lifeExpectancyMin}-${breed.lifeExpectancyMax} yrs` : '—';
+
+  const score = (key: keyof NonNullable<Breed['traits']>) => {
+    const value = traits[key];
+    return typeof value === 'number' ? value : null;
+  };
+
+  const invert = (value: number | null) => (value == null ? null : 11 - value);
+
+  const criteria = {
+    lowShedding: invert(score('sheddingLevel')),
+    apartmentFriendly: (() => {
+      const adapt = score('adaptability');
+      const bark = score('barkingLevel');
+      if (adapt == null && bark == null) return null;
+      const parts: number[] = [];
+      if (adapt != null) parts.push(adapt);
+      if (bark != null) parts.push(11 - bark);
+      return Math.round(parts.reduce((a, b) => a + b, 0) / parts.length);
+    })(),
+    watchdogAbility: score('watchdogAbility'),
+    energyLevel: score('energyLevel'),
+    trainability: score('trainability'),
+    childFriendly: score('childFriendly'),
+    petFriendly: score('petFriendly'),
+    easyGrooming: invert(score('groomingNeeds')),
+    barkingControl: invert(score('barkingLevel')),
+    adaptability: score('adaptability'),
+    intelligence: score('intelligence'),
+    healthRobustness: score('healthRobustness'),
+  };
+
+  return {
+    name: breed.name,
+    slug: breed.slug,
+    size: breed.size || '—',
+    weightRange,
+    lifespan,
+    criteria,
+  };
+});
+
+const criteriaLabels: Record<string, string> = {
+  lowShedding: 'Low Shedding',
+  apartmentFriendly: 'Apartment Friendly',
+  watchdogAbility: 'Watchdog Ability',
+  energyLevel: 'Energy Level',
+  trainability: 'Trainability',
+  childFriendly: 'Child Friendly',
+  petFriendly: 'Pet Friendly',
+  easyGrooming: 'Easy Grooming',
+  barkingControl: 'Barking Control',
+  adaptability: 'Adaptability',
+  intelligence: 'Intelligence',
+  healthRobustness: 'Health Robustness',
+};
+---
+
+<section class="breed-compare-shell" data-breed-compare>
+  <div class="breed-compare-head">
+    <h2 class="breed-compare-title">Breed Comparison Table</h2>
+    <p class="breed-compare-subtitle">Tap any criterion to sort and spotlight the strongest fit for your lifestyle.</p>
+  </div>
+
+  <div class="criterion-pills" role="tablist" aria-label="Comparison criteria">
+    {activeCriteria.map((criterion) => (
+      <button
+        type="button"
+        class="criterion-pill"
+        data-criterion={criterion}
+        aria-selected="false"
+      >
+        {criteriaLabels[criterion] || criterion}
+      </button>
+    ))}
+  </div>
+
+  <div class="table-wrap">
+    <table class="breed-table" data-breed-table>
+      <thead>
+        <tr>
+          <th scope="col">Breed</th>
+          <th scope="col">Size</th>
+          <th scope="col">Weight</th>
+          <th scope="col">Life Span</th>
+          {activeCriteria.map((criterion) => (
+            <th scope="col" data-col-criterion={criterion}>{criteriaLabels[criterion] || criterion}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {tableBreeds.map((breed) => (
+          <tr data-breed-row data-breed={breed.name}>
+            <th scope="row">
+              <a href={`/breeds/${breed.slug}`} class="breed-link">{breed.name}</a>
+            </th>
+            <td>{breed.size}</td>
+            <td>{breed.weightRange}</td>
+            <td>{breed.lifespan}</td>
+            {activeCriteria.map((criterion) => {
+              const value = breed.criteria[criterion as keyof typeof breed.criteria];
+              const scoreClass = typeof value === 'number' && value >= 8
+                ? 'score score-top'
+                : typeof value === 'number' && value >= 6
+                ? 'score score-good'
+                : typeof value === 'number' && value >= 4
+                ? 'score score-mid'
+                : 'score score-low';
+              return (
+                <td data-value={typeof value === 'number' ? value : ''} data-cell-criterion={criterion}>
+                  <span class={scoreClass}>{typeof value === 'number' ? `${value}/10` : '—'}</span>
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <script is:inline define:vars={{ criteria: activeCriteria }}>
+    const root = document.currentScript?.closest('[data-breed-compare]');
+    if (root) {
+      const table = root.querySelector('[data-breed-table]');
+      const pills = Array.from(root.querySelectorAll('.criterion-pill'));
+
+      const sortByCriterion = (criterion) => {
+        if (!table) return;
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+
+        const rows = Array.from(tbody.querySelectorAll('[data-breed-row]'));
+        const ranked = rows
+          .map((row) => {
+            const cell = row.querySelector(`[data-cell-criterion="${criterion}"]`);
+            const raw = cell?.getAttribute('data-value');
+            const value = raw ? Number(raw) : -1;
+            return { row, value };
+          })
+          .sort((a, b) => b.value - a.value);
+
+        ranked.forEach(({ row }, idx) => {
+          tbody.appendChild(row);
+          row.classList.toggle('is-winner', idx === 0);
+        });
+
+        table.querySelectorAll('[data-col-criterion]').forEach((head) => {
+          head.classList.toggle('is-active-col', head.getAttribute('data-col-criterion') === criterion);
+        });
+
+        table.querySelectorAll('[data-cell-criterion]').forEach((cell) => {
+          cell.classList.toggle('is-active-cell', cell.getAttribute('data-cell-criterion') === criterion);
+        });
+      };
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const criterion = pill.getAttribute('data-criterion');
+          if (!criterion) return;
+          pills.forEach((btn) => {
+            const selected = btn === pill;
+            btn.classList.toggle('is-active', selected);
+            btn.setAttribute('aria-selected', selected ? 'true' : 'false');
+          });
+          sortByCriterion(criterion);
+        });
+      });
+
+      const defaultCriterion = criteria[0];
+      if (defaultCriterion && pills[0]) {
+        pills[0].classList.add('is-active');
+        pills[0].setAttribute('aria-selected', 'true');
+        sortByCriterion(defaultCriterion);
+      }
+    }
+  </script>
+</section>
+
+<style>
+  .breed-compare-shell {
+    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(126, 211, 33, 0.08), transparent 40%),
+      linear-gradient(180deg, #ffffff, #fbfffc);
+    border-radius: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .breed-compare-head {
+    margin-bottom: 0.75rem;
+  }
+
+  .breed-compare-title {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #122028;
+    letter-spacing: -0.02em;
+  }
+
+  .breed-compare-subtitle {
+    margin-top: 0.35rem;
+    color: #4f6773;
+    font-size: 0.95rem;
+  }
+
+  .criterion-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 1rem;
+  }
+
+  .criterion-pill {
+    border: 1px solid #d9e4e4;
+    background: #fff;
+    color: #31505a;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    transition: all 0.2s ease;
+  }
+
+  .criterion-pill:hover {
+    border-color: #98b7ae;
+    color: #20424b;
+  }
+
+  .criterion-pill.is-active {
+    background: #122028;
+    border-color: #122028;
+    color: #f5fff9;
+    box-shadow: 0 8px 18px rgba(18, 32, 40, 0.25);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .breed-table {
+    width: 100%;
+    min-width: 780px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .breed-table thead th {
+    position: sticky;
+    top: 0;
+    background: #eef6f4;
+    color: #415861;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+    padding: 0.8rem 0.7rem;
+    border-bottom: 1px solid #d9e4e4;
+    white-space: nowrap;
+  }
+
+  .breed-table tbody th,
+  .breed-table tbody td {
+    border-bottom: 1px solid #eef2f2;
+    padding: 0.75rem 0.7rem;
+    text-align: center;
+    font-size: 0.88rem;
+    color: #31434a;
+  }
+
+  .breed-table tbody th {
+    text-align: left;
+    font-weight: 700;
+    position: sticky;
+    left: 0;
+    background: #ffffff;
+    z-index: 1;
+  }
+
+  .breed-link {
+    color: #132a31;
+    text-decoration: none;
+    border-bottom: 1px dashed #8fb3ab;
+  }
+
+  .breed-link:hover {
+    color: #0c4d5f;
+    border-bottom-style: solid;
+  }
+
+  .score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    border-radius: 999px;
+    padding: 0.2rem 0.5rem;
+    font-weight: 800;
+    font-size: 0.78rem;
+  }
+
+  .score-top {
+    background: #e6fff1;
+    color: #0f7a48;
+  }
+
+  .score-good {
+    background: #f0fbff;
+    color: #1a758d;
+  }
+
+  .score-mid {
+    background: #fff7e9;
+    color: #9c6611;
+  }
+
+  .score-low {
+    background: #fff0f0;
+    color: #a23b3b;
+  }
+
+  .is-active-col {
+    background: #dae8e4 !important;
+    color: #17353f !important;
+  }
+
+  .is-active-cell {
+    background: rgba(11, 98, 122, 0.06);
+  }
+
+  .is-winner {
+    background: linear-gradient(90deg, rgba(57, 189, 132, 0.08), transparent 62%);
+  }
+
+  @media (max-width: 640px) {
+    .breed-compare-shell {
+      padding: 0.9rem;
+      border-radius: 1rem;
+    }
+
+    .breed-compare-title {
+      font-size: 1.1rem;
+    }
+
+    .breed-compare-subtitle {
+      font-size: 0.85rem;
+    }
+  }
+</style>

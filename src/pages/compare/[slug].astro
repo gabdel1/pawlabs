@@ -1,0 +1,219 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BreedComparisonTable from '../../components/BreedComparisonTable.astro';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import Footer from '../../components/Footer.astro';
+import { getComparisons, getMediaUrl } from '../../lib/payload';
+import type { Breed, Comparison, Media } from '../../lib/payload';
+import { comparisonJsonLd } from '../../lib/seo';
+import { Scale, ArrowUpRight, Calendar } from 'lucide-astro';
+
+export async function getStaticPaths() {
+  const comparisons = await getComparisons();
+  return comparisons.map((comparison) => ({
+    params: { slug: comparison.slug },
+    props: { comparison },
+  }));
+}
+
+const { comparison } = Astro.props as { comparison: Comparison };
+
+const linkedBreeds = (comparison.breeds || []).filter(b => typeof b !== 'string') as Breed[];
+const criteria = (comparison.comparisonCriteria || []).map(c => c.criterion).filter(Boolean);
+const imageUrl = getMediaUrl(comparison.featuredImage as Media);
+
+const publishedDate = comparison.publishedDate || comparison.createdAt;
+const formattedDate = publishedDate
+  ? new Date(publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Compare', href: '/compare' },
+  { label: comparison.title },
+];
+---
+
+<Layout
+  title={`${comparison.title} | PawLabs`}
+  description={comparison.summary || `Head-to-head comparison of ${linkedBreeds.map(b => b.name).join(' and ')}.`}
+  canonicalUrl={`/compare/${comparison.slug}`}
+  ogType="article"
+  ogImage={imageUrl}
+  jsonLd={[comparisonJsonLd(comparison, linkedBreeds)]}
+  publishedTime={publishedDate}
+  modifiedTime={comparison.updatedAt}
+>
+  <Nav activePage="compare" />
+
+  <div class="pt-32 sm:pt-36">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <main class="min-h-screen bg-surface noise">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+      <!-- Header -->
+      <header class="mb-10 reveal">
+        <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4">
+          <Scale class="w-3.5 h-3.5" /> Breed Comparison
+        </div>
+        <h1 class="display-heading display-fluid-lg text-ink mb-5 text-balance">{comparison.title}</h1>
+
+        {comparison.summary && (
+          <p class="text-ink-muted text-base sm:text-xl leading-relaxed text-pretty mb-6">{comparison.summary}</p>
+        )}
+
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-light font-medium">
+          {comparison.author && <span>By {comparison.author}</span>}
+          {formattedDate && (
+            <span class="inline-flex items-center gap-1.5">
+              <Calendar class="w-3.5 h-3.5" /> {formattedDate}
+            </span>
+          )}
+          {linkedBreeds.length > 0 && <span>{linkedBreeds.length} breeds compared</span>}
+        </div>
+      </header>
+
+      {imageUrl && (
+        <div class="rounded-3xl overflow-hidden mb-10 aspect-[16/9] bg-brand-50 reveal">
+          <img src={imageUrl} alt={comparison.title} class="w-full h-full object-cover" />
+        </div>
+      )}
+
+      <!-- Comparison table -->
+      {linkedBreeds.length > 1 && (
+        <div class="mb-12 reveal">
+          <BreedComparisonTable breeds={linkedBreeds} selectedCriteria={criteria} />
+        </div>
+      )}
+
+      <!-- Article body -->
+      {comparison.content && (
+        <article class="article-content glass-card rounded-3xl p-6 sm:p-10 mb-12 reveal" set:html={comparison.content} />
+      )}
+
+      <!-- Verdict -->
+      {comparison.verdict && (
+        <section class="verdict-block rounded-3xl p-6 sm:p-10 mb-12 reveal">
+          <h2 class="display-heading text-2xl sm:text-3xl text-white mb-5">The Verdict</h2>
+          <div class="verdict-body" set:html={comparison.verdict} />
+        </section>
+      )}
+
+      <!-- Breeds in this comparison -->
+      {linkedBreeds.length > 0 && (
+        <section class="mb-12 reveal">
+          <h2 class="display-heading text-xl sm:text-2xl text-ink mb-5">Breeds in This Comparison</h2>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {linkedBreeds.map((breed) => {
+              const imgUrl = getMediaUrl(breed.image as Media);
+              return (
+                <a href={`/breeds/${breed.slug}`} class="card-hover group glass-card rounded-2xl overflow-hidden border-transparent hover:border-brand-200 flex items-center gap-3 p-3">
+                  <div class="w-16 h-16 rounded-xl bg-brand-50 overflow-hidden shrink-0">
+                    {imgUrl ? (
+                      <img src={imgUrl} alt={breed.name} class="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <div class="w-full h-full bg-gradient-to-br from-brand-200/60 to-brand-50"></div>
+                    )}
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="font-bold text-ink text-sm group-hover:text-brand-700 transition-colors truncate">{breed.name}</h3>
+                    <p class="text-xs text-ink-muted mt-0.5">Breed profile</p>
+                  </div>
+                  <ArrowUpRight class="w-4 h-4 text-ink-muted ml-auto shrink-0" />
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <div class="mb-12 reveal">
+        <NewsletterSignup
+          variant="banner"
+          heading="More Breed Comparisons"
+          subtitle="New head-to-head breed breakdowns and profile updates, once a week."
+          source="comparison-detail"
+        />
+      </div>
+
+      <div class="text-center reveal">
+        <a href="/compare" class="inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 transition-colors">
+          Compare other breeds <ArrowUpRight class="w-4 h-4" />
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <Footer note="Comparison scores are derived from our breed trait ratings, sourced from kennel club standards." />
+</Layout>
+
+<style is:global>
+  .article-content h2 {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #122028;
+    letter-spacing: -0.02em;
+    margin-top: 2.25rem;
+    margin-bottom: 0.85rem;
+  }
+  .article-content h2:first-child { margin-top: 0; }
+  .article-content h3 {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1b2f38;
+    margin-top: 1.75rem;
+    margin-bottom: 0.6rem;
+  }
+  .article-content p {
+    color: #41565f;
+    line-height: 1.75;
+    margin-bottom: 1.1rem;
+  }
+  .article-content ul, .article-content ol {
+    margin: 0 0 1.25rem 1.25rem;
+    color: #41565f;
+    line-height: 1.7;
+  }
+  .article-content li { margin-bottom: 0.5rem; }
+  .article-content ul { list-style: disc; }
+  .article-content ol { list-style: decimal; }
+  .article-content strong { color: #122028; font-weight: 700; }
+  .article-content a { color: #0c6076; text-decoration: underline; }
+
+  .verdict-block {
+    background: linear-gradient(135deg, #122028, #1b3742);
+    box-shadow: 0 24px 48px -24px rgba(18, 32, 40, 0.6);
+  }
+  .verdict-body p {
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .verdict-body h3 {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .verdict-body strong { color: #fff; font-weight: 700; }
+  .verdict-body ul, .verdict-body ol {
+    margin: 0 0 1.1rem 1.25rem;
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.7;
+  }
+  .verdict-body ul { list-style: disc; }
+  .verdict-body ol { list-style: decimal; }
+
+  @media (max-width: 640px) {
+    .article-content h2 { font-size: 1.35rem; }
+    .article-content h3 { font-size: 1.08rem; }
+  }
+</style>

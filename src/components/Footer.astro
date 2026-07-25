@@ -1,0 +1,22 @@
+---
+interface Props {
+  /** Optional second line, e.g. a page-specific sourcing note. */
+  note?: string;
+}
+
+const {
+  note = 'Breed data sourced from kennel club standards and expert veterinary resources.',
+} = Astro.props;
+---
+
+<footer class="bg-ink text-white/70 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+    <p class="text-sm">&copy; {new Date().getFullYear()} PawLabs. An independent dog breed encyclopedia.</p>
+    <p class="text-xs mt-2 text-white/40">{note}</p>
+    <nav class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium">
+      <a href="/breeds" class="hover:text-white transition-colors">All Breeds</a>
+      <a href="/compare" class="hover:text-white transition-colors">Compare Breeds</a>
+      <a href="/admin" class="hover:text-white transition-colors">Admin</a>
+    </nav>
+  </div>
+</footer>

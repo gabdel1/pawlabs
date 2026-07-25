@@ -1,364 +1,389 @@
 ---
 /**
- * /compare — Client-side comparison page.
- * 
- * All product data is embedded at build time as JSON.
- * The page reads ?products=slug1,slug2,... from the URL and renders
- * the comparison table + AI verdict entirely client-side.
+ * /compare — Breed comparison hub.
+ *
+ * Two things live here:
+ *  1. An interactive picker — all breed data is embedded at build time as JSON,
+ *     and the table is built client-side from ?breeds=slug1,slug2,...
+ *  2. An index of published, long-form breed comparison articles.
  */
 
 import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
-import Logo from '../../components/Logo.astro';
-import { getProducts, getReviewsForProduct, getMediaUrl, CATEGORY_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
-import type { Product, Media } from '../../lib/payload';
-import { Trophy } from 'lucide-astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import Footer from '../../components/Footer.astro';
+import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, CRITERION_LABELS } from '../../lib/payload';
+import type { Breed, Media } from '../../lib/payload';
+import { comparisonsListJsonLd } from '../../lib/seo';
+import { Scale, ArrowUpRight, Search } from 'lucide-astro';
 
-// Fetch all products + reviews at build time
-const allProducts = await getProducts();
-const reviewMap: Record<string, any[]> = {};
-for (const p of allProducts) {
-  reviewMap[p.slug] = await getReviewsForProduct(p.id);
+const breeds = await getBreeds();
+const comparisons = await getComparisons();
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Compare' },
+];
+
+/** Derived criteria — mirrors BreedComparisonTable so the client table matches. */
+const CRITERIA = [
+  'lowShedding',
+  'apartmentFriendly',
+  'watchdogAbility',
+  'trainability',
+  'childFriendly',
+  'energyLevel',
+  'easyGrooming',
+];
+
+function derive(breed: Breed) {
+  const t = breed.traits || {};
+  const score = (key: keyof NonNullable<Breed['traits']>) => {
+    const v = t[key];
+    return typeof v === 'number' ? v : null;
+  };
+  const invert = (v: number | null) => (v == null ? null : 11 - v);
+
+  const adapt = score('adaptability');
+  const bark = score('barkingLevel');
+  const parts: number[] = [];
+  if (adapt != null) parts.push(adapt);
+  if (bark != null) parts.push(11 - bark);
+
+  return {
+    lowShedding: invert(score('sheddingLevel')),
+    apartmentFriendly: parts.length ? Math.round(parts.reduce((a, b) => a + b, 0) / parts.length) : null,
+    watchdogAbility: score('watchdogAbility'),
+    trainability: score('trainability'),
+    childFriendly: score('childFriendly'),
+    energyLevel: score('energyLevel'),
+    easyGrooming: invert(score('groomingNeeds')),
+  };
 }
 
-// Serialize product data with image URLs resolved
-const productsData = allProducts.map(p => ({
-  ...p,
-  imageUrl: getMediaUrl(p.image as Media),
-  reviews: reviewMap[p.slug] || [],
+const breedData = breeds.map(b => ({
+  name: b.name,
+  slug: b.slug,
+  group: b.breedGroup ? BREED_GROUP_LABELS[b.breedGroup] ?? b.breedGroup : '',
+  size: b.size ? SIZE_LABELS[b.size] ?? b.size : '—',
+  weight: b.weightMin && b.weightMax ? `${b.weightMin}-${b.weightMax} lb` : '—',
+  lifespan: b.lifeExpectancyMin && b.lifeExpectancyMax ? `${b.lifeExpectancyMin}-${b.lifeExpectancyMax} yrs` : '—',
+  image: getMediaUrl(b.image as Media),
+  criteria: derive(b),
 }));
-
-// CMS API base URL — used client-side for the verdict API call
-// In production the CMS is proxied through the same domain (pawlabs.org)
-const cmsBaseUrl = import.meta.env.SITE || 'https://pawlabs.org';
 ---
 
 <Layout
-  title="Product Comparison - PawLabs"
-  description="Compare pet products side-by-side. Analyze prices, ratings, features, pros and cons."
+  title="Compare Dog Breeds Side-by-Side | PawLabs"
+  description="Compare any two dog breeds head-to-head — shedding, energy, trainability, apartment suitability and more, scored out of 10."
   canonicalUrl="/compare"
-  ogType="article"
+  jsonLd={[comparisonsListJsonLd(comparisons)]}
 >
   <Nav activePage="compare" />
 
-  <main id="compare-main" class="min-h-screen bg-surface pt-32 sm:pt-36">
-    <!-- Empty state (shown when no products selected or loading) -->
-    <div id="compare-empty" class="text-center py-32">
-      <div class="w-24 h-24 rounded-[2rem] bg-brand-50 text-brand-400 flex items-center justify-center mb-6 border border-brand-100 shadow-xl shadow-brand-100/50 mx-auto">
-        <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-      </div>
-      <h1 class="text-2xl font-bold text-ink mb-3">Select Products to Compare</h1>
-      <p class="text-ink-muted mb-8">Go to the products page and choose products from the same category to compare.</p>
-      <a href="/products#compare" class="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
-        Browse Products →
-      </a>
-    </div>
+  <div class="pt-32 sm:pt-36">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
 
-    <!-- Comparison content (hidden by default, shown by JS) -->
-    <div id="compare-content" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+  <main class="min-h-screen bg-surface noise">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
       <!-- Header -->
-      <div class="text-center mb-10">
-        <div id="compare-category-badge" class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4"></div>
-        <h1 id="compare-title" class="text-3xl md:text-4xl font-bold text-ink mb-3"></h1>
-        <p class="text-ink-muted">Side-by-side product comparison — which one should you buy?</p>
+      <div class="mb-10 reveal">
+        <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4">
+          <Scale class="w-3.5 h-3.5" /> Side-by-Side
+        </div>
+        <h1 class="display-heading display-fluid-lg text-ink mb-4">Compare Dog Breeds.</h1>
+        <p class="text-ink-muted text-base sm:text-lg max-w-2xl text-pretty">
+          Pick any two or more breeds and see how they actually differ — shedding, energy, trainability,
+          and whether they'll tolerate apartment life. Every score is out of 10.
+        </p>
       </div>
 
-      <!-- Comparison Table -->
-      <div id="compare-table" class="bg-surface-raised rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto"></div>
-
-      <!-- Pros & Cons -->
-      <div id="compare-proscons" class="grid gap-6 mt-8"></div>
-
-      <!-- AI Verdict -->
-      <div id="verdict-section" class="mt-8 rounded-2xl overflow-hidden" style="border: 2px solid #d1d5db; background: #ffffff;">
-        <div class="text-center py-6 px-8" style="background: linear-gradient(135deg, #064e3b, #065f46); border-bottom: 3px solid #10b981;">
-          <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 inline-flex items-center justify-center gap-3"><Trophy class="w-7 h-7" /> The PawLabs Verdict</h2>
-          <p class="text-emerald-200 text-sm">Our take after crunching the numbers — price, ratings, real user feedback, and everything in between</p>
+      <!-- Picker -->
+      <section class="glass-card rounded-3xl p-5 sm:p-8 mb-12 reveal">
+        <label for="breed-search" class="block text-sm font-bold text-ink mb-3">Add breeds to compare</label>
+        <div class="relative mb-4">
+          <Search class="w-4 h-4 text-ink-muted absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            id="breed-search"
+            type="search"
+            autocomplete="off"
+            placeholder="Search 200+ breeds…"
+            class="w-full rounded-full border border-ink/15 bg-white pl-11 pr-4 py-3 text-sm font-medium text-ink focus:border-brand-500 focus:outline-none"
+          />
+          <div id="breed-suggestions" class="hidden absolute z-20 left-0 right-0 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-ink/10 bg-white shadow-xl"></div>
         </div>
-        <div id="verdict-content" class="p-8 md:p-10">
-          <div id="verdict-loading" class="flex flex-col items-center justify-center py-8">
-            <div class="verdict-spinner mb-4"></div>
-            <p class="text-gray-700 font-medium">Our AI is analyzing all products...</p>
-            <p class="text-gray-400 text-sm mt-1">This takes a few seconds</p>
-          </div>
-          <div id="verdict-result" class="hidden verdict-prose"></div>
-          <div id="verdict-error" class="hidden text-center py-8">
-            <p class="text-red-600 font-medium">Failed to generate verdict</p>
-            <button id="verdict-retry" class="mt-4 text-sm text-emerald-700 underline cursor-pointer hover:text-emerald-900 font-medium">Try Again</button>
-          </div>
+
+        <div id="selected-breeds" class="flex flex-wrap gap-2 min-h-[2.5rem]">
+          <p id="empty-hint" class="text-sm text-ink-muted">No breeds selected yet — search above to begin.</p>
         </div>
+      </section>
+
+      <!-- Comparison result -->
+      <section id="comparison-output" class="hidden mb-16 reveal"></section>
+
+      <!-- Published comparisons -->
+      {comparisons.length > 0 && (
+        <section class="mb-16">
+          <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 reveal">
+            <div>
+              <h2 class="display-heading text-2xl sm:text-3xl text-ink mb-2">In-Depth Comparisons</h2>
+              <p class="text-ink-muted text-sm sm:text-base">Long-form head-to-head breakdowns with a final verdict.</p>
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {comparisons.map((comparison) => {
+              const imgUrl = getMediaUrl(comparison.featuredImage as Media);
+              const linked = (comparison.breeds || []).filter(b => typeof b !== 'string') as Breed[];
+              return (
+                <a href={`/compare/${comparison.slug}`} class="card-hover group glass-card rounded-2xl overflow-hidden border-transparent hover:border-brand-200 flex flex-col">
+                  <div class="relative aspect-[16/10] bg-brand-50 overflow-hidden">
+                    {imgUrl ? (
+                      <img src={imgUrl} alt={comparison.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    ) : (
+                      <div class="w-full h-full bg-gradient-to-br from-brand-200/60 to-brand-50 flex items-center justify-center">
+                        <Scale class="w-10 h-10 text-brand-700/30" />
+                      </div>
+                    )}
+                  </div>
+                  <div class="p-5 flex flex-col flex-1">
+                    {linked.length > 0 && (
+                      <p class="text-[11px] font-bold uppercase tracking-wide text-brand-700 mb-2">
+                        {linked.length} breeds compared
+                      </p>
+                    )}
+                    <h3 class="font-display font-bold text-ink text-base group-hover:text-brand-700 transition-colors mb-2 leading-snug">
+                      {comparison.title}
+                    </h3>
+                    {comparison.summary && (
+                      <p class="text-sm text-ink-muted line-clamp-3 mb-4">{comparison.summary}</p>
+                    )}
+                    <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-brand-700">
+                      Read comparison <ArrowUpRight class="w-4 h-4" />
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <div class="max-w-3xl mx-auto reveal">
+        <NewsletterSignup variant="banner" source="compare" />
       </div>
-
-      <!-- Review links -->
-      <div id="compare-links" class="grid gap-4 mt-8"></div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-ink py-8 sm:py-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <Logo width={120} height={30} variant="white" />
-      <p class="text-gray-500 text-xs text-center sm:text-left">Affiliate Disclosure: We may earn commissions from qualifying purchases.</p>
-    </div>
-  </footer>
+  <Footer />
 
-  <script is:inline define:vars={{ productsData, categoryLabels: CATEGORY_LABELS, petTypeLabels: PET_TYPE_LABELS, cmsBaseUrl }}>
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const slugs = (params.get('products') || '').split(',').filter(Boolean);
+  <script is:inline define:vars={{ breedData, CRITERIA, CRITERION_LABELS }}>
+    const searchInput = document.getElementById('breed-search');
+    const suggestions = document.getElementById('breed-suggestions');
+    const selectedWrap = document.getElementById('selected-breeds');
+    const emptyHint = document.getElementById('empty-hint');
+    const output = document.getElementById('comparison-output');
 
-      if (slugs.length < 2) return; // show empty state
+    const bySlug = new Map(breedData.map(b => [b.slug, b]));
+    let selected = [];
 
-      // Find matching products
-      const products = slugs
-        .map(slug => productsData.find(p => p.slug === slug))
-        .filter(Boolean);
-
-      if (products.length < 2) return;
-
-      // Verify same category
-      const category = products[0].category;
-      if (!products.every(p => p.category === category)) return;
-
-      // Hide empty state, show content
-      document.getElementById('compare-empty').classList.add('hidden');
-      document.getElementById('compare-content').classList.remove('hidden');
-
-      // Render header
-      const categoryLabel = categoryLabels[category] || category || 'Products';
-      document.getElementById('compare-category-badge').textContent = categoryLabel;
-
-      const titleEl = document.getElementById('compare-title');
-      if (products.length === 2) {
-        titleEl.innerHTML = `${products[0].name} <span class="text-brand-500">vs</span> ${products[1].name}`;
+    function syncUrl() {
+      const url = new URL(window.location.href);
+      if (selected.length) {
+        url.searchParams.set('breeds', selected.join(','));
       } else {
-        titleEl.textContent = `${categoryLabel} — ${products.length}-Way Comparison`;
+        url.searchParams.delete('breeds');
+      }
+      window.history.replaceState({}, '', url);
+    }
+
+    function scoreClass(v) {
+      if (typeof v !== 'number') return 'score score-low';
+      if (v >= 8) return 'score score-top';
+      if (v >= 6) return 'score score-good';
+      if (v >= 4) return 'score score-mid';
+      return 'score score-low';
+    }
+
+    function renderChips() {
+      selectedWrap.querySelectorAll('[data-chip]').forEach(el => el.remove());
+      emptyHint.style.display = selected.length ? 'none' : '';
+
+      selected.forEach(slug => {
+        const breed = bySlug.get(slug);
+        if (!breed) return;
+        const chip = document.createElement('span');
+        chip.setAttribute('data-chip', slug);
+        chip.className = 'inline-flex items-center gap-2 rounded-full bg-ink text-white pl-3 pr-1.5 py-1.5 text-sm font-bold';
+        chip.innerHTML = `<span></span><button type="button" aria-label="Remove" class="w-5 h-5 rounded-full bg-white/20 hover:bg-white/40 leading-none">&times;</button>`;
+        chip.querySelector('span').textContent = breed.name;
+        chip.querySelector('button').addEventListener('click', () => {
+          selected = selected.filter(s => s !== slug);
+          renderChips();
+          renderTable();
+          syncUrl();
+        });
+        selectedWrap.appendChild(chip);
+      });
+    }
+
+    function renderTable() {
+      if (selected.length < 2) {
+        output.className = 'hidden mb-16 reveal';
+        output.innerHTML = '';
+        return;
+      }
+      output.className = 'mb-16 reveal';
+
+      const rows = selected.map(s => bySlug.get(s)).filter(Boolean);
+      const head = ['Breed', 'Size', 'Weight', 'Life Span', ...CRITERIA.map(c => CRITERION_LABELS[c] || c)];
+
+      const table = document.createElement('div');
+      table.className = 'glass-card rounded-3xl p-4 sm:p-6';
+      table.innerHTML = `
+        <h2 class="display-heading text-xl sm:text-2xl text-ink mb-4">Breed Comparison Table</h2>
+        <div class="table-wrap"><table class="breed-table"><thead><tr>${head.map(h => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody></tbody></table></div>
+      `;
+
+      const tbody = table.querySelector('tbody');
+      rows.forEach(breed => {
+        const tr = document.createElement('tr');
+        const cells = [
+          `<th scope="row"><a class="breed-link" href="/breeds/${breed.slug}"></a></th>`,
+          `<td>${breed.size}</td>`,
+          `<td>${breed.weight}</td>`,
+          `<td>${breed.lifespan}</td>`,
+          ...CRITERIA.map(c => {
+            const v = breed.criteria[c];
+            return `<td><span class="${scoreClass(v)}">${typeof v === 'number' ? v + '/10' : '—'}</span></td>`;
+          }),
+        ];
+        tr.innerHTML = cells.join('');
+        tr.querySelector('.breed-link').textContent = breed.name;
+        tbody.appendChild(tr);
+      });
+
+      output.innerHTML = '';
+      output.appendChild(table);
+    }
+
+    function addBreed(slug) {
+      if (selected.includes(slug)) return;
+      selected.push(slug);
+      renderChips();
+      renderTable();
+      syncUrl();
+    }
+
+    function renderSuggestions(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        suggestions.classList.add('hidden');
+        return;
+      }
+      const matches = breedData
+        .filter(b => !selected.includes(b.slug) && b.name.toLowerCase().includes(q))
+        .slice(0, 8);
+
+      if (!matches.length) {
+        suggestions.classList.add('hidden');
+        return;
       }
 
-      // Render comparison table
-      renderTable(products);
-      renderProsCons(products);
-      renderLinks(products);
-      fetchVerdict(products);
+      suggestions.innerHTML = '';
+      matches.forEach(b => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-brand-50 transition-colors';
+        btn.innerHTML = `<span class="font-bold text-ink text-sm"></span><span class="text-xs text-ink-muted ml-auto"></span>`;
+        btn.querySelector('span').textContent = b.name;
+        btn.querySelectorAll('span')[1].textContent = [b.group, b.size].filter(Boolean).join(' · ');
+        btn.addEventListener('click', () => {
+          addBreed(b.slug);
+          searchInput.value = '';
+          suggestions.classList.add('hidden');
+        });
+        suggestions.appendChild(btn);
+      });
+      suggestions.classList.remove('hidden');
+    }
+
+    searchInput.addEventListener('input', e => renderSuggestions(e.target.value));
+    searchInput.addEventListener('focus', e => renderSuggestions(e.target.value));
+    document.addEventListener('click', e => {
+      if (!suggestions.contains(e.target) && e.target !== searchInput) {
+        suggestions.classList.add('hidden');
+      }
     });
 
-    function renderStars(rating) {
-      if (rating == null) return '—';
-      const full = Math.floor(rating);
-      const half = rating % 1 >= 0.5 ? 1 : 0;
-      const empty = 5 - full - half;
-      return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
-    }
-
-    function renderTable(products) {
-      const container = document.getElementById('compare-table');
-      const prices = products.map(p => p.price).filter(p => p != null);
-      const ratings = products.map(p => p.rating).filter(r => r != null);
-      const bestPrice = prices.length ? Math.min(...prices) : null;
-      const bestRating = ratings.length ? Math.max(...ratings) : null;
-
-      const colW = `140px repeat(${products.length}, 1fr)`;
-
-      // Header row
-      let html = `<div style="display:grid;grid-template-columns:${colW};min-width:${Math.max(500, products.length * 200)}px">`;
-      html += '<div></div>';
-      products.forEach(p => {
-        html += `<div class="p-4 text-center border-b border-gray-100">
-          <div class="w-20 h-20 mx-auto mb-3 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden">
-            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="max-w-full max-h-full object-contain rounded-lg" />` : '<svg class="w-8 h-8 text-ink opacity-20" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/></svg>'}
-          </div>
-          <a href="/products/${p.slug}" class="text-sm font-bold text-gray-900 hover:text-brand-800 transition-colors">${p.name}</a>
-          ${p.price != null ? `<p class="text-lg font-bold text-gray-900 mt-1">$${p.price.toFixed(2)}</p>` : ''}
-          ${p.affiliateUrl ? `<a href="${p.affiliateUrl}" target="_blank" rel="noopener noreferrer nofollow" class="inline-block mt-2 bg-brand-800 hover:bg-brand-900 text-white text-xs font-semibold py-1.5 px-4 rounded-lg transition-colors">Buy Now →</a>` : ''}
-        </div>`;
+    // Hydrate from ?breeds=
+    const initial = new URLSearchParams(window.location.search).get('breeds');
+    if (initial) {
+      initial.split(',').map(s => s.trim()).filter(s => bySlug.has(s)).forEach(s => {
+        if (!selected.includes(s)) selected.push(s);
       });
-      html += '</div>';
-
-      // Data rows
-      const rows = [
-        { label: 'Price', values: products.map(p => p.price != null ? `$${p.price.toFixed(2)}` : '—'), highlight: products.map(p => p.price != null && p.price === bestPrice) },
-        { label: 'Rating', values: products.map(p => p.rating != null ? `${renderStars(p.rating)} ${p.rating}/5` : '—'), highlight: products.map(p => p.rating != null && p.rating === bestRating) },
-        { label: 'Category', values: products.map(p => categoryLabels[p.category] || p.category || '—'), highlight: products.map(() => false) },
-        { label: 'Pet Type', values: products.map(p => petTypeLabels[p.petType] || p.petType || '—'), highlight: products.map(() => false) },
-        { label: 'Pros', values: products.map(p => p.pros?.map(pr => pr.point).join(' · ') || '—'), highlight: products.map(() => false) },
-        { label: 'Cons', values: products.map(p => p.cons?.map(c => c.point).join(' · ') || '—'), highlight: products.map(() => false) },
-      ];
-
-      html += '<table class="w-full border-collapse">';
-      rows.forEach((row, i) => {
-        html += `<tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}">`;
-        html += `<td class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide w-[140px] align-top">${row.label}</td>`;
-        row.values.forEach((val, j) => {
-          const hl = row.highlight[j] ? 'text-emerald-700 font-semibold bg-emerald-50/60' : 'text-gray-700';
-          html += `<td class="px-4 py-3 text-sm text-center align-top ${hl}">${val}</td>`;
-        });
-        html += '</tr>';
-      });
-      html += '</table>';
-
-      container.innerHTML = html;
-    }
-
-    function renderProsCons(products) {
-      const container = document.getElementById('compare-proscons');
-      container.style.gridTemplateColumns = `repeat(${Math.min(products.length, 3)}, 1fr)`;
-      let html = '';
-      products.forEach(p => {
-        html += `<div>
-          <h3 class="text-lg font-bold text-ink mb-4">${p.name}</h3>
-          ${p.pros?.length ? `<div class="bg-surface-raised rounded-xl border border-gray-100 p-5 mb-4">
-            <h4 class="text-sm font-semibold text-emerald-700 mb-3">✓ Pros</h4>
-            <ul class="space-y-1.5">${p.pros.map(pr => `<li class="flex items-start gap-2 text-sm text-ink-light"><span class="text-emerald-500 shrink-0">•</span> ${pr.point}</li>`).join('')}</ul>
-          </div>` : ''}
-          ${p.cons?.length ? `<div class="bg-surface-raised rounded-xl border border-gray-100 p-5">
-            <h4 class="text-sm font-semibold text-red-700 mb-3">✗ Cons</h4>
-            <ul class="space-y-1.5">${p.cons.map(c => `<li class="flex items-start gap-2 text-sm text-ink-light"><span class="text-red-500 shrink-0">•</span> ${c.point}</li>`).join('')}</ul>
-          </div>` : ''}
-        </div>`;
-      });
-      container.innerHTML = html;
-    }
-
-    function renderLinks(products) {
-      const container = document.getElementById('compare-links');
-      container.style.gridTemplateColumns = `repeat(${Math.min(products.length, 3)}, 1fr)`;
-      container.innerHTML = products.map(p =>
-        `<a href="/products/${p.slug}" class="card-hover bg-surface-raised rounded-xl border border-gray-100 p-5 flex items-center gap-4">
-          <svg class="w-8 h-8 text-brand-600 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
-          <div>
-            <p class="font-bold text-ink">${p.name}</p>
-            <p class="text-sm text-brand-800">Read Full Review →</p>
-          </div>
-        </a>`
-      ).join('');
-    }
-
-    function fetchVerdict(products) {
-      const loading = document.getElementById('verdict-loading');
-      const result = document.getElementById('verdict-result');
-      const error = document.getElementById('verdict-error');
-      const retryBtn = document.getElementById('verdict-retry');
-
-      async function doFetch() {
-        loading.classList.remove('hidden');
-        result.classList.add('hidden');
-        error.classList.add('hidden');
-
-        try {
-          const productSlugs = products.map(p => p.slug).filter(Boolean);
-          const res = await fetch(`${cmsBaseUrl}/api/ai/verdict`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ products, slugs: productSlugs }),
-          });
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
-          const data = await res.json();
-          if (data.success && data.verdict) {
-            result.innerHTML = data.verdict;
-            loading.classList.add('hidden');
-            result.classList.remove('hidden');
-          } else {
-            throw new Error(data.error || 'Unknown error');
-          }
-        } catch (err) {
-          console.error('Verdict error:', err);
-          loading.classList.add('hidden');
-          error.classList.remove('hidden');
-        }
-      }
-
-      retryBtn?.addEventListener('click', doFetch);
-      doFetch();
+      renderChips();
+      renderTable();
     }
   </script>
+
+  <style>
+    .table-wrap { overflow-x: auto; }
+    .breed-table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .breed-table thead th {
+      background: #eef6f4;
+      color: #415861;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      padding: 0.8rem 0.7rem;
+      border-bottom: 1px solid #d9e4e4;
+      white-space: nowrap;
+    }
+    .breed-table tbody th,
+    .breed-table tbody td {
+      border-bottom: 1px solid #eef2f2;
+      padding: 0.75rem 0.7rem;
+      text-align: center;
+      font-size: 0.88rem;
+      color: #31434a;
+    }
+    .breed-table tbody th {
+      text-align: left;
+      font-weight: 700;
+      position: sticky;
+      left: 0;
+      background: #fff;
+      z-index: 1;
+    }
+    .breed-link {
+      color: #132a31;
+      text-decoration: none;
+      border-bottom: 1px dashed #8fb3ab;
+    }
+    .breed-link:hover { color: #0c4d5f; border-bottom-style: solid; }
+    .score {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 3rem;
+      border-radius: 999px;
+      padding: 0.2rem 0.5rem;
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+    .score-top { background: #e6fff1; color: #0f7a48; }
+    .score-good { background: #f0fbff; color: #1a758d; }
+    .score-mid { background: #fff7e9; color: #9c6611; }
+    .score-low { background: #fff0f0; color: #a23b3b; }
+  </style>
 </Layout>
-
-<style is:global>
-  .verdict-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #10b981;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .verdict-prose {
-    animation: fadeIn 0.5s ease-out;
-  }
-  .verdict-prose h3 {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.35rem;
-    color: #064e3b;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    padding: 0.6rem 1rem;
-    background: linear-gradient(90deg, #ecfdf5, #f0fdf4);
-    border-left: 4px solid #10b981;
-    border-radius: 0 8px 8px 0;
-    letter-spacing: -0.01em;
-  }
-  .verdict-prose h3:first-child { margin-top: 0; }
-  .verdict-prose p {
-    color: #1f2937;
-    line-height: 1.85;
-    margin-bottom: 1.15rem;
-    font-size: 1rem;
-    letter-spacing: 0.01em;
-  }
-  .verdict-prose p:last-child { margin-bottom: 0; }
-  .verdict-prose strong {
-    color: #064e3b;
-    font-weight: 700;
-    background: linear-gradient(to top, #d1fae5 30%, transparent 30%);
-    padding: 0 2px;
-  }
-
-  /* Mobile: force single column for compare grids */
-  @media (max-width: 640px) {
-    #compare-proscons,
-    #compare-links {
-      grid-template-columns: 1fr !important;
-    }
-    .verdict-prose h3 {
-      font-size: 1.1rem;
-      padding: 0.5rem 0.75rem;
-    }
-    .verdict-prose p {
-      font-size: 0.9375rem;
-    }
-  }
-</style>
-
-<!-- Mobile Nav Script -->
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('hamburger-btn');
-    const overlay = document.getElementById('mobile-overlay');
-    const drawer = document.getElementById('mobile-drawer');
-    const closeBtn = document.getElementById('drawer-close');
-    if (!btn || !overlay || !drawer) return;
-    function openDrawer() {
-      overlay.classList.add('open');
-      drawer.classList.add('open');
-      btn.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeDrawer() {
-      overlay.classList.remove('open');
-      drawer.classList.remove('open');
-      btn.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
-    }
-    btn.addEventListener('click', openDrawer);
-    overlay.addEventListener('click', closeDrawer);
-    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-  });
-</script>

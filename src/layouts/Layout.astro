@@ -6,7 +6,7 @@ interface Props {
   description?: string;
   canonicalUrl?: string;
   ogImage?: string | null;
-  ogType?: 'website' | 'article' | 'product';
+  ogType?: 'website' | 'article';
   jsonLd?: string | string[];
   noindex?: boolean;
   publishedTime?: string;
@@ -15,7 +15,7 @@ interface Props {
 
 const {
   title,
-  description = 'Expert pet product reviews and recommendations. Compare smart gadgets, toys, health products, and more for your pets.',
+  description = 'A dog breed encyclopedia — detailed profiles, temperament and care ratings, and head-to-head breed comparisons for every breed.',
   canonicalUrl,
   ogImage,
   ogType = 'website',
@@ -84,6 +84,9 @@ const pageTitle = title.includes('PawLabs') ? title : `${title} | PawLabs`;
 
     <!-- Impact Radius -->
     <meta name='impact-site-verification' value='6958134b-39b0-49ed-abd1-973a966d25cb'>
+
+    <!-- Pinterest Domain Verification -->
+    <meta name="p:domain_verify" content="a6d9368d6bb25bc4a087df0271fcb682"/>
 
     <!-- OpenGraph -->
     <meta property="og:type" content={ogType} />

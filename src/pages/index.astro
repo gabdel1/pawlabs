@@ -1,107 +1,145 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
-import Logo from '../components/Logo.astro';
-import { getProducts, getMediaUrl, CATEGORY_LABELS } from '../lib/payload';
+import Footer from '../components/Footer.astro';
+import NewsletterSignup from '../components/NewsletterSignup.astro';
+import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS } from '../lib/payload';
 import type { Media } from '../lib/payload';
 import { websiteJsonLd, organizationJsonLd } from '../lib/seo';
-import { 
-  Activity, ShieldCheck, HeartPulse, Bone, Scissors, Bed, Link as LinkIcon, Plane, 
-  Award, Search, ChevronRight, Star, StarHalf, ArrowUpRight, Sparkles, Gamepad2, Package 
+import {
+  Ruler, Search, ChevronRight, Star, ArrowUpRight, Sparkles, Scale,
+  BookOpen, HeartPulse, ScrollText, PawPrint,
 } from 'lucide-astro';
 
-const products = await getProducts();
-const featuredProducts = products.filter(p => p.featured).slice(0, 6);
-const recentProducts = products.slice(0, 6);
+const breeds = await getBreeds();
+const comparisons = await getComparisons();
+const featuredBreeds = breeds.filter(b => b.featured);
 
+const HOMEPAGE_BREED_TRAITS = [
+  { key: 'affectionLevel', label: 'Affection' },
+  { key: 'energyLevel', label: 'Energy' },
+  { key: 'trainability', label: 'Training' },
+  { key: 'adaptability', label: 'Adaptability' },
+  { key: 'healthRobustness', label: 'Health' },
+] as const;
 
-const categories = [
-  { key: 'smart-gadgets', icon: Activity, label: 'Smart Tech', desc: 'GPS trackers, smart feeders, cameras & more' },
-  { key: 'wellness', icon: HeartPulse, label: 'Wellness', desc: 'Litter, supplements, dental & flea care' },
-  { key: 'security', icon: ShieldCheck, label: 'Security', desc: 'Cameras, collars, trackers & containment' },
-  { key: 'food-treats', icon: Bone, label: 'Food & Treats', desc: 'Premium nutrition and healthy snacks' },
-  { key: 'grooming', icon: Scissors, label: 'Grooming', desc: 'Brushes, shampoos, and grooming kits' },
-  { key: 'beds-furniture', icon: Bed, label: 'Furniture', desc: 'Cozy beds, trees, and pet furniture' },
-  { key: 'leashes-collars', icon: LinkIcon, label: 'Gear', desc: 'Stylish and durable walking gear' },
-  { key: 'travel', icon: Plane, label: 'Travel', desc: 'Carriers, car seats, and travel bowls' },
-  { key: 'toys', icon: Gamepad2, label: 'Toys', desc: 'Chew toys, interactive toys, and playtime fun' },
-];
+function clampTrait(value: number | undefined): number {
+  if (!value || Number.isNaN(value)) return 5;
+  return Math.max(1, Math.min(10, value));
+}
 
-const trustPoints = [
-  { icon: Award, title: 'Research-Backed', desc: 'Every product tested with real-world data, eschewing marketing claims.' },
-  { icon: Search, title: 'Total Transparency', desc: 'Side-by-side comparisons so you see how products truly stack up.' },
-  { icon: ShieldCheck, title: 'Best Value', desc: 'We link to the best deals — absolutely no hidden fees or middlemen.' },
-  { icon: HeartPulse, title: 'Pet-First Philosophy', desc: 'Safety, health, and undeniable happiness above all in our criteria.' },
+function traitValue(breed: any, key: string): number {
+  return clampTrait(breed?.traits?.[key]);
+}
+
+function averageTraitScore(breed: any): number {
+  if (!breed?.traits) return 5;
+  const values = HOMEPAGE_BREED_TRAITS.map(t => traitValue(breed, t.key));
+  return values.reduce((acc, val) => acc + val, 0) / values.length;
+}
+
+/** Breed groups that actually have breeds behind them, largest first. */
+const groupCounts = new Map<string, number>();
+breeds.forEach(b => {
+  if (b.breedGroup) groupCounts.set(b.breedGroup, (groupCounts.get(b.breedGroup) ?? 0) + 1);
+});
+const breedGroups = [...groupCounts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .map(([key, count]) => ({
+    key,
+    count,
+    label: BREED_GROUP_LABELS[key] ?? key,
+  }));
+
+/** Size bands, ordered small → giant. */
+const SIZE_ORDER = ['small', 'medium', 'large', 'giant'];
+const sizeCounts = new Map<string, number>();
+breeds.forEach(b => {
+  if (b.size) sizeCounts.set(b.size, (sizeCounts.get(b.size) ?? 0) + 1);
+});
+const sizeBands = SIZE_ORDER
+  .filter(s => sizeCounts.has(s))
+  .map(key => ({ key, count: sizeCounts.get(key)!, label: SIZE_LABELS[key] ?? key }));
+
+const heroBreed = featuredBreeds[0] ?? breeds[0];
+const heroImage = heroBreed ? getMediaUrl(heroBreed.image as Media) : null;
+
+const methodology = [
+  { icon: ScrollText, title: 'Kennel Club Standards', desc: 'Every profile starts from recognised breed standards, not marketing copy.' },
+  { icon: HeartPulse, title: 'Health & Lifespan', desc: 'Typical lifespan, weight ranges, and the conditions each breed is prone to.' },
+  { icon: Scale, title: 'Scored on 14 Traits', desc: 'Temperament, energy, grooming and trainability rated 1–10 so breeds compare directly.' },
+  { icon: BookOpen, title: 'Written for Owners', desc: 'What a breed is actually like to live with — honestly, including the hard parts.' },
 ];
 ---
 
 <Layout
-  title="PawLabs - Expert Pet Product Reviews & Recommendations"
-  description="Your trusted source for honest pet product reviews. Compare smart gadgets, toys, food, health products, and more for dogs, cats, and all pets."
+  title="PawLabs — The Dog Breed Encyclopedia"
+  description="A dog breed encyclopedia: detailed profiles for every breed, with temperament, grooming, energy and trainability ratings, plus head-to-head breed comparisons."
   canonicalUrl="/"
   ogType="website"
   jsonLd={[websiteJsonLd(), organizationJsonLd()]}
 >
   <Nav />
 
-  <!-- Asymmetrical Hero Section -->
+  <!-- Hero -->
   <section class="relative min-h-[85svh] sm:min-h-[90svh] flex items-center pt-28 sm:pt-32 pb-16 sm:pb-20 overflow-hidden noise">
-    <!-- Sophisticated Background -->
     <div class="absolute inset-0 bg-surface -z-20"></div>
     <div class="absolute inset-0 hero-gradient -z-10 opacity-80"></div>
-    
-    <!-- Floating Orbs -->
+
     <div class="glow-orb w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-brand-300/20 top-[-100px] left-[-200px] animate-orb"></div>
     <div class="glow-orb w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-accent-400/10 bottom-[100px] right-[-100px] animate-orb" style="animation-delay: -5s;"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full relative z-10">
       <div class="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center">
-        
-        <!-- Hero Text -->
+
         <div class="lg:col-span-7 reveal">
           <div class="inline-flex items-center gap-2.5 glass-pill rounded-full px-4 py-2 mb-6 sm:mb-8 scale-reveal reveal-delay-1 border !border-white/40">
             <Sparkles class="w-4 h-4 text-brand-600" />
-            <span class="text-ink-light text-xs font-bold tracking-widest uppercase">Curated for 2026</span>
+            <span class="text-ink-light text-xs font-bold tracking-widest uppercase">{breeds.length} Breeds Profiled</span>
           </div>
 
           <h1 class="display-heading display-fluid-xl tracking-tight text-ink mb-6 sm:mb-8 leading-[1.05] text-balance">
-            Elevate Your Pet's 
-            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-brand-700 to-brand-400">Lifestyle.</span>
+            The Dog Breed
+            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-brand-700 to-brand-400">Encyclopedia.</span>
           </h1>
 
           <p class="text-base sm:text-lg md:text-xl text-ink-muted max-w-xl mb-8 sm:mb-12 leading-relaxed font-medium text-pretty reveal-delay-2">
-            Research-backed reviews, uncompromising comparisons, and the absolute best gear on the market—curated for modern pet parents.
+            Every breed, scored on the fourteen traits that actually shape daily life together —
+            then put head-to-head so you can find the one that fits yours.
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 reveal-delay-3">
-            <a href="/products" class="group btn-primary bg-ink text-white font-bold py-4 px-8 sm:px-10 rounded-full text-base transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-ink/20 inline-flex items-center justify-center gap-3">
-              Explore Products
+            <a href="/breeds" class="group btn-primary bg-ink text-white font-bold py-4 px-8 sm:px-10 rounded-full text-base transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-ink/20 inline-flex items-center justify-center gap-3">
+              Browse All Breeds
               <ArrowUpRight class="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </a>
-            <a href="/products" class="group inline-flex items-center justify-center gap-3 bg-white/50 backdrop-blur-md border border-white/60 text-ink font-bold py-4 px-8 sm:px-10 rounded-full text-base transition-all duration-300 hover:bg-white/80">
-              Shop by Category
+            <a href="/compare" class="group inline-flex items-center justify-center gap-3 bg-white/50 backdrop-blur-md border border-white/60 text-ink font-bold py-4 px-8 sm:px-10 rounded-full text-base transition-all duration-300 hover:bg-white/80">
+              <Scale class="w-5 h-5" /> Compare Breeds
             </a>
           </div>
         </div>
 
-        <!-- Hero Visual (visible on all sizes, scaled on mobile) -->
+        <!-- Hero Visual -->
         <div class="lg:col-span-5 relative reveal reveal-delay-4">
           <div class="relative w-full aspect-[4/5] max-w-[280px] sm:max-w-none mx-auto rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden glass-card p-3 sm:p-4 border border-white/60 shadow-2xl shadow-brand-900/10 sm:transform sm:rotate-2 sm:hover:rotate-0 transition-transform duration-700">
             <div class="w-full h-full rounded-[1.5rem] sm:rounded-[2rem] bg-brand-100 overflow-hidden relative">
-              <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=2688&auto=format&fit=crop" alt="Premium Dog" class="w-full h-full object-cover mix-blend-multiply opacity-80 scale-105 hover:scale-100 transition-transform duration-1000" />
-              <div class="absolute inset-0 bg-gradient-to-t from-brand-900/40 to-transparent"></div>
-              
-              <!-- Floating stat card -->
+              {heroImage ? (
+                <img src={heroImage} alt={heroBreed?.name ?? 'Dog breed'} class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000" />
+              ) : (
+                <div class="w-full h-full bg-gradient-to-br from-brand-200/60 to-brand-50"></div>
+              )}
+              <div class="absolute inset-0 bg-gradient-to-t from-brand-900/50 to-transparent"></div>
+
               <div class="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 glass-pill p-4 sm:p-5 rounded-xl sm:rounded-2xl flex items-center justify-between">
                 <div class="flex flex-col">
-                  <span class="text-xs font-bold text-ink-light uppercase tracking-wider mb-1">Trusted Reviews</span>
+                  <span class="text-xs font-bold text-ink-light uppercase tracking-wider mb-1">Breeds Profiled</span>
                   <div class="flex items-center gap-2">
-                    <span class="text-xl sm:text-2xl font-bold font-display text-ink">{products.length}+</span>
+                    <span class="text-xl sm:text-2xl font-bold font-display text-ink">{breeds.length}</span>
                     <span class="text-brand-600 flex"><Star class="w-4 h-4 fill-current"/><Star class="w-4 h-4 fill-current"/><Star class="w-4 h-4 fill-current"/></span>
                   </div>
                 </div>
                 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <Activity class="w-4 h-4 sm:w-5 sm:h-5 text-brand-600" />
+                  <PawPrint class="w-4 h-4 sm:w-5 sm:h-5 text-brand-600" />
                 </div>
               </div>
             </div>
@@ -111,157 +149,239 @@ const trustPoints = [
     </div>
   </section>
 
-  <!-- Featured Products -->
-  {(featuredProducts.length > 0 || recentProducts.length > 0) && (
-    <section class="bg-white py-20 sm:py-32 relative">
+  <!-- Featured Breeds -->
+  {featuredBreeds.length > 0 && (
+    <section class="bg-white py-20 sm:py-28 border-t border-surface">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-12 sm:mb-20 reveal">
-          <div class="inline-flex items-center gap-2 badge bg-accent-100 text-accent-700 mb-4 sm:mb-6">
-            <Star class="w-3.5 h-3.5 fill-current" /> Hand-Picked
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 sm:gap-6 mb-10 sm:mb-14 reveal">
+          <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4">
+              <Star class="w-3.5 h-3.5 fill-current" /> Featured Breeds
+            </div>
+            <h2 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4">Meet 5 Standout Breeds.</h2>
+            <p class="text-ink-muted text-base sm:text-lg text-pretty">We rotate five featured breeds on every visit so you can quickly compare personality, adaptability, and care intensity at a glance.</p>
           </div>
-          <h2 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4">
-            {featuredProducts.length > 0 ? 'Featured Equipment' : 'Latest Additions'}
-          </h2>
-          <p class="text-ink-muted text-base sm:text-lg max-w-2xl mx-auto">The definitive selections from our extensive testing lab.</p>
+          <div class="flex flex-wrap items-center gap-3">
+            <p id="featured-breed-status" class="text-sm font-bold text-ink-light">Showing 5 of {featuredBreeds.length} featured breeds</p>
+            {featuredBreeds.length > 5 && (
+              <button id="shuffle-featured-breeds" class="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-bold text-ink hover:border-brand-500 hover:text-brand-700 transition-colors">
+                Shuffle Picks
+              </button>
+            )}
+          </div>
         </div>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
-          {(featuredProducts.length > 0 ? featuredProducts : recentProducts).map((product, i) => {
-            const imgUrl = getMediaUrl(product.image as Media);
-            const catLabel = product.category ? CATEGORY_LABELS[product.category] : null;
-            
+        <div id="featured-breeds-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
+          {featuredBreeds.map((breed, i) => {
+            const imageUrl = getMediaUrl(breed.image as Media);
+            const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
+            const sizeLabel = breed.size ? SIZE_LABELS[breed.size] ?? breed.size : null;
+            const lifespan = breed.lifeExpectancyMin && breed.lifeExpectancyMax
+              ? `${breed.lifeExpectancyMin}-${breed.lifeExpectancyMax}y`
+              : null;
+            const weight = breed.weightMin && breed.weightMax
+              ? `${breed.weightMin}-${breed.weightMax}lb`
+              : null;
+            const avgScore = averageTraitScore(breed);
+
             return (
-              <a href={`/products/${product.slug}`} class={`card-hover group glass-card rounded-2xl sm:rounded-[2rem] overflow-hidden reveal reveal-delay-${Math.min((i % 3) + 1, 4)} border-transparent hover:border-brand-200`}>
-                <div class="relative bg-surface aspect-[4/3] overflow-hidden p-4 sm:p-6 flex flex-col justify-between">
-                  <!-- Badges Top layer -->
-                  <div class="flex flex-wrap gap-2 relative z-10">
-                    {catLabel && (
-                      <span class="badge bg-white/80 backdrop-blur-md text-ink-light border border-white/50 shadow-sm shadow-ink/5">
-                        {catLabel}
-                      </span>
-                    )}
-                    {product.featured && (
-                      <span class="badge bg-accent-400/90 backdrop-blur-md text-ink font-bold border border-accent-300 shadow-sm">
-                        Featured
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Image Layer */}
-                  <div class="absolute inset-0 image-layer transition-transform duration-700 ease-out flex items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-brand-50 to-white">
-                    {imgUrl ? (
-                      <img src={imgUrl} alt={product.name} class="w-full h-full object-contain filter drop-shadow-2xl mix-blend-multiply" loading="lazy" />
-                    ) : (
-                      <Package class="w-16 h-16 text-ink opacity-5" />
-                    )}
+              <a
+                href={`/breeds/${breed.slug}`}
+                class={`featured-breed-card group rounded-2xl border border-ink/10 bg-surface-raised overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-200/30 ${i >= 5 ? 'hidden' : ''}`}
+              >
+                <div class="relative aspect-[4/3] bg-brand-50">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={breed.name} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                  ) : (
+                    <div class="w-full h-full bg-gradient-to-br from-brand-200/60 to-brand-50"></div>
+                  )}
+                  <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-3 pb-3 pt-10">
+                    <h3 class="font-display font-bold text-white text-base truncate">{breed.name}</h3>
+                    {groupLabel && <p class="text-[11px] font-medium text-white/80 uppercase tracking-wide">{groupLabel}</p>}
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-8 bg-white glass-card-border-top relative z-20">
-                  <h3 class="font-display font-bold text-ink text-lg sm:text-xl group-hover:text-brand-700 transition-colors mb-2 sm:mb-3 leading-tight">
-                    {product.name}
-                  </h3>
-                  
-                  {product.rating != null && (
-                    <div class="flex items-center gap-2 mb-3 sm:mb-4">
-                      <div class="flex items-center gap-0.5 text-accent-500">
-                        {Array.from({ length: Math.floor(product.rating) }).map(() => <Star class="w-4 h-4 fill-current" />)}
-                        {product.rating % 1 >= 0.5 && <StarHalf class="w-4 h-4 fill-current" />}
-                        {Array.from({ length: 5 - Math.floor(product.rating) - (product.rating % 1 >= 0.5 ? 1 : 0) }).map(() => <Star class="w-4 h-4 text-gray-300" />)}
-                      </div>
-                      <span class="font-bold text-ink-light text-sm">{product.rating.toFixed(1)}</span>
-                    </div>
-                  )}
-                  
-                  {product.shortDescription && (
-                    <p class="text-sm text-ink-muted line-clamp-2 mb-4 sm:mb-6 text-pretty">{product.shortDescription}</p>
-                  )}
-                  
-                  <div class="flex items-center justify-between pt-3 sm:pt-4 border-t border-surface">
-                    {product.price != null && (
-                      <span class="text-xl sm:text-2xl font-bold font-display text-ink tracking-tight">${product.price.toFixed(2)}</span>
-                    )}
-                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface text-brand-700 group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
-                      <ChevronRight class="w-5 h-5" />
-                    </span>
+                <div class="p-3.5 space-y-3">
+                  <div class="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-wide">
+                    {sizeLabel && <span class="px-2 py-0.5 rounded-full bg-ink/5 text-ink/70">{sizeLabel}</span>}
+                    {lifespan && <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">{lifespan}</span>}
                   </div>
+
+                  <div class="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                    {HOMEPAGE_BREED_TRAITS.map(t => {
+                      const val = traitValue(breed, t.key);
+                      const pct = val * 10;
+                      const color = val >= 7 ? 'bg-emerald-500' : val >= 4 ? 'bg-amber-500' : 'bg-rose-500';
+                      return (
+                        <div>
+                          <div class="flex items-center justify-between text-[10px] font-bold text-ink/70 mb-0.5">
+                            <span class="truncate">{t.label}</span>
+                            <span class="tabular-nums text-ink/90">{val}</span>
+                          </div>
+                          <div class="h-1 rounded-full bg-ink/8 overflow-hidden">
+                            <div class={`h-full rounded-full ${color}`} style={`width:${pct}%`}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div class="flex items-center justify-between pt-2 border-t border-ink/5 text-[11px]">
+                    <span class="text-ink-muted font-medium">{weight ? `${weight}` : 'Weight varies'}</span>
+                    <span class="font-bold text-brand-700">Index {avgScore.toFixed(1)}/10</span>
+                  </div>
+
+                  {breed.shortDescription && (
+                    <p class="text-xs text-ink-muted leading-snug line-clamp-2">{breed.shortDescription}</p>
+                  )}
                 </div>
               </a>
             );
           })}
         </div>
 
-        <div class="mt-12 sm:mt-16 text-center reveal reveal-delay-4">
-          <a href="/products" class="btn-primary inline-flex items-center justify-center gap-2 bg-ink text-white font-bold py-4 px-8 sm:px-10 rounded-full text-base transition-all duration-300 hover:shadow-xl">
-            View Complete Catalog
+        <div class="mt-8 text-center reveal reveal-delay-2">
+          <a href="/breeds" class="inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 transition-colors">
+            Explore all breeds
+            <ArrowUpRight class="w-4 h-4" />
           </a>
         </div>
       </div>
     </section>
   )}
 
-  <!-- Categories — Refined Bento Grid -->
-  <section id="categories" class="bg-surface py-20 sm:py-32 relative noise">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-16 gap-4 sm:gap-6 reveal">
-        <div class="max-w-2xl">
-          <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4 sm:mb-6">
-            <Search class="w-3.5 h-3.5" /> Explore
+  <!-- Browse by Group -->
+  {breedGroups.length > 0 && (
+    <section id="groups" class="bg-surface py-20 sm:py-32 relative noise">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-16 gap-4 sm:gap-6 reveal">
+          <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4 sm:mb-6">
+              <Search class="w-3.5 h-3.5" /> Explore
+            </div>
+            <h2 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4">Browse by Group.</h2>
+            <p class="text-ink-muted text-base sm:text-lg text-balance">Herders, hounds, terriers and the rest — each group shares the work it was bred to do, and the temperament that came with it.</p>
           </div>
-          <h2 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4">Meticulously Organized.</h2>
-          <p class="text-ink-muted text-base sm:text-lg text-balance">Navigate our comprehensive library by category to locate precisely what your companion requires.</p>
+          <a href="/breeds" class="inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 transition-colors group">
+            View All Breeds
+            <ArrowUpRight class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
         </div>
-        <a href="/products" class="inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 transition-colors group">
-          View All Categories
-          <ArrowUpRight class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-        </a>
+
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+          {breedGroups.map((group, i) => {
+            const isLarge = i === 0 || i === 3;
+            return (
+              <a
+                href={`/breeds?group=${group.key}`}
+                class={`card-hover group glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden reveal reveal-delay-${Math.min((i % 4) + 1, 6)} ${isLarge ? 'sm:col-span-2' : ''}`}
+              >
+                <div class="flex items-start justify-between mb-4 sm:mb-8">
+                  <div class="icon-layer w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-50 flex items-center justify-center text-brand-700 transition-all duration-300">
+                    <PawPrint class="w-5 h-5 sm:w-7 sm:h-7" />
+                  </div>
+                  <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-raised border border-brand-100 flex items-center justify-center text-ink-muted group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
+                    <ArrowUpRight class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                </div>
+                <h3 class="font-display font-bold text-ink text-base sm:text-xl group-hover:text-brand-700 transition-colors mb-1 sm:mb-2">{group.label}</h3>
+                <p class="text-xs sm:text-sm text-ink-muted">{group.count} breed{group.count === 1 ? '' : 's'}</p>
+
+                <div class="absolute -right-20 -bottom-20 w-40 h-40 bg-brand-200/40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              </a>
+            );
+          })}
+        </div>
       </div>
+    </section>
+  )}
 
-      <!-- Bento Grid -->
-      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-        {categories.map((cat, i) => {
-          const IconComponent = cat.icon;
-          const isLarge = i === 0 || i === 3;
+  <!-- Browse by Size -->
+  {sizeBands.length > 0 && (
+    <section class="bg-white py-16 sm:py-24 border-t border-surface">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="mb-8 sm:mb-12 reveal">
+          <div class="inline-flex items-center gap-2 badge bg-accent-100 text-accent-700 mb-4">
+            <Ruler class="w-3.5 h-3.5" /> By Size
+          </div>
+          <h2 class="display-heading display-fluid-lg text-ink mb-3">How Much Dog?</h2>
+          <p class="text-ink-muted text-base sm:text-lg max-w-2xl text-pretty">Size drives more than you'd think — exercise load, food bills, and whether a flat is fair on them.</p>
+        </div>
 
-          return (
-            <a
-              href={`/products?category=${cat.key}`}
-              class={`card-hover group glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden reveal reveal-delay-${Math.min((i % 4) + 1, 6)} ${isLarge ? 'sm:col-span-2' : ''}`}
-            >
-              <div class="flex items-start justify-between mb-4 sm:mb-8">
-                <div class="icon-layer w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-50 flex items-center justify-center text-brand-700 transition-all duration-300">
-                  <IconComponent class="w-5 h-5 sm:w-7 sm:h-7" />
-                </div>
-                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-raised border border-brand-100 flex items-center justify-center text-ink-muted group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
-                  <ArrowUpRight class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          {sizeBands.map((band, i) => (
+            <a href={`/breeds?size=${band.key}`} class={`card-hover group glass-card rounded-2xl p-5 sm:p-7 flex items-center justify-between reveal reveal-delay-${i + 1}`}>
+              <div>
+                <h3 class="font-display font-bold text-ink text-base sm:text-xl group-hover:text-brand-700 transition-colors mb-1">{band.label}</h3>
+                <p class="text-xs sm:text-sm text-ink-muted">{band.count} breed{band.count === 1 ? '' : 's'}</p>
               </div>
-              <h3 class="font-display font-bold text-ink text-base sm:text-xl group-hover:text-brand-700 transition-colors mb-1 sm:mb-2">{cat.label}</h3>
-              <p class="text-xs sm:text-sm text-ink-muted max-w-sm line-clamp-2 hidden sm:block">{cat.desc}</p>
-              
-              <!-- Subtle background glow on hover -->
-              <div class="absolute -right-20 -bottom-20 w-40 h-40 bg-brand-200/40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              <ChevronRight class="w-5 h-5 text-ink-muted group-hover:text-brand-600 group-hover:translate-x-0.5 transition-all" />
             </a>
-          );
-        })}
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
-  <!-- Trust Matrix (Refined) -->
+  <!-- Comparisons -->
+  {comparisons.length > 0 && (
+    <section class="bg-surface py-20 sm:py-28 border-t border-surface noise">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-10 sm:mb-14 reveal">
+          <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4">
+              <Scale class="w-3.5 h-3.5" /> Head-to-Head
+            </div>
+            <h2 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4">Breed vs Breed.</h2>
+            <p class="text-ink-muted text-base sm:text-lg text-pretty">Torn between two? These break down how they really differ day to day — and who each one suits.</p>
+          </div>
+          <a href="/compare" class="inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 transition-colors group">
+            Compare any two breeds
+            <ArrowUpRight class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {comparisons.slice(0, 6).map((comparison) => {
+            const imgUrl = getMediaUrl(comparison.featuredImage as Media);
+            const count = (comparison.breeds || []).length;
+            return (
+              <a href={`/compare/${comparison.slug}`} class="card-hover group glass-card rounded-2xl overflow-hidden border-transparent hover:border-brand-200 flex flex-col">
+                <div class="relative aspect-[16/10] bg-brand-50 overflow-hidden">
+                  {imgUrl ? (
+                    <img src={imgUrl} alt={comparison.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                  ) : (
+                    <div class="w-full h-full bg-gradient-to-br from-brand-200/60 to-brand-50 flex items-center justify-center">
+                      <Scale class="w-10 h-10 text-brand-700/30" />
+                    </div>
+                  )}
+                </div>
+                <div class="p-5 flex flex-col flex-1">
+                  {count > 0 && <p class="text-[11px] font-bold uppercase tracking-wide text-brand-700 mb-2">{count} breeds compared</p>}
+                  <h3 class="font-display font-bold text-ink text-base group-hover:text-brand-700 transition-colors mb-2 leading-snug">{comparison.title}</h3>
+                  {comparison.summary && <p class="text-sm text-ink-muted line-clamp-3">{comparison.summary}</p>}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Methodology -->
   <section class="bg-ink py-20 sm:py-32 relative overflow-hidden">
-    <!-- Dark decorative elements -->
     <div class="absolute top-0 right-0 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-brand-900/40 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
     <div class="absolute bottom-0 left-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-accent-900/10 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/2"></div>
-    
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
       <div class="text-center mb-12 sm:mb-20 reveal">
-        <h2 class="display-heading display-fluid-lg text-white mb-4 sm:mb-6">Our Methodology.</h2>
-        <p class="text-ink-muted max-w-2xl mx-auto text-base sm:text-lg text-balance opacity-80">We conduct rigorous analysis so you can make confident decisions. Our reviews are inherently objective.</p>
+        <h2 class="display-heading display-fluid-lg text-white mb-4 sm:mb-6">How We Profile a Breed.</h2>
+        <p class="text-ink-muted max-w-2xl mx-auto text-base sm:text-lg text-balance opacity-80">No breed is right for everyone. Our profiles are built to tell you which one is right for you — including when the answer is neither.</p>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-        {trustPoints.map((point, i) => {
+        {methodology.map((point, i) => {
           const IconComponent = point.icon;
           return (
             <div class={`glass-card-dark rounded-2xl sm:rounded-3xl p-5 sm:p-8 card-hover reveal reveal-delay-${i + 1}`}>
@@ -277,90 +397,94 @@ const trustPoints = [
     </div>
   </section>
 
-  <!-- Comparison CTA -->
+  <!-- Newsletter -->
+  <section class="bg-white py-16 sm:py-24 border-t border-surface">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 reveal">
+      <NewsletterSignup variant="banner" source="homepage" />
+    </div>
+  </section>
+
+  <!-- Compare CTA -->
   <section class="relative py-20 sm:py-32 overflow-hidden subtle-bg-glow border-t border-surface">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
       <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-brand-100 text-brand-700 mb-6 sm:mb-8 border border-white shadow-xl shadow-brand-200/50">
-        <ShieldCheck class="w-8 h-8 sm:w-10 sm:h-10" />
+        <Scale class="w-8 h-8 sm:w-10 sm:h-10" />
       </div>
       <h2 class="display-heading display-fluid-lg text-ink mb-6 sm:mb-8 text-balance">
-        Uncertain? <span class="gradient-text">Compare Them.</span>
+        Torn Between Two? <span class="gradient-text">Compare Them.</span>
       </h2>
       <p class="text-ink-muted text-base sm:text-xl mb-8 sm:mb-12 max-w-2xl mx-auto font-medium text-pretty">
-        Utilize our robust side-by-side comparison engine to evaluate features, pricing, and independent ratings seamlessly.
+        Put any breeds side by side and see shedding, energy, trainability and apartment tolerance scored on the same scale.
       </p>
-      <a href="/products#compare" class="btn-primary inline-flex items-center justify-center gap-3 bg-brand-600 text-white font-bold py-4 px-8 sm:px-10 rounded-full text-base sm:text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-brand-600/30">
+      <a href="/compare" class="btn-primary inline-flex items-center justify-center gap-3 bg-brand-600 text-white font-bold py-4 px-8 sm:px-10 rounded-full text-base sm:text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-brand-600/30">
         Start Comparing <ArrowUpRight class="w-5 h-5" />
       </a>
     </div>
   </section>
 
-  <!-- Modern Footer -->
-  <footer class="bg-surface py-16 sm:py-20 border-t border-ink/5">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 lg:gap-16 mb-12 sm:mb-16">
-        <!-- Brand -->
-        <div class="sm:col-span-2">
-          <div class="mb-6 sm:mb-8">
-            <Logo width={160} height={40} />
-          </div>
-          <p class="text-base leading-relaxed text-ink-muted max-w-sm text-pretty font-medium">
-            Empowering pet parents through rigorous testing, honest reviews, and data-driven recommendations.
-          </p>
-        </div>
+  <Footer note="Breed profiles are researched from kennel club standards and expert veterinary resources." />
 
-        <!-- Links -->
-        <div>
-          <h4 class="font-display text-ink font-bold mb-4 sm:mb-6 text-sm uppercase tracking-widest">Library</h4>
-          <ul class="space-y-3 sm:space-y-4 text-sm font-medium text-ink-muted">
-            <li><a href="/products" class="hover:text-brand-600 transition-colors">Complete Catalog</a></li>
-            <li><a href="/products?category=smart-gadgets" class="hover:text-brand-600 transition-colors">Smart Tech</a></li>
-            <li><a href="/products?category=wellness" class="hover:text-brand-600 transition-colors">Health & Wellness</a></li>
-            <li><a href="/products" class="hover:text-brand-600 transition-colors">All Categories</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-display text-ink font-bold mb-4 sm:mb-6 text-sm uppercase tracking-widest">Platform</h4>
-          <ul class="space-y-3 sm:space-y-4 text-sm font-medium text-ink-muted">
-            <li><a href="/about" class="hover:text-brand-600 transition-colors">Our Methodology</a></li>
-            <li><a href="/contact" class="hover:text-brand-600 transition-colors">Contact Us</a></li>
-            <li><a href="/admin" class="hover:text-brand-600 transition-colors">Admin Login</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="border-t border-ink/10 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 text-sm text-ink-light font-medium">
-        <p>&copy; {new Date().getFullYear()} PawLabs. All rights reserved.</p>
-        <p class="text-ink-muted">Affiliate Disclosure: We may earn commissions from qualifying purchases.</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Mobile Nav Script -->
+  <!-- Mobile Nav + Featured Shuffle -->
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('hamburger-btn');
       const overlay = document.getElementById('mobile-overlay');
       const drawer = document.getElementById('mobile-drawer');
       const closeBtn = document.getElementById('drawer-close');
-      if (!btn || !overlay || !drawer) return;
 
-      function openDrawer() {
-        overlay.classList.add('open');
-        drawer.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
-      }
-      function closeDrawer() {
-        overlay.classList.remove('open');
-        drawer.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
+      if (btn && overlay && drawer) {
+        const openDrawer = () => {
+          overlay.classList.add('open');
+          drawer.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        };
+        const closeDrawer = () => {
+          overlay.classList.remove('open');
+          drawer.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        };
+
+        btn.addEventListener('click', openDrawer);
+        overlay.addEventListener('click', closeDrawer);
+        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
       }
 
-      btn.addEventListener('click', openDrawer);
-      overlay.addEventListener('click', closeDrawer);
-      if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+      const featuredBreedCards = Array.from(document.querySelectorAll('.featured-breed-card'));
+      const shuffleFeaturedBreedsBtn = document.getElementById('shuffle-featured-breeds');
+      const featuredBreedStatus = document.getElementById('featured-breed-status');
+
+      if (featuredBreedCards.length > 0) {
+        const pickCount = Math.min(5, featuredBreedCards.length);
+
+        const shuffle = (arr) => {
+          const copy = [...arr];
+          for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+          }
+          return copy;
+        };
+
+        const renderRandomPicks = () => {
+          const picked = new Set(shuffle(featuredBreedCards).slice(0, pickCount));
+          featuredBreedCards.forEach(card => {
+            if (picked.has(card)) {
+              card.classList.remove('hidden');
+            } else {
+              card.classList.add('hidden');
+            }
+          });
+
+          if (featuredBreedStatus) {
+            featuredBreedStatus.textContent = `Showing ${pickCount} of ${featuredBreedCards.length} featured breeds`;
+          }
+        };
+
+        renderRandomPicks();
+        shuffleFeaturedBreedsBtn?.addEventListener('click', renderRandomPicks);
+      }
     });
   </script>
 </Layout>

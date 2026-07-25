@@ -2,6 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import Footer from '../../components/Footer.astro';
 import { getBreeds, getBreedBySlug, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS, TRAIT_LABELS } from '../../lib/payload';
 import type { Breed, Media } from '../../lib/payload';
 import { Dog, Cat, Star as StarIcon } from 'lucide-astro';
@@ -28,8 +30,16 @@ const breadcrumbs = [
   { label: breed.name },
 ];
 
+const INVERTED_TRAITS = new Set(['groomingNeeds', 'sheddingLevel']);
+const INVERTED_LABELS: Record<string, string> = {
+  groomingNeeds: 'Easy Grooming',
+  sheddingLevel: 'Low Shedding',
+};
 const traitEntries = breed.traits
-  ? (Object.entries(breed.traits) as [string, number][]).filter(([_, v]) => typeof v === 'number')
+  ? (Object.entries(breed.traits) as [string, number][]).filter(([_, v]) => typeof v === 'number').map(([key, val]) => [
+      key,
+      INVERTED_TRAITS.has(key) ? 11 - val : val,
+    ] as [string, number])
   : [];
 
 function traitColor(val: number): string {
@@ -237,7 +247,7 @@ const jsonLd = {
                 </h2>
                 <div class="space-y-3">
                   {traitEntries.map(([key, val]) => {
-                    const label = TRAIT_LABELS[key] || key;
+                    const label = INVERTED_LABELS[key] || TRAIT_LABELS[key] || key;
                     const pct = (val / 10) * 100;
                     const color = traitColor(val);
                     return (
@@ -324,13 +334,18 @@ const jsonLd = {
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-ink text-white/70 py-12 mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-      <p class="text-sm">© 2026 PawLabs. Independent pet product reviews & breed profiles.</p>
-      <p class="text-xs mt-2 text-white/40">Breed data sourced from kennel club standards and expert veterinary resources.</p>
-    </div>
-  </footer>
+  <!-- Newsletter -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-10 mb-12 reveal">
+    <NewsletterSignup
+      variant="hero"
+      heading={`More on the ${breed.name}`}
+      subtitle={`Care tips, training notes, and new comparisons featuring the ${breed.name}. One email per week.`}
+      source="breed-detail"
+      breed={breed.name}
+    />
+  </div>
+
+  <Footer />
 </Layout>
 
 <style>
@@ -367,13 +382,13 @@ const jsonLd = {
   const drawerClose = document.getElementById('drawer-close');
 
   function openDrawer() {
-    overlay?.classList.add('active');
-    drawer?.classList.add('active');
+    overlay?.classList.add('open');
+    drawer?.classList.add('open');
     hamburger?.setAttribute('aria-expanded', 'true');
   }
   function closeDrawer() {
-    overlay?.classList.remove('active');
-    drawer?.classList.remove('active');
+    overlay?.classList.remove('open');
+    drawer?.classList.remove('open');
     hamburger?.setAttribute('aria-expanded', 'false');
   }
   hamburger?.addEventListener('click', openDrawer);

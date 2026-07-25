@@ -106,46 +106,38 @@ Downloaded files are cached in `cms/media/` so future syncs don't need the API.
 
 ---
 
-## AI Review Generator
+## AI Content Generation
 
-Generate product reviews from affiliate links using Grok AI (xAI).
+Breed profiles and comparisons are generated from custom admin views in the CMS
+(not CLI scripts). Start the CMS, then open the admin panel:
 
-```bash
-# Generate a review (dry-run, prints to console)
-npx tsx scripts/generate-review.ts "https://amazon.com/dp/B0BFH9XKGL?tag=pawlabs-20"
+| View | URL | Description |
+|---|---|---|
+| AI Breeds | `/admin/ai-breed` | Generate a full breed profile with 14 trait ratings |
+| Breed Compare | `/admin/ai-breed-compare` | Generate a head-to-head comparison from 2+ breeds |
 
-# Generate with extra context for better results
-npx tsx scripts/generate-review.ts "https://amazon.com/dp/B0BFH9XKGL" \
-  --context "self-cleaning litter box for cats"
-
-# Generate and save directly to CMS
-npx tsx scripts/generate-review.ts "https://amazon.com/dp/B0BFH9XKGL" --save
-```
-
-### Required Environment Variables
-
-| Variable | Description |
-|---|---|
-| `XAI_API_KEY` | xAI API key for Grok model access |
-| `CMS_EMAIL` | Payload CMS admin email (required for `--save`) |
-| `CMS_PASSWORD` | Payload CMS admin password (required for `--save`) |
+Both save as **drafts** so you can review before publishing. Generation requires
+`XAI_API_KEY` in `cms/.env`.
 
 ---
 
-## Data Recovery
+## Database Migrations
 
-Restore products, media, and guides from cached recovery files.
+Schema changes are managed through Payload migrations in `cms/src/migrations/`.
 
 ```bash
-# Restore from .cache/recovered_*.json files
-npx tsx scripts/restore-data.ts
+# Apply pending migrations
+cd cms && npx payload migrate
+
+# Check migration status
+cd cms && npx payload migrate:status
+
+# Roll back the most recent migration
+cd cms && npx payload migrate:down
 ```
 
-This script:
-- Authenticates with the CMS (creates admin user if needed)
-- Uploads media files from `cms/media/` as FormData
-- Restores products and guides with correct media ID mappings
-- Preserves gallery image associations
+> `payload migrate:create` prompts interactively for enum renames — run it in a real
+> terminal, or hand-write the migration and register it in `src/migrations/index.ts`.
 
 ---
 
@@ -155,7 +147,7 @@ This script:
 |---|---|---|
 | `PAYLOAD_API_URL` | `http://127.0.0.1:3000/api` | CMS API base URL |
 | `CMS_PORT` | `3000` | Port for the CMS server |
-| `XAI_API_KEY` | — | xAI API key for review generation |
+| `XAI_API_KEY` | — | xAI API key for breed/comparison generation |
 | `CMS_EMAIL` | — | CMS admin email |
 | `CMS_PASSWORD` | — | CMS admin password |
 | `DATABASE_URI` | `postgresql://localhost:5432/pawlabs` | PostgreSQL connection string |
@@ -167,23 +159,20 @@ This script:
 ```
 /srv/pet/
 ├── src/                    # Astro static site source
-│   ├── pages/              # Route pages (index, products, breeds, guides, compare)
+│   ├── pages/              # Route pages (index, breeds, compare)
 │   ├── components/         # Shared components (Nav, Logo, Breadcrumbs, etc.)
 │   ├── layouts/            # Layout wrapper (SEO, meta tags, analytics)
 │   ├── lib/                # API client (payload.ts), SEO helpers
 │   └── styles/             # Global CSS
 ├── cms/                    # Payload CMS (Next.js)
-│   ├── src/collections/    # CMS collection schemas (Products, Breeds, Guides, etc.)
+│   ├── src/collections/    # CMS collection schemas (Breeds, Comparisons, Media, Users)
 │   ├── src/payload.config.ts
 │   └── media/              # CMS-uploaded media files (source of truth)
 ├── public/media/           # Static media copies (served by the site)
 ├── scripts/
 │   ├── cms.sh              # CMS process supervisor
 │   ├── sync-media.ts       # Media sync (prebuild hook)
-│   ├── image-health-check.ts # Image audit, repair, and daemon
-│   ├── generate-review.ts  # AI review generator CLI
-│   ├── grok-review.ts      # Grok AI integration library
-│   └── restore-data.ts     # Database recovery script
+│   └── image-health-check.ts # Image audit, repair, and daemon
 ├── dist/                   # Built static site output
 └── .cache/payload/         # API response cache (build fallback)
 ```
@@ -192,15 +181,14 @@ This script:
 
 ## Common Workflows
 
-### Add a new product
+### Add a new breed or comparison
 
 ```bash
-# Option 1: Via CMS admin panel
 npm run cms:ensure
-# Then open http://localhost:3000/admin and add the product
-
-# Option 2: Via AI generator
-npx tsx scripts/generate-review.ts "https://amazon.com/dp/PRODUCT_ID" --save
+# Then open http://localhost:3000/admin
+#   • /admin/ai-breed          — generate a breed profile
+#   • /admin/ai-breed-compare  — generate a head-to-head comparison
+# Review the draft, set status to "published", then:
 npm run build
 ```
 

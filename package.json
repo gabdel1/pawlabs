@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "prebuild": "tsx scripts/sync-media.ts",
     "build": "astro build",
+    "build:fast": "astro build",
     "postbuild": "tsx scripts/image-health-check.ts --check",
     "preview": "astro preview",
     "astro": "astro",

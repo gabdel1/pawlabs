@@ -21,53 +21,6 @@ export interface PayloadResponse<T> {
   hasNextPage: boolean;
 }
 
-export interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description?: any;
-  shortDescription?: string;
-  price?: number;
-  affiliateUrl?: string;
-  image?: Media | string;
-  gallery?: { image: Media | string }[];
-  category?: string;
-  subcategory?: string;
-  petType?: string;
-  animalTypes?: string[];
-  featured?: boolean;
-  rating?: number;
-  pros?: { point: string }[];
-  cons?: { point: string }[];
-  reviewBody?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Review {
-  id: string;
-  title: string;
-  slug: string;
-  product: Product | string;
-  content?: any;
-  summary?: string;
-  overallRating?: number;
-  ratingBreakdown?: {
-    quality?: number;
-    valueForMoney?: number;
-    easeOfUse?: number;
-    durability?: number;
-  };
-  verdict?: string;
-  affiliateUrl?: string;
-  featuredImage?: Media | string;
-  author?: string;
-  publishedDate?: string;
-  status?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface Media {
   id: string;
   alt: string;
@@ -77,24 +30,6 @@ export interface Media {
   filesize: number;
   width?: number;
   height?: number;
-}
-
-export interface Guide {
-  id: string;
-  title: string;
-  slug: string;
-  guideType?: string;
-  summary?: string;
-  content?: string;
-  products?: (Product | string)[];
-  category?: string;
-  petType?: string;
-  author?: string;
-  featuredImage?: Media | string;
-  publishedDate?: string;
-  status?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Breed {
@@ -142,6 +77,23 @@ export interface Breed {
   article?: string;
   author?: string;
   publishedDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Comparison {
+  id: string;
+  title: string;
+  slug: string;
+  summary?: string;
+  content?: string;
+  breeds?: (Breed | string)[];
+  comparisonCriteria?: { criterion: string }[];
+  verdict?: string;
+  author?: string;
+  featuredImage?: Media | string;
+  publishedDate?: string;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -204,127 +156,6 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): P
   }
 }
 
-/** Fetch all products from CMS */
-export async function getProducts(limit = 100): Promise<Product[]> {
-  try {
-    const data = await fetchAPI<PayloadResponse<Product>>('products', {
-      limit: String(limit),
-      depth: '1',
-    });
-    return data.docs;
-  } catch (e) {
-    console.error('[payload] Failed to fetch products:', e);
-    return [];
-  }
-}
-
-/** Fetch a single product by slug */
-export async function getProductBySlug(slug: string): Promise<Product | null> {
-  try {
-    const data = await fetchAPI<PayloadResponse<Product>>('products', {
-      'where[slug][equals]': slug,
-      depth: '1',
-    });
-    return data.docs[0] ?? null;
-  } catch (e) {
-    console.error('[payload] Failed to fetch product by slug:', slug, e);
-    return null;
-  }
-}
-
-/** Fetch a single product by ID */
-export async function getProductById(id: string): Promise<Product | null> {
-  try {
-    const data = await fetchAPI<Product>(`products/${id}`, { depth: '1' });
-    return data;
-  } catch (e) {
-    console.error('[payload] Failed to fetch product by ID:', id, e);
-    return null;
-  }
-}
-
-/** Fetch reviews for a specific product */
-export async function getReviewsForProduct(productId: string): Promise<Review[]> {
-  try {
-    const data = await fetchAPI<PayloadResponse<Review>>('reviews', {
-      'where[product][equals]': productId,
-      'where[status][equals]': 'published',
-      depth: '1',
-    });
-    return data.docs;
-  } catch {
-    return [];
-  }
-}
-
-/** Fetch all published reviews */
-export async function getReviews(limit = 100): Promise<Review[]> {
-  try {
-    const data = await fetchAPI<PayloadResponse<Review>>('reviews', {
-      'where[status][equals]': 'published',
-      limit: String(limit),
-      depth: '1',
-    });
-    return data.docs;
-  } catch {
-    return [];
-  }
-}
-
-/** Category labels */
-export const CATEGORY_LABELS: Record<string, string> = {
-  'wellness': 'Wellness',
-  'security': 'Security',
-  'smart-gadgets': 'Smart Gadgets',
-  'food-treats': 'Food & Treats',
-  'grooming': 'Grooming',
-  'beds-furniture': 'Beds & Furniture',
-  'leashes-collars': 'Leashes & Collars',
-  'travel': 'Travel',
-  'toys': 'Toys',
-  'health-wellness': 'Health & Wellness',
-  'other': 'Other',
-};
-
-/** Subcategory labels */
-export const SUBCATEGORY_LABELS: Record<string, Record<string, string>> = {
-  'wellness': {
-    'litter': 'Litter',
-    'supplements': 'Supplements',
-    'dental': 'Dental Care',
-    'flea-tick': 'Flea & Tick',
-  },
-  'security': {
-    'collars': 'Collars & Trackers',
-    'cameras': 'Cameras',
-    'gates': 'Gates & Barriers',
-    'containment': 'Containment',
-  },
-  'smart-gadgets': {
-    'feeders': 'Smart Feeders',
-    'water': 'Water Fountains',
-    'doors': 'Smart Doors',
-    'toys': 'Interactive Toys',
-  },
-  'food-treats': {
-    'dry-food': 'Dry Food',
-    'wet-food': 'Wet Food',
-    'treats': 'Treats',
-    'supplements': 'Supplements',
-  },
-  'grooming': {
-    'brushes': 'Brushes & Combs',
-    'shampoo': 'Shampoos',
-    'clippers': 'Clippers & Trimmers',
-    'dryers': 'Dryers',
-  },
-};
-
-/** Get subcategory label */
-export function getSubcategoryLabel(category: string, subcategory: string): string | null {
-  return SUBCATEGORY_LABELS[category]?.[subcategory] ?? null;
-}
-
 /** Pet type labels */
 export const PET_TYPE_LABELS: Record<string, string> = {
   'dog': 'Dog',
@@ -334,14 +165,6 @@ export const PET_TYPE_LABELS: Record<string, string> = {
   'small-animal': 'Small Animal',
   'reptile': 'Reptile',
   'universal': 'Universal',
-};
-
-/** Verdict labels */
-export const VERDICT_LABELS: Record<string, string> = {
-  'highly-recommended': 'Highly Recommended',
-  'recommended': 'Recommended',
-  'average': 'Average',
-  'not-recommended': 'Not Recommended',
 };
 
 /**
@@ -361,44 +184,6 @@ export function getMediaUrl(media: Media | string | undefined | null): string | 
     return `/media/${filename}`;
   }
   return url;
-}
-
-/** Guide type labels */
-export const GUIDE_TYPE_LABELS: Record<string, string> = {
-  'ultimate-guide': 'Ultimate Guide',
-  'essentials': 'Essentials Roundup',
-  'roundup': 'Product Roundup',
-  'comparison': 'Comparison Guide',
-};
-
-/** Fetch all published guides */
-export async function getGuides(limit = 100): Promise<Guide[]> {
-  try {
-    const data = await fetchAPI<PayloadResponse<Guide>>('guides', {
-      'where[status][equals]': 'published',
-      limit: String(limit),
-      depth: '2',
-      sort: '-publishedDate',
-    });
-    return data.docs;
-  } catch (e) {
-    console.error('[payload] Failed to fetch guides:', e);
-    return [];
-  }
-}
-
-/** Fetch a single guide by slug */
-export async function getGuideBySlug(slug: string): Promise<Guide | null> {
-  try {
-    const data = await fetchAPI<PayloadResponse<Guide>>('guides', {
-      'where[slug][equals]': slug,
-      depth: '2',
-    });
-    return data.docs[0] ?? null;
-  } catch (e) {
-    console.error('[payload] Failed to fetch guide by slug:', slug, e);
-    return null;
-  }
 }
 
 /** Breed group labels */
@@ -443,8 +228,24 @@ export const TRAIT_LABELS: Record<string, string> = {
   'healthRobustness': 'Health Robustness',
 };
 
+/** Labels for the derived comparison criteria used by the comparison table */
+export const CRITERION_LABELS: Record<string, string> = {
+  'lowShedding': 'Low Shedding',
+  'apartmentFriendly': 'Apartment Friendly',
+  'watchdogAbility': 'Watchdog Ability',
+  'energyLevel': 'Energy Level',
+  'trainability': 'Trainability',
+  'childFriendly': 'Child Friendly',
+  'petFriendly': 'Pet Friendly',
+  'easyGrooming': 'Easy Grooming',
+  'barkingControl': 'Barking Control',
+  'adaptability': 'Adaptability',
+  'intelligence': 'Intelligence',
+  'healthRobustness': 'Health Robustness',
+};
+
 /** Fetch all published breeds */
-export async function getBreeds(limit = 200): Promise<Breed[]> {
+export async function getBreeds(limit = 300): Promise<Breed[]> {
   try {
     const data = await fetchAPI<PayloadResponse<Breed>>('breeds', {
       'where[status][equals]': 'published',
@@ -469,6 +270,36 @@ export async function getBreedBySlug(slug: string): Promise<Breed | null> {
     return data.docs[0] ?? null;
   } catch (e) {
     console.error('[payload] Failed to fetch breed by slug:', slug, e);
+    return null;
+  }
+}
+
+/** Fetch all published breed comparisons */
+export async function getComparisons(limit = 100): Promise<Comparison[]> {
+  try {
+    const data = await fetchAPI<PayloadResponse<Comparison>>('comparisons', {
+      'where[status][equals]': 'published',
+      limit: String(limit),
+      depth: '2',
+      sort: '-publishedDate',
+    });
+    return data.docs;
+  } catch (e) {
+    console.error('[payload] Failed to fetch comparisons:', e);
+    return [];
+  }
+}
+
+/** Fetch a single breed comparison by slug */
+export async function getComparisonBySlug(slug: string): Promise<Comparison | null> {
+  try {
+    const data = await fetchAPI<PayloadResponse<Comparison>>('comparisons', {
+      'where[slug][equals]': slug,
+      depth: '2',
+    });
+    return data.docs[0] ?? null;
+  } catch (e) {
+    console.error('[payload] Failed to fetch comparison by slug:', slug, e);
     return null;
   }
 }
