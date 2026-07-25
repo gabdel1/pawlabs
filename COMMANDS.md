@@ -3,12 +3,12 @@
 ## Quick Start
 
 ```bash
-# Start the CMS, sync media, and build the static site
-npm run cms:start
+# The CMS runs under systemd and should already be up — confirm, then build the site
+systemctl is-active pawlabs-cms
 npm run build
 
-# Or start the CMS only if it's not already running
-npm run cms:ensure && npm run build
+# If it isn't running
+sudo systemctl start pawlabs-cms
 ```
 
 ---
@@ -33,19 +33,62 @@ The `build` command automatically runs these hooks in order:
 
 ## CMS (Payload + Next.js)
 
-The CMS runs as a background Next.js process on port 3000. Managed via `scripts/cms.sh`.
+The CMS runs on port 3000 under **systemd**, as the `pawlabs-cms` service
+(`/etc/systemd/system/pawlabs-cms.service`). The unit is enabled at boot and set to
+`Restart=always`, so under normal conditions the CMS is always running and you do not
+need to start it by hand.
+
+systemd is the **only** supported way to manage the CMS process. Do not start
+`next start` manually from a second shell — two managers racing for port 3000 is what
+the old `scripts/cms.sh` supervisor did, and the loser would spin forever on
+`EADDRINUSE` while the winner quietly kept serving a stale build.
 
 | Command | Description |
 |---|---|
-| `npm run cms:start` | Start the CMS in the background (builds first if needed) |
-| `npm run cms:stop` | Stop the running CMS process |
-| `npm run cms:restart` | Stop + start the CMS |
-| `npm run cms:status` | Check if the CMS is running and responding to health checks |
-| `npm run cms:build` | Rebuild the CMS (`next build`) without starting it |
-| `npm run cms:logs` | Tail the CMS log file (`.cms.log`) |
-| `npm run cms:ensure` | Idempotent start — only starts if not already running and healthy |
+| `systemctl status pawlabs-cms` | Check whether the CMS is running, plus recent log lines |
+| `sudo systemctl restart pawlabs-cms` | Restart the CMS (**does not rebuild** — see below) |
+| `sudo systemctl stop pawlabs-cms` | Stop the CMS |
+| `sudo systemctl start pawlabs-cms` | Start the CMS |
+| `journalctl -u pawlabs-cms -f` | Tail the CMS logs live |
+| `journalctl -u pawlabs-cms --since "1 hour ago"` | Recent CMS logs |
+| `curl -sf http://127.0.0.1:3000/api/media?limit=1` | Health check — exits non-zero if the API is not serving |
+
+### Deploying CMS changes (build, then restart)
+
+**The systemd unit does not build.** `ExecStart` is only `next start`, which serves
+whatever is already in `cms/.next/`. Restarting after editing files under `cms/src/`
+will happily keep serving the previous build — you must build first:
+
+```bash
+cd /srv/pet/cms
+
+# 1. Regenerate the Payload import map (required after adding/changing collections
+#    or admin components — a stale import map breaks the admin panel).
+npx cross-env NODE_OPTIONS="--no-deprecation" payload generate:importmap
+
+# 2. Clear webpack's persistent cache. If left in place, webpack may skip emitting
+#    chunks it thinks are unchanged, leaving the new build's HTML referencing chunk
+#    filenames that don't exist on disk — which shows up as ChunkLoadError in /admin.
+rm -rf node_modules/.cache
+
+# 3. Build.
+npx cross-env NODE_OPTIONS="--max-old-space-size=4096" next build
+
+# 4. Swap the running server onto the new build.
+sudo systemctl restart pawlabs-cms
+```
+
+If a previous build was interrupted or is otherwise suspect, `rm -rf /srv/pet/cms/.next`
+before step 3 to force a fully clean build.
+
+The build step is deliberately kept out of the systemd unit: with `Restart=always` and
+`RestartSec=5`, an `ExecStartPre` build would turn any startup crash into a rebuild loop.
 
 ### CMS Direct Commands (from `cms/` directory)
+
+> **Port conflict warning:** the commands below that start a server (`dev`, `devsafe`,
+> `start`) bind port 3000, which the `pawlabs-cms` service is already holding. On the
+> server, `sudo systemctl stop pawlabs-cms` first, or they will die with `EADDRINUSE`.
 
 | Command | Description |
 |---|---|
@@ -170,7 +213,6 @@ cd cms && npx payload migrate:down
 │   └── media/              # CMS-uploaded media files (source of truth)
 ├── public/media/           # Static media copies (served by the site)
 ├── scripts/
-│   ├── cms.sh              # CMS process supervisor
 │   ├── sync-media.ts       # Media sync (prebuild hook)
 │   └── image-health-check.ts # Image audit, repair, and daemon
 ├── dist/                   # Built static site output
@@ -184,7 +226,7 @@ cd cms && npx payload migrate:down
 ### Add a new breed or comparison
 
 ```bash
-npm run cms:ensure
+systemctl is-active pawlabs-cms
 # Then open http://localhost:3000/admin
 #   • /admin/ai-breed          — generate a breed profile
 #   • /admin/ai-breed-compare  — generate a head-to-head comparison
@@ -195,8 +237,10 @@ npm run build
 ### Full rebuild after CMS changes
 
 ```bash
-npm run cms:ensure   # Make sure CMS is running
-npm run build        # Syncs media + builds site + validates images
+# If the change touched cms/src/, rebuild and restart the CMS first
+# (see "Deploying CMS changes" above), then:
+systemctl is-active pawlabs-cms   # Make sure CMS is running
+npm run build                     # Syncs media + builds site + validates images
 ```
 
 ### Debug missing images

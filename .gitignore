@@ -34,9 +34,11 @@ cms/media/
 .image-supervisor.log
 public/media/
 
-# CMS supervisor
+# Legacy CMS supervisor (scripts/cms.sh — removed; the CMS now runs under
+# systemd as pawlabs-cms and logs to journald). These are leftovers.
 .cms.pid
 .cms.log
+.cms.log.*.gz
 .cms-build.log
 
 # Payload data cache
