@@ -3,8 +3,10 @@ import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import QuizPromo from '../../components/QuizPromo.astro';
 import Footer from '../../components/Footer.astro';
 import { getBreeds, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
+import { breedsListJsonLd } from '../../lib/seo';
 import type { Media } from '../../lib/payload';
 import { Search, ChevronRight, Dog, Cat, PawPrint, Star as StarIcon, LayoutGrid, List, Ruler, Weight, Clock } from 'lucide-astro';
 const breeds = await getBreeds();
@@ -55,6 +57,7 @@ function traitTextColor(val: number): string {
   description="Explore detailed breed profiles with trait ratings, temperament data, and expert articles for dogs and cats."
   canonicalUrl="/breeds"
   ogType="website"
+  jsonLd={[breedsListJsonLd(breeds)]}
 >
   <Nav activePage="breeds" />
 
@@ -62,6 +65,10 @@ function traitTextColor(val: number): string {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <div class="mb-8 sm:mb-12 reveal">
         <Breadcrumbs items={breadcrumbs} />
+      </div>
+
+      <div class="mb-8 sm:mb-10 reveal">
+        <QuizPromo variant="strip" source="breeds-index" />
       </div>
 
       <div class="mb-8 sm:mb-10 reveal reveal-delay-1 flex xl:items-end xl:justify-between flex-col xl:flex-row gap-4 sm:gap-6">

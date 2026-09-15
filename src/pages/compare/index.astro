@@ -12,6 +12,7 @@ import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import QuizPromo from '../../components/QuizPromo.astro';
 import Footer from '../../components/Footer.astro';
 import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, CRITERION_LABELS } from '../../lib/payload';
 import type { Breed, Media } from '../../lib/payload';
@@ -171,6 +172,15 @@ const breedData = breeds.map(b => ({
           </div>
         </section>
       )}
+
+      <div class="mb-10 reveal">
+        <QuizPromo
+          variant="hero"
+          heading="Comparing two breeds? Let us narrow the field first."
+          subtitle="Ten questions about your home, your week and your household — then three breeds worth comparing, picked for your actual life."
+          source="compare-index"
+        />
+      </div>
 
       <div class="max-w-3xl mx-auto reveal">
         <NewsletterSignup variant="banner" source="compare" />
