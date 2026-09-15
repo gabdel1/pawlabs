@@ -1,0 +1,294 @@
+---
+import ContentPage from '../layouts/ContentPage.astro';
+import { policyPageJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, DATA_PROCESSORS, POLICY_UPDATED } from '../lib/site';
+
+const toc = [
+  { id: 'summary', label: 'The short version' },
+  { id: 'what-we-collect', label: 'What we collect' },
+  { id: 'cookies', label: 'Cookies & local storage' },
+  { id: 'consent', label: 'Consent & advertising' },
+  { id: 'processors', label: 'Who else sees it' },
+  { id: 'legal-basis', label: 'Why we are allowed to' },
+  { id: 'retention', label: 'How long we keep it' },
+  { id: 'your-rights', label: 'Your rights' },
+  { id: 'us-rights', label: 'US state privacy rights' },
+  { id: 'children', label: "Children's privacy" },
+  { id: 'transfers', label: 'International transfers' },
+  { id: 'changes', label: 'Changes to this policy' },
+];
+---
+
+<ContentPage
+  title="Privacy Policy"
+  metaTitle="Privacy Policy | PawLabs"
+  description="What PawLabs collects, why, who processes it, how long we keep it, and how to get it deleted. Covers analytics, the newsletter and the Breed Match quiz."
+  canonicalUrl="/privacy"
+  lede="What we collect, why we collect it, and how to make us stop."
+  updated={POLICY_UPDATED}
+  jsonLd={policyPageJsonLd('Privacy Policy', '/privacy', 'What PawLabs collects, why, who processes it, and how to have it deleted.')}
+  toc={toc}
+>
+  <h2 id="summary">The short version</h2>
+  <div class="legal-callout">
+    <p>
+      You can read every breed profile on this site without telling us anything. We do not ask you to
+      make an account, and we never take payment details. We collect an email address only if you
+      hand one over — for the newsletter, or to have your quiz result sent to you. We use Google
+      Analytics to see which pages get read, and Google AdSense to show the ads that pay for the site.
+      If you are in the EEA, the UK or Switzerland, neither of those stores anything on your device
+      until you have been asked and said yes. We do not sell your personal information. You can have
+      anything we hold deleted by emailing <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Data request] ')}`}>{CONTACT_EMAIL}</a>.
+    </p>
+  </div>
+  <p>
+    This policy covers <strong>pawlabs.org</strong>. Everything below describes what the site actually
+    does, not a template of what sites in general might do.
+  </p>
+
+  <h2 id="what-we-collect">What we collect</h2>
+
+  <h3>Just browsing</h3>
+  <p>
+    If you read pages and do nothing else, we do not collect anything that identifies you personally.
+    Google Analytics records the visit — page viewed, approximate location derived from a truncated IP
+    address, device and browser type, and the site you arrived from. Our hosting also keeps standard
+    server logs, which include IP addresses, for security and diagnosing faults.
+  </p>
+
+  <h3>If you subscribe to the newsletter</h3>
+  <p>
+    We store the email address you type in, which page you subscribed from, and — where relevant — the
+    breed you were reading about, so the emails are less generic. That goes to Brevo, who send the
+    emails on our behalf. Every email has a one-click unsubscribe.
+  </p>
+
+  <h3>If you take the Breed Match quiz</h3>
+  <p>This one collects the most, so it is worth being precise:</p>
+  <ul>
+    <li><strong>Your answers</strong> — which option you picked for each question, plus anything you typed into the free-text box at the end.</li>
+    <li><strong>Your result</strong> — the breeds we recommended and the write-up we generated.</li>
+    <li><strong>Your email address, only if you give it.</strong> The quiz works fine if you skip that step, and skipping it does not change your result.</li>
+    <li><strong>Your IP address, briefly.</strong> We hold it in memory for up to an hour to stop one person running the quiz hundreds of times, because each run costs us an AI request. It is not written to the database and not linked to your answers.</li>
+  </ul>
+  <p>
+    Your answers are sent to our AI provider (xAI, the Grok API) along with a shortlist of breeds, so
+    it can write your match. Do not type anything into the free-text box you would not want processed
+    by a third party — it is there for things like "I'm allergic to dander", not for anything sensitive.
+  </p>
+  <p>
+    We read the free-text notes to work out which questions the quiz is missing, and we use them to
+    write new ones. If you would rather your note was not kept, email us and we will remove it.
+  </p>
+
+  <h3>If you email us</h3>
+  <p>
+    We keep the message and your address so we can reply and, for corrections, so we have a record of
+    why a page changed.
+  </p>
+
+  <h2 id="cookies">Cookies and local storage</h2>
+  <div class="legal-table">
+    <div class="legal-row">
+      <div class="legal-row-title">Google Analytics cookies (<code>_ga</code>, <code>_ga_*</code>)</div>
+      <dl>
+        <dt>Purpose</dt><dd>Tells apart new and returning visits so traffic counts are not nonsense.</dd>
+        <dt>Type</dt><dd>Third-party analytics</dd>
+        <dt>Lifetime</dt><dd>Up to 2 years</dd>
+      </dl>
+    </div>
+    <div class="legal-row">
+      <div class="legal-row-title">Quiz progress (<code>pawlabs-quiz-v1</code>)</div>
+      <dl>
+        <dt>Purpose</dt><dd>Remembers your answers so a half-finished quiz can be resumed.</dd>
+        <dt>Type</dt><dd>First-party local storage — stays in your browser, never sent to us</dd>
+        <dt>Lifetime</dt><dd>7 days, or until you finish or retake the quiz</dd>
+      </dl>
+    </div>
+    <div class="legal-row">
+      <div class="legal-row-title">Quiz result (<code>pawlabs-quiz-result-v1</code>)</div>
+      <dl>
+        <dt>Purpose</dt><dd>Holds your result so a page refresh does not lose it.</dd>
+        <dt>Type</dt><dd>First-party session storage</dd>
+        <dt>Lifetime</dt><dd>Until you close the tab</dd>
+      </dl>
+    </div>
+    <div class="legal-row">
+      <div class="legal-row-title">Google AdSense advertising cookies</div>
+      <dl>
+        <dt>Purpose</dt><dd>Limits how often you see the same ad, measures whether an ad was clicked, and — only where you have agreed to it — decides which ads to show based on your interests.</dd>
+        <dt>Type</dt><dd>Third-party advertising</dd>
+        <dt>Lifetime</dt><dd>Varies by cookie; Google documents the current list in its <a href="https://business.safety.google/adscookies/" rel="nofollow noopener" target="_blank">advertising cookies notice</a></dd>
+        <dt>In the EEA, UK and Switzerland</dt><dd>Not set at all unless you consent. Refusing means you still see ads, just untargeted ones.</dd>
+      </dl>
+    </div>
+    <div class="legal-row">
+      <div class="legal-row-title">Consent choice</div>
+      <dl>
+        <dt>Purpose</dt><dd>Remembers the answer you gave the consent prompt so you are not asked again on every page.</dd>
+        <dt>Type</dt><dd>Set by Google's consent management platform, which we use to collect and record the choice</dd>
+        <dt>Lifetime</dt><dd>Until you clear it or it expires — you can change the answer at any time from the link in the site footer</dd>
+      </dl>
+    </div>
+    <div class="legal-row">
+      <div class="legal-row-title">Affiliate tracking cookies</div>
+      <dl>
+        <dt>Purpose</dt><dd>Set by a retailer or affiliate network when you follow a link off this site, so a purchase can be credited to us.</dd>
+        <dt>Type</dt><dd>Third-party, set on the destination site</dd>
+        <dt>Lifetime</dt><dd>Varies by network — typically 24 hours to 30 days</dd>
+      </dl>
+    </div>
+  </div>
+  <p>
+    You can block or delete cookies in your browser settings, and Google publishes a
+    <a href="https://tools.google.com/dlpage/gaoptout" rel="nofollow noopener" target="_blank">browser add-on that opts you out of Google Analytics</a> entirely.
+    Blocking any of the above will not stop you reading the site. Clearing local storage only means
+    the quiz forgets a part-finished run.
+  </p>
+
+  <h2 id="consent">Consent and advertising</h2>
+  <p>
+    This site is paid for by display advertising through Google AdSense, and we use Google Analytics
+    to see which pages are worth writing more of. Both of those want to store something on your
+    device, and in the EEA, the UK and Switzerland the law says we have to ask you first.
+  </p>
+  <p>
+    So we do. On your first visit from one of those regions you get a consent prompt, served through
+    a Google-certified consent management platform. Until you answer it, the site instructs Google's
+    tags to store nothing and to strip advertising identifiers from the requests they make — that is
+    <a href="https://support.google.com/analytics/answer/9976101" rel="nofollow noopener" target="_blank">Google Consent Mode</a>,
+    and it is enabled site-wide, not just while the prompt is on screen.
+  </p>
+  <ul>
+    <li><strong>If you accept</strong>, analytics and advertising cookies are set as described above, and the ads you see can be personalised.</li>
+    <li><strong>If you refuse</strong>, no analytics or advertising cookie is stored. You still get ads, because they are what keeps the site free, but they are chosen from the page you are reading rather than from anything about you. Nothing else on the site changes — every breed profile, comparison and the quiz all work exactly the same.</li>
+    <li><strong>Either way you can change your mind</strong>, from the <em>Privacy &amp; cookie settings</em> link in the footer of every page. Withdrawing consent is as easy as giving it, and takes effect immediately.</li>
+  </ul>
+  <p>
+    Outside those regions the tags behave as they always have, and your browser's own controls —
+    blocking third-party cookies, or Google's
+    <a href="https://myadcenter.google.com/" rel="nofollow noopener" target="_blank">My Ad Center</a> —
+    remain the way to limit them.
+  </p>
+  <p>
+    Google acts as an independent controller for the advertising data it collects, which means it
+    decides how that data is used under its own
+    <a href="https://policies.google.com/technologies/partner-sites" rel="nofollow noopener" target="_blank">policy for partner sites</a>.
+    We never receive it in a form that identifies you; we see revenue totals and page-level
+    performance, nothing about individual readers.
+  </p>
+
+  <h2 id="processors">Who else sees it</h2>
+  <p>
+    We do not sell personal information, and we do not hand it to data brokers. These are the
+    services that necessarily receive some data in order for the site to work:
+  </p>
+  <div class="legal-table">
+    {DATA_PROCESSORS.map((p) => (
+      <div class="legal-row">
+        <div class="legal-row-title">{p.name}</div>
+        <dl>
+          <dt>Why</dt><dd>{p.purpose}</dd>
+          <dt>What</dt><dd>{p.data}</dd>
+          <dt>Policy</dt><dd><a href={p.policy} rel="nofollow noopener" target="_blank">{p.policy.replace(/^https?:\/\//, '')}</a></dd>
+        </dl>
+      </div>
+    ))}
+    <div class="legal-row">
+      <div class="legal-row-title">xAI (Grok API)</div>
+      <dl>
+        <dt>Why</dt><dd>Writes your Breed Match result, and drafts breed profiles for our editors to review.</dd>
+        <dt>What</dt><dd>Your quiz answers and free-text note. Your email address is never sent.</dd>
+        <dt>Policy</dt><dd><a href="https://x.ai/legal/privacy-policy" rel="nofollow noopener" target="_blank">x.ai/legal/privacy-policy</a></dd>
+      </dl>
+    </div>
+  </div>
+  <p>
+    We may also disclose information if the law requires it, or to protect the site against abuse.
+  </p>
+
+  <h2 id="legal-basis">Why we are allowed to (GDPR)</h2>
+  <p>If UK or EU data protection law applies to you, our lawful bases are:</p>
+  <ul>
+    <li><strong>Consent</strong> — analytics and advertising cookies, the newsletter, and sending your quiz result by email. Nothing non-essential is stored on your device until you have agreed to it, and you can withdraw that agreement at any time from the footer link without losing access to anything.</li>
+    <li><strong>Legitimate interests</strong> — security logging and quiz rate limiting, so the site stays up and one person cannot run the quiz a thousand times. We have balanced this against your interests and use the least identifying option available in each case: rate-limit addresses live in memory for an hour and are never written down.</li>
+    <li><strong>Legal obligation</strong> — where we have to keep or produce something by law.</li>
+  </ul>
+  <p>
+    The controller for all of the above is PawLabs, reachable at
+    <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Privacy] ')}`}>{CONTACT_EMAIL}</a>.
+    We are below the threshold at which GDPR requires a designated Data Protection Officer, so that
+    address reaches the people who actually run the site.
+  </p>
+
+  <h2 id="retention">How long we keep it</h2>
+  <ul>
+    <li><strong>Newsletter subscription</strong> — until you unsubscribe. After that Brevo keeps a suppression record so we do not email you again by accident.</li>
+    <li><strong>Quiz submissions</strong> — until you ask us to delete them, or until they stop being useful for improving the quiz, whichever comes first.</li>
+    <li><strong>Analytics</strong> — controlled by Google's retention settings; currently 14 months for event data.</li>
+    <li><strong>Emails to us</strong> — kept while the conversation is live, and afterwards where it records why a page was changed.</li>
+    <li><strong>Rate-limiting IP addresses</strong> — held in memory for one hour, then gone. Never written to disk.</li>
+  </ul>
+
+  <h2 id="your-rights">Your rights</h2>
+  <p>Wherever you live, you can ask us to:</p>
+  <ul>
+    <li><strong>Show you</strong> what we hold about you.</li>
+    <li><strong>Correct it</strong> if it is wrong.</li>
+    <li><strong>Delete it.</strong></li>
+    <li><strong>Stop using it</strong> for a particular purpose, or restrict how we use it.</li>
+    <li><strong>Hand it over</strong> in a portable format.</li>
+    <li><strong>Withdraw consent</strong> you previously gave, without that affecting anything done before you withdrew it.</li>
+  </ul>
+  <p>
+    Email <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Data request] ')}`}>{CONTACT_EMAIL}</a> and
+    we will action it. Send it from the address you gave us if you can — that is the easiest way for us
+    to confirm the request is really yours, and it saves us asking you for anything further.
+  </p>
+  <p>
+    If you are in the UK or EU and you think we have handled your data badly, you can complain to your
+    national supervisory authority — in the UK, that is the Information Commissioner's Office. We would
+    rather you came to us first, but it is your right either way.
+  </p>
+
+  <h2 id="us-rights">US state privacy rights</h2>
+  <p>
+    If you are a California resident, the CCPA as amended by the CPRA gives you the right to know what
+    personal information we collect and why, to have it deleted, to have it corrected, to opt out of
+    its sale or sharing, and not to be treated worse for exercising any of that. Several other US
+    states now grant comparable rights, and we apply the same process to everyone rather than checking
+    which state you are in.
+  </p>
+  <p>
+    <strong>We do not sell your personal information for money.</strong> Note that some US privacy laws
+    define "sharing" broadly enough to cover analytics and advertising cookies of the kind described
+    above. If you want none of that, open <em>Privacy &amp; cookie settings</em> in the footer and
+    refuse, use the Google Analytics opt-out linked earlier, or block third-party cookies in your
+    browser — and email us to have anything already stored deleted.
+  </p>
+
+  <h2 id="children">Children's privacy</h2>
+  <p>
+    This site is meant for adults choosing a pet. It is not directed at children, and we do not
+    knowingly collect personal information from anyone under 13 (or under 16 where local law sets the
+    bar there). If you believe a child has given us their details, email us and we will delete it.
+  </p>
+
+  <h2 id="transfers">International transfers</h2>
+  <p>
+    The services listed above are operated by companies based in the United States, so data processed
+    through them may be stored or handled there. Where UK or EU law requires a transfer safeguard, we
+    rely on the mechanisms those providers put in place, such as Standard Contractual Clauses and,
+    where applicable, the EU–US Data Privacy Framework.
+  </p>
+
+  <h2 id="changes">Changes to this policy</h2>
+  <p>
+    When we change what we collect or who processes it, we update this page and move the date at the
+    top. There is no archive of previous versions; if a change matters to you, the current page is the
+    one that governs.
+  </p>
+  <p>
+    Questions about any of this go to <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Privacy] ')}`}>{CONTACT_EMAIL}</a>.
+  </p>
+</ContentPage>

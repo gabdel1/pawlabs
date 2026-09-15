@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { GOOGLE_SITE_VERIFICATION, ADSENSE_CLIENT } from '../lib/site';
 
 interface Props {
   title: string;
@@ -8,6 +9,8 @@ interface Props {
   ogImage?: string | null;
   ogType?: 'website' | 'article';
   jsonLd?: string | string[];
+  /** Overrides og:title / twitter:title only — <title> keeps the site suffix. */
+  ogTitle?: string;
   noindex?: boolean;
   publishedTime?: string;
   modifiedTime?: string;
@@ -20,6 +23,7 @@ const {
   ogImage,
   ogType = 'website',
   jsonLd,
+  ogTitle,
   noindex = false,
   publishedTime,
   modifiedTime,
@@ -29,9 +33,13 @@ const siteUrl = 'https://pawlabs.org';
 const fullCanonical = canonicalUrl ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`) : Astro.url.href;
 const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : null;
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+// Derive the declared type from the file so JPEG cards are not announced as PNG.
+const ogImageType = fullOgImage && /\.jpe?g($|\?)/i.test(fullOgImage) ? 'image/jpeg' : 'image/png';
 
 // Generate a clean title with site suffix
 const pageTitle = title.includes('PawLabs') ? title : `${title} | PawLabs`;
+// Social cards read better without the site suffix appended to the headline.
+const socialTitle = ogTitle ?? pageTitle;
 ---
 
 <!doctype html>
@@ -42,19 +50,81 @@ const pageTitle = title.includes('PawLabs') ? title : `${title} | PawLabs`;
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- Preconnect to critical third-party origins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!--
+      Fonts are served from this origin, not fonts.googleapis.com. A stylesheet
+      link fires before any script, so Consent Mode cannot gate it — the only way
+      not to hand Google every EU visitor's IP address unasked is to host the
+      files ourselves. Regenerate with scripts/fetch-fonts.py.
+    -->
+    <link rel="preload" href="/fonts/outfit-700-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/plus-jakarta-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
 
     <!-- DNS prefetch for less critical origins -->
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    {ADSENSE_CLIENT && <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />}
+
+    <!--
+      Google Consent Mode v2 — MUST run before AdSense and Analytics load.
+
+      Storage is denied by default across the EEA, the UK and Switzerland, so
+      neither Google tag writes an advertising or analytics cookie until a
+      consent management platform grants it. `wait_for_update` gives the CMP
+      time to answer before the tags decide. Outside those regions the previous
+      behaviour is preserved.
+
+      This is the code half of the requirement. Serving ads to EEA/UK traffic
+      also needs a Google-certified CMP enabled in AdSense
+      (Privacy & messaging) — that is a dashboard setting, not a code change.
+    -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+
+      // EU27 + EEA (IS, LI, NO) + UK + Switzerland.
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500,
+        region: [
+          'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE',
+          'IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE',
+          'IS','LI','NO','GB','CH'
+        ],
+      });
+
+      // Everywhere else is unchanged.
+      gtag('consent', 'default', {
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+        analytics_storage: 'granted',
+      });
+
+      // Strip ad identifiers from requests made while consent is denied, and
+      // pass click IDs in the URL instead of a cookie.
+      gtag('set', 'ads_data_redaction', true);
+      gtag('set', 'url_passthrough', true);
+    </script>
+
+    <!-- Google AdSense -->
+    {ADSENSE_CLIENT && (
+      <script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+        crossorigin="anonymous"
+      ></script>
+    )}
 
     <!-- Google Analytics (async, non-blocking) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XQG5KHT5MH"></script>
     <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-XQG5KHT5MH');
     </script>
@@ -82,6 +152,11 @@ const pageTitle = title.includes('PawLabs') ? title : `${title} | PawLabs`;
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
+    <!-- Google Search Console (only rendered once a token is set in lib/site.ts) -->
+    {GOOGLE_SITE_VERIFICATION && (
+      <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
+    )}
+
     <!-- Impact Radius -->
     <meta name='impact-site-verification' value='6958134b-39b0-49ed-abd1-973a966d25cb'>
 
@@ -90,21 +165,21 @@ const pageTitle = title.includes('PawLabs') ? title : `${title} | PawLabs`;
 
     <!-- OpenGraph -->
     <meta property="og:type" content={ogType} />
-    <meta property="og:title" content={pageTitle} />
+    <meta property="og:title" content={socialTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={fullCanonical} />
     <meta property="og:site_name" content="PawLabs" />
     {fullOgImage && <meta property="og:image" content={fullOgImage} />}
     {fullOgImage && <meta property="og:image:width" content="1200" />}
     {fullOgImage && <meta property="og:image:height" content="630" />}
-    {fullOgImage && <meta property="og:image:type" content="image/png" />}
+    {fullOgImage && <meta property="og:image:type" content={ogImageType} />}
     {fullOgImage && <meta property="og:image:alt" content={title} />}
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content={fullOgImage ? 'summary_large_image' : 'summary'} />
-    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:title" content={socialTitle} />
     <meta name="twitter:description" content={description} />
     {fullOgImage && <meta name="twitter:image" content={fullOgImage} />}
     {fullOgImage && <meta name="twitter:image:alt" content={title} />}

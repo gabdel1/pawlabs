@@ -1,4 +1,17 @@
 ---
+/**
+ * Site footer.
+ *
+ * Carries the trust and compliance links that ad networks, affiliate networks
+ * and Google's quality raters look for. Deliberately does NOT link /admin —
+ * a public link to the login page is free reconnaissance for bots, and it reads
+ * as an unfinished site. The admin panel is reachable directly by anyone who
+ * needs it, and robots.txt already disallows the path.
+ */
+import Logo from './Logo.astro';
+import { CONTACT_EMAIL } from '../lib/site';
+import { Mail } from 'lucide-astro';
+
 interface Props {
   /** Optional second line, e.g. a page-specific sourcing note. */
   note?: string;
@@ -7,16 +20,150 @@ interface Props {
 const {
   note = 'Breed data sourced from kennel club standards and expert veterinary resources.',
 } = Astro.props;
+
+const year = new Date().getFullYear();
+
+const columns = [
+  {
+    title: 'Explore',
+    links: [
+      { href: '/quiz', label: 'Breed Match Quiz' },
+      { href: '/breeds', label: 'All Breeds' },
+      { href: '/compare', label: 'Compare Breeds' },
+      { href: '/embed', label: 'Embed our compare tool' },
+    ],
+  },
+  {
+    title: 'About',
+    links: [
+      { href: '/about', label: 'About PawLabs' },
+      { href: '/about#who-writes-this', label: 'Who Writes This' },
+      { href: '/about#editorial-standards', label: 'Editorial Standards' },
+      { href: '/contact', label: 'Contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { href: '/privacy', label: 'Privacy Policy' },
+      { href: '/affiliate-disclosure', label: 'Affiliate Disclosure' },
+      { href: '/contact#corrections', label: 'Report a Correction' },
+    ],
+    /**
+     * Renders the consent-withdrawal control after this column's links.
+     * GDPR requires withdrawing consent to be as easy as giving it, which in
+     * practice means a persistent link on every page.
+     */
+    consent: true,
+  },
+];
 ---
 
-<footer class="bg-ink text-white/70 py-12">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-    <p class="text-sm">&copy; {new Date().getFullYear()} PawLabs. An independent dog breed encyclopedia.</p>
-    <p class="text-xs mt-2 text-white/40">{note}</p>
-    <nav class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium">
-      <a href="/breeds" class="hover:text-white transition-colors">All Breeds</a>
-      <a href="/compare" class="hover:text-white transition-colors">Compare Breeds</a>
-      <a href="/admin" class="hover:text-white transition-colors">Admin</a>
-    </nav>
+<footer class="bg-ink text-white/70">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-16">
+    <div class="grid gap-10 sm:gap-8 md:grid-cols-12">
+
+      <!-- Identity -->
+      <div class="md:col-span-5 lg:col-span-4">
+        <div class="mb-4">
+          <Logo width={140} height={34} variant="white" />
+        </div>
+        <p class="text-sm text-white/50 leading-relaxed max-w-xs">
+          An independent dog breed encyclopedia. Every breed scored on the same 14 traits, so
+          comparisons actually mean something.
+        </p>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors"
+        >
+          <Mail class="w-4 h-4" />
+          {CONTACT_EMAIL}
+        </a>
+      </div>
+
+      <!-- Link columns -->
+      <div class="md:col-span-7 lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
+        {columns.map((col) => (
+          <nav aria-label={col.title}>
+            <h2 class="font-display font-bold text-white text-xs uppercase tracking-widest mb-3.5">
+              {col.title}
+            </h2>
+            <ul class="space-y-2.5">
+              {col.links.map((link) => (
+                <li>
+                  <a href={link.href} class="text-sm text-white/55 hover:text-white transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+              {col.consent && (
+                <li>
+                  <button
+                    type="button"
+                    id="consent-settings"
+                    hidden
+                    class="text-sm text-white/55 hover:text-white transition-colors text-left"
+                  >
+                    Privacy &amp; cookie settings
+                  </button>
+                </li>
+              )}
+            </ul>
+          </nav>
+        ))}
+      </div>
+    </div>
+
+    <!-- Disclosures -->
+    <div class="mt-12 pt-8 border-t border-white/10 space-y-3">
+      <p class="text-xs text-white/40 leading-relaxed max-w-3xl">
+        <strong class="text-white/60">Affiliate disclosure:</strong> PawLabs is reader-supported. Some
+        links on this site are affiliate links, and we may earn a commission when you buy through one —
+        at no extra cost to you. It never influences our trait ratings or quiz results.
+        <a href="/affiliate-disclosure" class="underline underline-offset-2 hover:text-white/80 transition-colors">Read the full disclosure</a>.
+      </p>
+      <p class="text-xs text-white/40 leading-relaxed max-w-3xl">
+        <strong class="text-white/60">Not veterinary advice:</strong> Breed profiles are general
+        reference. For anything concerning your own animal, talk to a vet who can examine them.
+      </p>
+    </div>
+
+    <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <p class="text-sm text-white/50">&copy; {year} PawLabs. An independent dog breed encyclopedia.</p>
+      <p class="text-xs text-white/30">{note}</p>
+    </div>
   </div>
 </footer>
+
+<!--
+  Consent withdrawal.
+
+  The button is hidden until Google's consent management platform confirms it is
+  present, because outside the EEA, the UK and Switzerland no prompt is shown and
+  there is nothing to reopen — a dead link there is worse than no link. `is:inline`
+  so it is not bundled and scoped; it has to run on the raw page.
+-->
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('consent-settings');
+    if (!btn) return;
+
+    function enable() {
+      btn.hidden = false;
+      btn.addEventListener('click', function () {
+        if (window.googlefc && typeof window.googlefc.showRevocationMessage === 'function') {
+          window.googlefc.showRevocationMessage();
+        }
+      });
+    }
+
+    window.googlefc = window.googlefc || {};
+    window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+    window.googlefc.callbackQueue.push({
+      CONSENT_DATA_READY: function () {
+        // Only surface the control where a message was actually served.
+        if (typeof window.googlefc.showRevocationMessage === 'function') enable();
+      },
+    });
+  })();
+</script>
