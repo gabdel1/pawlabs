@@ -1,0 +1,112 @@
+---
+/**
+ * Breed Match quiz call-to-action.
+ *
+ * Variants:
+ *  - "hero"    — full-width dark panel, the main conversion block
+ *  - "inline"  — compact card for sidebars and mid-article slots
+ *  - "strip"   — slim single-line bar for the top of index pages
+ */
+import { Sparkles, ArrowRight, PawPrint } from 'lucide-astro';
+
+interface Props {
+  variant?: 'hero' | 'inline' | 'strip';
+  heading?: string;
+  subtitle?: string;
+  /** Shown on the hero variant when we know how many breeds are profiled. */
+  breedCount?: number;
+  /** Appended to the link so we can see which placement converts. */
+  source?: string;
+  class?: string;
+}
+
+const {
+  variant = 'hero',
+  heading,
+  subtitle,
+  breedCount,
+  source = '',
+  class: className = '',
+} = Astro.props;
+
+const href = source ? `/quiz?from=${encodeURIComponent(source)}` : '/quiz';
+
+const defaultHeadings: Record<string, string> = {
+  hero: 'Which breed actually fits your life?',
+  inline: 'Not sure which breed is yours?',
+  strip: 'Take the Breed Match quiz',
+};
+
+const defaultSubtitles: Record<string, string> = {
+  hero: breedCount
+    ? `Ten honest questions about your home, your week and your household. We read the answers against all ${breedCount} breeds we've profiled — and tell you which ones would make you miserable, too.`
+    : 'Ten honest questions about your home, your week and your household — then a match written for you, not for everyone.',
+  inline: 'Ten questions, two minutes, and a match written for your actual life.',
+  strip: 'Ten questions. Two minutes. A breed picked for your actual life.',
+};
+
+const h = heading || defaultHeadings[variant];
+const sub = subtitle || defaultSubtitles[variant];
+---
+
+{variant === 'hero' && (
+  <div class={`quiz-promo-hero relative overflow-hidden rounded-2xl sm:rounded-[2rem] ${className}`}>
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-800 via-brand-900 to-ink"></div>
+    <div class="absolute -right-24 -top-24 w-72 h-72 rounded-full bg-brand-400/20 blur-3xl pointer-events-none"></div>
+    <div class="absolute -left-16 -bottom-20 w-64 h-64 rounded-full bg-accent-400/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute inset-0 opacity-[0.05]" style="background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')"></div>
+
+    <div class="relative z-10 px-6 sm:px-10 py-10 sm:py-14 flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
+      <div class="flex-1 min-w-0">
+        <div class="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm">
+          <Sparkles class="w-3.5 h-3.5 text-accent-300" />
+          <span class="text-[10px] font-bold uppercase tracking-widest text-accent-300">AI Breed Matching</span>
+        </div>
+        <h2 class="font-display font-extrabold text-white text-2xl sm:text-3xl md:text-4xl tracking-tight leading-[1.08] mb-3 text-balance">
+          {h}
+        </h2>
+        <p class="text-sm sm:text-base text-white/60 font-medium max-w-xl leading-relaxed text-pretty">{sub}</p>
+      </div>
+
+      <div class="shrink-0 flex flex-col items-start lg:items-end gap-3">
+        <a
+          href={href}
+          class="group inline-flex items-center justify-center gap-2.5 bg-white hover:bg-brand-50 text-brand-900 font-bold text-base py-4 px-8 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30"
+        >
+          Find my breed
+          <ArrowRight class="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+        </a>
+        <span class="text-[11px] font-semibold text-white/35">Free · about 2 minutes · no signup</span>
+      </div>
+    </div>
+  </div>
+)}
+
+{variant === 'inline' && (
+  <a href={href} class={`quiz-promo-inline group block rounded-2xl p-5 sm:p-6 bg-gradient-to-br from-brand-900 to-ink border border-white/5 transition-transform duration-300 hover:-translate-y-1 ${className}`}>
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
+        <PawPrint class="w-3.5 h-3.5 text-accent-300" />
+      </div>
+      <h4 class="font-display font-bold text-white text-sm">{h}</h4>
+    </div>
+    <p class="text-xs text-white/55 font-medium mb-4 leading-relaxed">{sub}</p>
+    <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-accent-300">
+      Take the quiz
+      <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+    </span>
+  </a>
+)}
+
+{variant === 'strip' && (
+  <a href={href} class={`quiz-promo-strip group flex items-center gap-3 sm:gap-4 rounded-2xl px-4 sm:px-6 py-3.5 bg-ink text-white transition-transform duration-300 hover:-translate-y-0.5 ${className}`}>
+    <span class="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+      <Sparkles class="w-4 h-4 text-accent-300" />
+    </span>
+    <span class="flex-1 min-w-0">
+      <span class="block font-display font-bold text-sm leading-tight">{h}</span>
+      <span class="block text-[11px] text-white/50 font-medium truncate">{sub}</span>
+    </span>
+    <ArrowRight class="w-4 h-4 shrink-0 text-accent-300 group-hover:translate-x-0.5 transition-transform" />
+  </a>
+)}

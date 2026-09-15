@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "tsx scripts/sync-media.ts",
+    "prebuild": "tsx scripts/sync-media.ts && tsx scripts/generate-share-cards.ts",
+    "share:cards": "tsx scripts/generate-share-cards.ts",
     "build": "astro build",
     "build:fast": "astro build",
     "postbuild": "tsx scripts/image-health-check.ts --check",

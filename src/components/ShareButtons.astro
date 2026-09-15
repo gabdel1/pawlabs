@@ -1,0 +1,130 @@
+---
+/**
+ * Share row for a quiz match.
+ *
+ * All five targets point at the same canonical /quiz/result/<slug> URL so a
+ * share from any network lands on the same real page. Copy-link falls back to a
+ * hidden input + execCommand where the async clipboard API is unavailable
+ * (older Safari, and any non-secure context).
+ */
+import { Link2, Check } from 'lucide-astro';
+
+interface Props {
+  /** Absolute URL to share. */
+  url: string;
+  breedName: string;
+  /** Absolute URL of the share card — Pinterest requires an image. */
+  imageUrl?: string;
+  class?: string;
+}
+
+const { url, breedName, imageUrl, class: className = '' } = Astro.props;
+
+const text = `My perfect dog breed is the ${breedName}! 🐾 Find yours with the PawLabs breed quiz:`;
+
+const enc = encodeURIComponent;
+
+const targets = [
+  {
+    key: 'x',
+    label: 'X',
+    href: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`,
+    brand: 'hover:bg-ink hover:text-white hover:border-ink',
+  },
+  {
+    key: 'facebook',
+    label: 'Facebook',
+    href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`,
+    brand: 'hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]',
+  },
+  {
+    key: 'whatsapp',
+    label: 'WhatsApp',
+    href: `https://api.whatsapp.com/send?text=${enc(`${text} ${url}`)}`,
+    brand: 'hover:bg-[#25D366] hover:text-white hover:border-[#25D366]',
+  },
+  {
+    key: 'pinterest',
+    label: 'Pinterest',
+    href: `https://pinterest.com/pin/create/button/?url=${enc(url)}&description=${enc(text)}${imageUrl ? `&media=${enc(imageUrl)}` : ''}`,
+    brand: 'hover:bg-[#E60023] hover:text-white hover:border-[#E60023]',
+  },
+];
+---
+
+<div class={`share-buttons flex flex-wrap gap-2.5 ${className}`} data-share-url={url}>
+  <button type="button" class="share-copy inline-flex items-center gap-2 rounded-full border border-ink/10 bg-surface-raised px-4 py-2.5 text-sm font-bold text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:text-brand-700">
+    <Link2 class="w-4 h-4 share-copy-icon" />
+    <Check class="w-4 h-4 share-copy-done hidden" />
+    <span class="share-copy-label">Copy link</span>
+  </button>
+
+  {targets.map((target) => (
+    <a
+      href={target.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-share={target.key}
+      class={`inline-flex items-center gap-2 rounded-full border border-ink/10 bg-surface-raised px-4 py-2.5 text-sm font-bold text-ink transition-all duration-200 hover:-translate-y-0.5 ${target.brand}`}
+    >
+      {target.label}
+    </a>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.share-buttons').forEach((root) => {
+    const url = root.dataset.shareUrl;
+    const button = root.querySelector<HTMLButtonElement>('.share-copy');
+    if (!url || !button) return;
+
+    const icon = button.querySelector('.share-copy-icon');
+    const done = button.querySelector('.share-copy-done');
+    const label = button.querySelector('.share-copy-label');
+
+    const confirm = () => {
+      icon?.classList.add('hidden');
+      done?.classList.remove('hidden');
+      if (label) label.textContent = 'Copied!';
+      window.setTimeout(() => {
+        icon?.classList.remove('hidden');
+        done?.classList.add('hidden');
+        if (label) label.textContent = 'Copy link';
+      }, 2000);
+    };
+
+    button.addEventListener('click', async () => {
+      try {
+        // Only available in secure contexts; fall through when it is not.
+        await navigator.clipboard.writeText(url);
+        confirm();
+      } catch {
+        const field = document.createElement('input');
+        field.value = url;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        try {
+          document.execCommand('copy');
+          confirm();
+        } catch {
+          window.prompt('Copy this link:', url);
+        }
+        field.remove();
+      }
+
+      (window as any).gtag?.('event', 'share', { method: 'copy_link', item_id: url });
+    });
+
+    root.querySelectorAll<HTMLAnchorElement>('a[data-share]').forEach((link) => {
+      link.addEventListener('click', () => {
+        (window as any).gtag?.('event', 'share', {
+          method: link.dataset.share,
+          item_id: url,
+        });
+      });
+    });
+  });
+</script>

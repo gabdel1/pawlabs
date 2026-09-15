@@ -1,0 +1,187 @@
+---
+/**
+ * Shareable quiz result — /quiz/result/<breed-slug>
+ *
+ * Statically generated per breed so a link pasted into a feed, a forum or a
+ * group chat resolves to a real page with real meta, rather than depending on
+ * client state that a crawler will never see.
+ *
+ * The quiz itself decides the match; this page only presents one. No scoring
+ * logic lives here.
+ */
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import ShareButtons from '../../../components/ShareButtons.astro';
+import { getBreeds, getMediaUrl, TRAIT_LABELS, BREED_GROUP_LABELS, SIZE_LABELS } from '../../../lib/payload';
+import type { Breed, Media } from '../../../lib/payload';
+import { breadcrumbJsonLd } from '../../../lib/seo';
+import { SITE_URL } from '../../../lib/site';
+import { Sparkles, ArrowUpRight, PawPrint } from 'lucide-astro';
+
+export async function getStaticPaths() {
+  const breeds = await getBreeds();
+  return breeds.map((breed) => ({
+    params: { slug: breed.slug },
+    props: { breed },
+  }));
+}
+
+const { breed } = Astro.props as { breed: Breed };
+
+const imageUrl = getMediaUrl(breed.image as Media);
+const shareUrl = `${SITE_URL}/quiz/result/${breed.slug}`;
+const cardUrl = `/share/${breed.slug}.jpg`;
+
+const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
+const sizeLabel = breed.size ? SIZE_LABELS[breed.size] ?? breed.size : null;
+
+// Higher is better, so the two "cost" traits are inverted for display — the
+// same convention the breed profile uses.
+const INVERTED: Record<string, string> = {
+  groomingNeeds: 'Easy Grooming',
+  sheddingLevel: 'Low Shedding',
+};
+
+const topTraits = Object.entries(breed.traits ?? {})
+  .filter(([, value]) => typeof value === 'number')
+  .map(([key, value]) => ({
+    key,
+    label: INVERTED[key] ?? TRAIT_LABELS[key] ?? key,
+    value: INVERTED[key] ? 11 - (value as number) : (value as number),
+  }))
+  .sort((a, b) => b.value - a.value)
+  .slice(0, 6);
+
+const title = `My perfect dog breed is the ${breed.name}!`;
+const description =
+  breed.shortDescription
+    ? `${breed.shortDescription} Take the free 2-minute PawLabs quiz and find the breed that fits your life.`
+    : `The PawLabs breed quiz matched me with the ${breed.name}. Take the free 2-minute quiz and find your match across 201 breeds scored on 14 traits.`;
+---
+
+<Layout
+  title={title}
+  ogTitle={title}
+  description={description}
+  canonicalUrl={`/quiz/result/${breed.slug}`}
+  ogType="website"
+  ogImage={cardUrl}
+  jsonLd={[breadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Breed Quiz', url: '/quiz' },
+    { name: breed.name, url: `/quiz/result/${breed.slug}` },
+  ])]}
+>
+  <Nav activePage="quiz" />
+
+  <div class="pt-32 sm:pt-36">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <Breadcrumbs items={[
+        { label: 'Home', href: '/' },
+        { label: 'Breed Quiz', href: '/quiz' },
+        { label: breed.name },
+      ]} />
+    </div>
+  </div>
+
+  <main class="min-h-screen bg-surface noise">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+      <!-- Result card -->
+      <div class="glass-card rounded-3xl overflow-hidden mb-8 reveal">
+        <div class="flex flex-col sm:flex-row">
+          <div class="sm:w-2/5 relative bg-brand-50">
+            <div class="aspect-square sm:aspect-auto sm:h-full min-h-[240px] overflow-hidden">
+              {imageUrl ? (
+                <img src={imageUrl} alt={breed.name} class="w-full h-full object-cover" />
+              ) : (
+                <div class="w-full h-full bg-gradient-to-br from-brand-200/60 to-brand-50 flex items-center justify-center">
+                  <PawPrint class="w-12 h-12 text-brand-700/30" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="sm:w-3/5 p-6 sm:p-8">
+            <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4">
+              <Sparkles class="w-3.5 h-3.5" /> Quiz Result
+            </div>
+            <h1 class="display-heading text-3xl sm:text-4xl text-ink mb-3 text-balance">
+              My perfect dog breed is the <span class="text-brand-700">{breed.name}</span>!
+            </h1>
+            {breed.shortDescription && (
+              <p class="text-ink-muted font-medium leading-relaxed mb-4 text-pretty">{breed.shortDescription}</p>
+            )}
+            <div class="flex flex-wrap gap-2">
+              {sizeLabel && <span class="badge bg-surface text-ink-light border border-ink/5">{sizeLabel}</span>}
+              {groupLabel && <span class="badge bg-surface text-ink-light border border-ink/5">{groupLabel}</span>}
+              {breed.lifeExpectancyMin && breed.lifeExpectancyMax && (
+                <span class="badge bg-surface text-ink-light border border-ink/5">
+                  {breed.lifeExpectancyMin}–{breed.lifeExpectancyMax} yrs
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top traits -->
+      {topTraits.length > 0 && (
+        <section class="glass-card rounded-2xl p-6 sm:p-8 mb-8 reveal reveal-delay-1">
+          <h2 class="font-display font-bold text-ink text-lg mb-1.5">Where the {breed.name} scores highest</h2>
+          <p class="text-sm text-ink-muted font-medium mb-6">Rated 1–10 against the same 14 traits as every other breed.</p>
+          <div class="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+            {topTraits.map((trait) => (
+              <div>
+                <div class="flex justify-between text-xs font-bold text-ink-muted mb-1.5">
+                  <span>{trait.label}</span>
+                  <span class="text-brand-700">{trait.value}/10</span>
+                </div>
+                <div class="h-2 rounded-full bg-ink/5 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700" style={`width:${trait.value * 10}%`}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <a href={`/breeds/${breed.slug}`} class="mt-6 inline-flex items-center gap-2 text-brand-700 font-bold text-sm hover:text-brand-900 transition-colors group">
+            Read the full {breed.name} profile
+            <ArrowUpRight class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+        </section>
+      )}
+
+      <!-- Share -->
+      <section class="glass-card rounded-2xl p-6 sm:p-8 mb-8 reveal reveal-delay-2">
+        <h2 class="font-display font-bold text-ink text-lg mb-1.5">Share your match</h2>
+        <p class="text-sm text-ink-muted font-medium mb-5">Send it to someone who needs a dog in their life.</p>
+        <ShareButtons url={shareUrl} breedName={breed.name} imageUrl={`${SITE_URL}${cardUrl}`} />
+      </section>
+
+      <!-- CTA for visitors arriving from a shared link -->
+      <section class="relative overflow-hidden rounded-2xl sm:rounded-[2rem] reveal reveal-delay-3">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-800 via-brand-900 to-ink"></div>
+        <div class="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-brand-400/20 blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 px-6 sm:px-10 py-10 sm:py-12 text-center">
+          <div class="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-white/10 border border-white/15">
+            <Sparkles class="w-3.5 h-3.5 text-accent-300" />
+            <span class="text-[10px] font-bold uppercase tracking-widest text-accent-300">Free · No signup</span>
+          </div>
+          <h2 class="font-display font-extrabold text-white text-2xl sm:text-3xl md:text-4xl tracking-tight leading-[1.1] mb-3 text-balance">
+            Find <span class="text-accent-300">YOUR</span> perfect breed
+          </h2>
+          <p class="text-sm sm:text-base text-white/60 font-medium max-w-lg mx-auto mb-7 text-pretty">
+            Ten honest questions about your home, your week and your household — then three breeds picked from all 201 we've profiled.
+          </p>
+          <a href="/quiz" class="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-brand-50 text-brand-900 font-bold text-base py-4 px-8 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30">
+            Take the 2-minute quiz
+            <ArrowUpRight class="w-5 h-5" />
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

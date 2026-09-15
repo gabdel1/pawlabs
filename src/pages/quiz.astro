@@ -1,0 +1,2000 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { getBreeds } from '../lib/payload';
+import { getQuizQuestions, questionsForPetType, quizLength, QUIZ_API_URL } from '../lib/quiz';
+import { quizJsonLd, breadcrumbJsonLd } from '../lib/seo';
+import { Sparkles, ArrowRight, ArrowLeft, Check, PawPrint, Timer, Brain } from 'lucide-astro';
+
+const [breeds, questions] = await Promise.all([getBreeds(), getQuizQuestions()]);
+
+// Only offer a pet type we can actually match against.
+const petTypesAvailable = (['dog', 'cat'] as const).filter(
+  (t) => breeds.some((b) => b.petType === t) && questionsForPetType(questions, t).length > 0,
+);
+
+const questionCount = quizLength(questions);
+const breedCount = breeds.length;
+
+const quizData = {
+  questions,
+  petTypes: petTypesAvailable,
+  apiUrl: QUIZ_API_URL,
+};
+
+// Embedded as JSON rather than define:vars so a stray quote in CMS copy
+// can never break the page script.
+const quizDataJson = JSON.stringify(quizData).replace(/</g, '\\u003c');
+
+const petCopy: Record<string, { emoji: string; label: string; blurb: string }> = {
+  dog: { emoji: '🐕', label: 'A dog', blurb: 'Walks, training, a shadow at your feet' },
+  cat: { emoji: '🐈', label: 'A cat', blurb: 'Independent, clever, on their own terms' },
+};
+---
+
+<Layout
+  title="Breed Match Quiz — Find the Right Breed For Your Life | PawLabs"
+  description={`Answer ${questionCount} honest questions about your home, your week and your household. Our AI reads your answers against ${breedCount} breed profiles and tells you which breeds actually fit — and which to avoid.`}
+  canonicalUrl="/quiz"
+  ogType="website"
+  jsonLd={[quizJsonLd(questionCount, breedCount), breadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Breed Match Quiz', url: '/quiz' },
+  ])]}
+>
+  <Nav activePage="quiz" />
+
+  <main class="quiz-page">
+    <div class="quiz-bg" aria-hidden="true">
+      <div class="quiz-orb quiz-orb-a"></div>
+      <div class="quiz-orb quiz-orb-b"></div>
+      <div class="quiz-orb quiz-orb-c"></div>
+    </div>
+
+    <div class="quiz-shell">
+      <!-- ── Progress rail ─────────────────────────────── -->
+      <div class="quiz-progress" id="quiz-progress" hidden>
+        <button class="quiz-back" id="quiz-back" type="button" aria-label="Previous question">
+          <ArrowLeft class="w-4 h-4" />
+        </button>
+        <div class="quiz-progress-track" id="quiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        <span class="quiz-progress-label" id="quiz-progress-label">1 / {questionCount}</span>
+      </div>
+
+      <!-- ── Intro ─────────────────────────────────────── -->
+      <section class="quiz-screen is-active" id="screen-intro">
+        <div class="quiz-intro">
+          <div class="quiz-badge">
+            <Sparkles class="w-4 h-4" />
+            <span>AI breed matching · about 2 minutes</span>
+          </div>
+
+          <h1 class="quiz-title">
+            Which breed actually
+            <span class="quiz-title-accent">fits your life?</span>
+          </h1>
+
+          <p class="quiz-lede">
+            Not the breed you like the look of. The one that fits your flat, your week, your
+            patience and your vacuum cleaner. {questionCount} honest questions — then we read your answers
+            against every breed we've profiled.
+          </p>
+
+          <div class="quiz-stats">
+            <div class="quiz-stat">
+              <PawPrint class="w-4 h-4" />
+              <div><strong>{breedCount}</strong><span>breeds profiled</span></div>
+            </div>
+            <div class="quiz-stat">
+              <Brain class="w-4 h-4" />
+              <div><strong>14</strong><span>traits scored</span></div>
+            </div>
+            <div class="quiz-stat">
+              <Timer class="w-4 h-4" />
+              <div><strong>2 min</strong><span>to your match</span></div>
+            </div>
+          </div>
+
+          <button class="quiz-cta" id="quiz-start" type="button">
+            Start the quiz
+            <ArrowRight class="w-5 h-5" />
+          </button>
+
+          <p class="quiz-microcopy">Free. No signup needed to see your match.</p>
+
+          <div class="quiz-resume" id="quiz-resume" hidden>
+            <span>You left a quiz half-finished.</span>
+            <button type="button" id="quiz-resume-btn">Pick up where you left off</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Pet type ──────────────────────────────────── -->
+      <section class="quiz-screen" id="screen-pet">
+        <div class="quiz-q-head">
+          <span class="quiz-q-emoji">🐾</span>
+          <h2 class="quiz-q-title">First — what are you looking for?</h2>
+          <p class="quiz-q-helper">This decides which questions we ask next.</p>
+        </div>
+
+        <div class="quiz-options quiz-options-pet" id="pet-options" role="radiogroup" aria-label="Pet type">
+          {petTypesAvailable.map((type, i) => (
+            <button class="quiz-option quiz-option-pet" type="button" data-pet={type} role="radio" aria-checked="false">
+              <span class="quiz-option-key">{i + 1}</span>
+              <span class="quiz-option-emoji">{petCopy[type].emoji}</span>
+              <span class="quiz-option-body">
+                <span class="quiz-option-label">{petCopy[type].label}</span>
+                <span class="quiz-option-desc">{petCopy[type].blurb}</span>
+              </span>
+            </button>
+          ))}
+          {petTypesAvailable.length > 1 && (
+            <button class="quiz-option quiz-option-pet" type="button" data-pet="either" role="radio" aria-checked="false">
+              <span class="quiz-option-key">{petTypesAvailable.length + 1}</span>
+              <span class="quiz-option-emoji">🤷</span>
+              <span class="quiz-option-body">
+                <span class="quiz-option-label">Honestly, either</span>
+                <span class="quiz-option-desc">Show me whatever fits best</span>
+              </span>
+            </button>
+          )}
+        </div>
+
+        {petTypesAvailable.length === 1 && (
+          <p class="quiz-note">
+            We're matching {petTypesAvailable[0] === 'dog' ? 'dog' : 'cat'} breeds today — {petTypesAvailable[0] === 'dog' ? 'cat' : 'dog'} profiles are on the way.
+          </p>
+        )}
+      </section>
+
+      <!-- ── Questions (rendered by script) ────────────── -->
+      <section class="quiz-screen" id="screen-question">
+        <div id="question-mount"></div>
+      </section>
+
+      <!-- ── Email ─────────────────────────────────────── -->
+      <section class="quiz-screen" id="screen-email">
+        <div class="quiz-q-head">
+          <span class="quiz-q-emoji">💌</span>
+          <h2 class="quiz-q-title">Want your match in your inbox?</h2>
+          <p class="quiz-q-helper">
+            Tick the box and we'll send your result, plus one email a week: new breed profiles, care
+            notes and the occasional genuinely good offer. Skip it and you'll still see your match on
+            the next screen — nothing about your result changes.
+          </p>
+        </div>
+
+        <form class="quiz-email-form" id="quiz-email-form" novalidate>
+          <input
+            type="email"
+            id="quiz-email"
+            class="quiz-email-input"
+            placeholder="you@example.com"
+            autocomplete="email"
+            aria-label="Your email address"
+          />
+          <!--
+            Deliberately NOT pre-checked. A pre-ticked box is not valid consent
+            under GDPR (Art. 4(11); CJEU, Planet49 C-673/17), and the submit
+            handler refuses an address unless it has been ticked, so the two
+            cannot drift apart.
+          -->
+          <label class="quiz-consent">
+            <input type="checkbox" id="quiz-consent" />
+            <span>
+              Yes — email me my match, plus weekly breed profiles, care notes and offers.
+              Unsubscribe in one click. See our <a href="/privacy" target="_blank" rel="noopener">privacy policy</a>.
+            </span>
+          </label>
+          <p class="quiz-email-error" id="quiz-email-error" hidden></p>
+          <button class="quiz-cta" type="submit">
+            See my match
+            <ArrowRight class="w-5 h-5" />
+          </button>
+          <button class="quiz-skip" type="button" id="quiz-email-skip">Skip — just show me the result</button>
+        </form>
+      </section>
+
+      <!-- ── Analysing ─────────────────────────────────── -->
+      <section class="quiz-screen" id="screen-loading">
+        <div class="quiz-loading">
+          <div class="quiz-loader" aria-hidden="true">
+            <span class="quiz-paw quiz-paw-1">🐾</span>
+            <span class="quiz-paw quiz-paw-2">🐾</span>
+            <span class="quiz-paw quiz-paw-3">🐾</span>
+          </div>
+          <h2 class="quiz-loading-title">Reading your answers…</h2>
+          <p class="quiz-loading-status" id="quiz-loading-status">Warming up</p>
+          <div class="quiz-loading-bar"><div class="quiz-loading-fill" id="quiz-loading-fill"></div></div>
+        </div>
+      </section>
+
+      <!-- ── Results (rendered by script) ──────────────── -->
+      <section class="quiz-screen" id="screen-results">
+        <div id="results-mount"></div>
+      </section>
+    </div>
+
+    <canvas id="quiz-confetti" aria-hidden="true"></canvas>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script type="application/json" id="quiz-data" is:inline set:html={quizDataJson}></script>
+
+<style is:global>
+  /* ─── Breed Match quiz ─────────────────────────────────
+     Namespaced .quiz-* so the runtime-rendered markup styles
+     identically to the server-rendered screens. */
+
+  .quiz-page {
+    position: relative;
+    min-height: 100svh;
+    padding: clamp(6.5rem, 12vh, 9rem) 1rem clamp(3rem, 8vh, 6rem);
+    overflow: hidden;
+    background: linear-gradient(170deg, #FFFFFF 0%, #F2FDF8 45%, #E6FAEE 100%);
+  }
+
+  .quiz-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .quiz-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+    animation: quizFloat 14s ease-in-out infinite;
+  }
+  .quiz-orb-a { width: 34rem; height: 34rem; top: -10rem; left: -12rem; background: rgba(98, 215, 170, 0.35); }
+  .quiz-orb-b { width: 28rem; height: 28rem; bottom: -8rem; right: -8rem; background: rgba(194, 240, 48, 0.28); animation-delay: -5s; }
+  .quiz-orb-c { width: 22rem; height: 22rem; top: 40%; left: 55%; background: rgba(32, 122, 91, 0.18); animation-delay: -9s; }
+
+  @keyframes quizFloat {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(0, -34px, 0) scale(1.06); }
+  }
+
+  .quiz-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+
+  /* ─── Screens ─────────────────────────────────────── */
+  .quiz-screen { display: none; }
+  .quiz-screen.is-active {
+    display: block;
+    animation: quizIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .quiz-screen.is-leaving {
+    display: block;
+    animation: quizOut 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  @keyframes quizIn {
+    from { opacity: 0; transform: translateY(22px) scale(0.985); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes quizOut {
+    from { opacity: 1; transform: none; }
+    to { opacity: 0; transform: translateY(-14px) scale(0.99); }
+  }
+  .quiz-screen.is-back.is-active { animation-name: quizInBack; }
+  @keyframes quizInBack {
+    from { opacity: 0; transform: translateY(-18px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ─── Progress ────────────────────────────────────── */
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+  }
+  .quiz-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(10, 15, 26, 0.08);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+  }
+  .quiz-back:hover { background: #fff; transform: translateX(-2px); }
+  .quiz-back[disabled] { opacity: 0.3; cursor: default; transform: none; }
+
+  .quiz-progress-track {
+    position: relative;
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(10, 15, 26, 0.07);
+    overflow: hidden;
+  }
+  .quiz-progress-track::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--quiz-progress, 0%);
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-brand-600), var(--color-accent-400));
+    transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .quiz-progress-label {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* ─── Intro ───────────────────────────────────────── */
+  .quiz-intro { text-align: center; }
+
+  .quiz-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 20px -8px rgba(10, 15, 26, 0.12);
+    color: var(--color-brand-700);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.75rem;
+  }
+
+  .quiz-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.02;
+    font-size: clamp(2.4rem, 7vw, 4.25rem);
+    color: var(--color-ink);
+    margin-bottom: 1.25rem;
+    text-wrap: balance;
+  }
+  .quiz-title-accent {
+    display: block;
+    background: linear-gradient(115deg, var(--color-brand-700), var(--color-brand-400) 55%, var(--color-accent-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .quiz-lede {
+    max-width: 34rem;
+    margin: 0 auto 2rem;
+    font-size: clamp(1rem, 1.4vw + 0.6rem, 1.15rem);
+    line-height: 1.65;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+    text-wrap: pretty;
+  }
+
+  .quiz-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 2.25rem;
+  }
+  .quiz-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1.1rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(10, 15, 26, 0.05);
+    color: var(--color-brand-700);
+  }
+  .quiz-stat div { display: flex; flex-direction: column; line-height: 1.15; text-align: left; }
+  .quiz-stat strong {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-ink);
+  }
+  .quiz-stat span { font-size: 0.7rem; font-weight: 600; color: var(--color-ink-muted); }
+
+  .quiz-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 1.05rem 2.4rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 18px 36px -16px rgba(10, 15, 26, 0.55);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .quiz-cta:hover { transform: translateY(-3px); box-shadow: 0 24px 44px -16px rgba(10, 15, 26, 0.5); }
+  .quiz-cta:active { transform: translateY(-1px); }
+  .quiz-cta[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .quiz-microcopy {
+    margin-top: 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    opacity: 0.75;
+  }
+
+  .quiz-resume {
+    margin-top: 2rem;
+    padding: 0.9rem 1.2rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px dashed rgba(32, 122, 91, 0.3);
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+    font-weight: 600;
+  }
+  .quiz-resume button {
+    margin-left: 0.4rem;
+    border: none;
+    background: none;
+    color: var(--color-brand-700);
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ─── Question head ───────────────────────────────── */
+  .quiz-q-head { text-align: center; margin-bottom: 1.75rem; }
+  .quiz-q-emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1.25rem;
+    font-size: 1.7rem;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(10, 15, 26, 0.05);
+    box-shadow: 0 10px 30px -14px rgba(10, 15, 26, 0.3);
+    margin-bottom: 1rem;
+    animation: quizPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes quizPop {
+    from { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+    to { opacity: 1; transform: none; }
+  }
+  .quiz-q-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+    font-size: clamp(1.6rem, 3.6vw, 2.35rem);
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .quiz-q-helper {
+    margin-top: 0.7rem;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+    max-width: 32rem;
+    margin-inline: auto;
+    text-wrap: pretty;
+  }
+
+  /* ─── Options ─────────────────────────────────────── */
+  .quiz-options { display: grid; gap: 0.7rem; }
+  .quiz-options-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quiz-options-list, .quiz-options-pet { grid-template-columns: 1fr; }
+  .quiz-options-scale { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+
+  @media (max-width: 560px) {
+    .quiz-options-grid, .quiz-options-scale { grid-template-columns: 1fr; }
+  }
+
+  .quiz-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 1.05rem 1.15rem;
+    border-radius: 1.15rem;
+    border: 1.5px solid rgba(10, 15, 26, 0.07);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    text-align: left;
+    cursor: pointer;
+    color: var(--color-ink);
+    box-shadow: 0 2px 14px -8px rgba(10, 15, 26, 0.14);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease,
+      box-shadow 0.25s ease, background 0.2s ease;
+    animation: quizIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .quiz-option:nth-child(1) { animation-delay: 0.04s; }
+  .quiz-option:nth-child(2) { animation-delay: 0.08s; }
+  .quiz-option:nth-child(3) { animation-delay: 0.12s; }
+  .quiz-option:nth-child(4) { animation-delay: 0.16s; }
+  .quiz-option:nth-child(5) { animation-delay: 0.2s; }
+  .quiz-option:nth-child(6) { animation-delay: 0.24s; }
+
+  @media (hover: hover) {
+    .quiz-option:hover {
+      transform: translateY(-3px);
+      border-color: rgba(58, 191, 142, 0.55);
+      background: #fff;
+      box-shadow: 0 16px 32px -18px rgba(32, 122, 91, 0.55);
+    }
+  }
+  .quiz-option:focus-visible {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 4px rgba(98, 215, 170, 0.3);
+  }
+  .quiz-option.is-selected {
+    border-color: var(--color-brand-600);
+    background: linear-gradient(135deg, #fff, var(--color-brand-50));
+    box-shadow: 0 14px 30px -16px rgba(32, 122, 91, 0.6);
+  }
+  .quiz-option.is-selected .quiz-option-key {
+    background: var(--color-brand-600);
+    border-color: var(--color-brand-600);
+    color: #fff;
+  }
+
+  .quiz-option-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgba(10, 15, 26, 0.1);
+    background: rgba(10, 15, 26, 0.03);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-ink-muted);
+    transition: all 0.2s ease;
+  }
+  @media (max-width: 640px) { .quiz-option-key { display: none; } }
+
+  .quiz-option-emoji { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+  .quiz-option-body { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+  .quiz-option-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  .quiz-option-desc { font-size: 0.8rem; color: var(--color-ink-muted); font-weight: 500; line-height: 1.4; }
+
+  .quiz-option-check {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.7rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: var(--color-brand-600);
+    color: #fff;
+    font-size: 0.7rem;
+    animation: quizPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .quiz-option.is-selected .quiz-option-check { display: flex; }
+
+  /* Scale layout stacks the emoji above the label */
+  .quiz-options-scale .quiz-option {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1.2rem 0.8rem;
+  }
+  .quiz-options-scale .quiz-option-body { align-items: center; text-align: center; }
+  .quiz-options-scale .quiz-option-key { position: absolute; top: 0.5rem; left: 0.5rem; }
+
+  .quiz-option-pet { padding: 1.35rem 1.25rem; }
+  .quiz-option-pet .quiz-option-emoji { font-size: 2rem; }
+
+  /* ─── Multi-select footer / text input ────────────── */
+  .quiz-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .quiz-actions-hint {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+  .quiz-continue {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.85rem 1.8rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .quiz-continue:hover { transform: translateY(-2px); }
+  .quiz-continue[disabled] { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .quiz-textarea {
+    width: 100%;
+    min-height: 8rem;
+    padding: 1.1rem 1.2rem;
+    border-radius: 1.15rem;
+    border: 1.5px solid rgba(10, 15, 26, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .quiz-textarea:focus {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 4px rgba(98, 215, 170, 0.22);
+  }
+
+  .quiz-note {
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+
+  /* ─── Email ───────────────────────────────────────── */
+  .quiz-email-form { display: flex; flex-direction: column; gap: 0.9rem; align-items: center; }
+  .quiz-email-input {
+    width: 100%;
+    max-width: 26rem;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    border: 1.5px solid rgba(10, 15, 26, 0.08);
+    background: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .quiz-email-input:focus {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 4px rgba(98, 215, 170, 0.22);
+  }
+  .quiz-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    max-width: 26rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .quiz-consent input { margin-top: 0.15rem; accent-color: var(--color-brand-600); width: 1rem; height: 1rem; flex-shrink: 0; }
+  .quiz-email-error { color: #dc2626; font-size: 0.82rem; font-weight: 600; }
+  .quiz-skip {
+    border: none;
+    background: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .quiz-skip:hover { color: var(--color-ink); }
+
+  /* ─── Loading ─────────────────────────────────────── */
+  .quiz-loading { text-align: center; padding: 3rem 0; }
+  .quiz-loader { display: flex; justify-content: center; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .quiz-paw { font-size: 1.8rem; animation: quizPawBounce 1.1s ease-in-out infinite; }
+  .quiz-paw-2 { animation-delay: 0.18s; }
+  .quiz-paw-3 { animation-delay: 0.36s; }
+  @keyframes quizPawBounce {
+    0%, 100% { transform: translateY(0) rotate(-8deg); opacity: 0.45; }
+    40% { transform: translateY(-14px) rotate(6deg); opacity: 1; }
+  }
+  .quiz-loading-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+  .quiz-loading-status {
+    margin-top: 0.6rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    min-height: 1.4em;
+  }
+  .quiz-loading-bar {
+    width: min(22rem, 80%);
+    height: 6px;
+    margin: 1.5rem auto 0;
+    border-radius: 999px;
+    background: rgba(10, 15, 26, 0.07);
+    overflow: hidden;
+  }
+  .quiz-loading-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-brand-600), var(--color-accent-400));
+    transition: width 0.6s ease;
+  }
+
+  /* ─── Results ─────────────────────────────────────── */
+  .quiz-results { animation: quizIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  .quiz-result-head { text-align: center; margin-bottom: 2rem; }
+  .quiz-profile-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 1.05rem;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: var(--color-accent-300);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .quiz-result-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .quiz-result-summary {
+    max-width: 34rem;
+    margin: 0.9rem auto 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+    text-wrap: pretty;
+  }
+
+  .quiz-top-card {
+    position: relative;
+    border-radius: 1.75rem;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(10, 15, 26, 0.05);
+    box-shadow: 0 30px 60px -30px rgba(10, 15, 26, 0.28);
+    margin-bottom: 1.5rem;
+  }
+  .quiz-top-media { position: relative; aspect-ratio: 16 / 10; background: var(--color-brand-100); }
+  .quiz-top-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .quiz-top-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10, 15, 26, 0.82) 0%, rgba(10, 15, 26, 0.15) 45%, transparent 70%);
+  }
+  .quiz-top-media-empty {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--color-brand-200), var(--color-brand-50));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+  }
+
+  .quiz-top-overlay {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .quiz-top-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.35rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .quiz-top-meta {
+    margin-top: 0.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .quiz-tag {
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: capitalize;
+  }
+
+  .quiz-ring { position: relative; width: 5.5rem; height: 5.5rem; flex-shrink: 0; }
+  .quiz-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .quiz-ring circle { fill: none; stroke-width: 7; stroke-linecap: round; }
+  .quiz-ring .quiz-ring-bg { stroke: rgba(255, 255, 255, 0.22); }
+  .quiz-ring .quiz-ring-fg {
+    stroke: var(--color-accent-400);
+    stroke-dasharray: var(--quiz-circ);
+    stroke-dashoffset: var(--quiz-circ);
+    animation: quizRing 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+  }
+  @keyframes quizRing { to { stroke-dashoffset: var(--quiz-offset); } }
+  .quiz-ring-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: var(--font-display);
+    line-height: 1;
+  }
+  .quiz-ring-value strong { font-size: 1.35rem; font-weight: 800; }
+  .quiz-ring-value span { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
+
+  .quiz-top-body { padding: 1.6rem; }
+  .quiz-headline {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    color: var(--color-ink);
+    margin-bottom: 1.1rem;
+    text-wrap: pretty;
+  }
+  .quiz-why { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.3rem; }
+  .quiz-why p {
+    position: relative;
+    padding-left: 1.6rem;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--color-ink-light);
+    font-weight: 500;
+  }
+  .quiz-why p::before {
+    content: '🐾';
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    font-size: 0.85rem;
+  }
+
+  .quiz-callout {
+    border-radius: 1rem;
+    padding: 1rem 1.15rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .quiz-callout strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .quiz-callout-warn { background: rgba(234, 179, 8, 0.1); color: #854d0e; }
+  .quiz-callout-day { background: var(--color-brand-50); color: var(--color-brand-900); }
+
+  .quiz-traits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1.4rem; margin: 1.3rem 0; }
+  @media (max-width: 520px) { .quiz-traits { grid-template-columns: 1fr; } }
+  .quiz-trait-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+    margin-bottom: 0.3rem;
+  }
+  .quiz-trait-bar { height: 5px; border-radius: 999px; background: rgba(10, 15, 26, 0.07); overflow: hidden; }
+  .quiz-trait-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-brand-500), var(--color-brand-700));
+    width: 0;
+    transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .quiz-result-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.95rem 1.5rem;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.98rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .quiz-result-cta:hover { transform: translateY(-2px); background: var(--color-brand-800); }
+
+  .quiz-runners { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  @media (max-width: 620px) { .quiz-runners { grid-template-columns: 1fr; } }
+
+  .quiz-runner {
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.4rem;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(10, 15, 26, 0.05);
+    box-shadow: 0 12px 30px -20px rgba(10, 15, 26, 0.3);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  }
+  .quiz-runner:hover { transform: translateY(-4px); box-shadow: 0 22px 40px -22px rgba(10, 15, 26, 0.4); }
+  .quiz-runner-media { position: relative; aspect-ratio: 16 / 11; background: var(--color-brand-100); }
+  .quiz-runner-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .quiz-runner-score {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(10, 15, 26, 0.78);
+    backdrop-filter: blur(8px);
+    color: var(--color-accent-300);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+  .quiz-runner-body { padding: 1.1rem 1.15rem 1.3rem; display: flex; flex-direction: column; gap: 0.45rem; flex: 1; }
+  .quiz-runner-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+  .quiz-runner-text { font-size: 0.86rem; line-height: 1.55; color: var(--color-ink-muted); font-weight: 500; }
+  .quiz-runner-link {
+    margin-top: auto;
+    padding-top: 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--color-brand-700);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .quiz-panel {
+    border-radius: 1.4rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(10, 15, 26, 0.05);
+    margin-bottom: 1.5rem;
+  }
+  .quiz-panel h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    margin-bottom: 0.9rem;
+  }
+  .quiz-tips { display: flex; flex-direction: column; gap: 0.7rem; }
+  .quiz-tip {
+    display: flex;
+    gap: 0.7rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-ink-light);
+    font-weight: 500;
+  }
+  .quiz-tip span {
+    flex-shrink: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    background: var(--color-brand-100);
+    color: var(--color-brand-800);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .quiz-share-panel { text-align: center; }
+  .quiz-share-note {
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+    margin: -0.4rem 0 1rem;
+  }
+  .quiz-share-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+  }
+  .quiz-share-row a[data-share="x"]:hover { background: var(--color-ink); color: #fff; border-color: var(--color-ink); }
+  .quiz-share-row a[data-share="facebook"]:hover { background: #1877F2; color: #fff; border-color: #1877F2; }
+  .quiz-share-row a[data-share="whatsapp"]:hover { background: #25D366; color: #fff; border-color: #25D366; }
+  .quiz-share-row a[data-share="pinterest"]:hover { background: #E60023; color: #fff; border-color: #E60023; }
+
+  .quiz-result-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; }
+  .quiz-ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(10, 15, 26, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .quiz-ghost-btn:hover { background: #fff; border-color: var(--color-brand-400); transform: translateY(-2px); }
+
+  .quiz-fallback-note {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    opacity: 0.7;
+    margin-top: 1.5rem;
+  }
+
+  .quiz-error {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+  }
+  .quiz-error h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin-bottom: 0.6rem;
+  }
+  .quiz-error p { color: var(--color-ink-muted); font-weight: 500; margin-bottom: 1.5rem; }
+
+  #quiz-confetti {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 40;
+    display: none;
+  }
+  #quiz-confetti.is-on { display: block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-screen.is-active,
+    .quiz-screen.is-leaving,
+    .quiz-option,
+    .quiz-q-emoji,
+    .quiz-results,
+    .quiz-orb,
+    .quiz-paw { animation: none !important; }
+    .quiz-ring .quiz-ring-fg { animation: none; stroke-dashoffset: var(--quiz-offset); }
+    .quiz-option:hover, .quiz-cta:hover, .quiz-runner:hover { transform: none; }
+  }
+</style>
+
+<script>
+  import { TRAIT_LABELS } from '../lib/traits';
+
+  interface QuizOption {
+    label: string;
+    value: string;
+    emoji?: string;
+    description?: string;
+  }
+  interface QuizQuestion {
+    key: string;
+    question: string;
+    helper?: string;
+    emoji?: string;
+    type: 'single' | 'multi' | 'text';
+    layout: 'grid' | 'list' | 'scale';
+    petScope: 'both' | 'dog' | 'cat';
+    required: boolean;
+    maxSelections?: number;
+    placeholder?: string;
+    options: QuizOption[];
+  }
+  interface QuizData {
+    questions: QuizQuestion[];
+    petTypes: ('dog' | 'cat')[];
+    apiUrl: string;
+  }
+  interface MatchResult {
+    id: number | string;
+    name: string;
+    slug: string;
+    matchScore: number;
+    headline: string;
+    why: string[];
+    watchOut: string;
+    dayInTheLife?: string;
+    size?: string;
+    breedGroup?: string;
+    origin?: string;
+    shortDescription?: string;
+    lifeExpectancyMin?: number;
+    lifeExpectancyMax?: number;
+    imageFilename?: string | null;
+    imageAlt?: string;
+    temperament?: string[];
+    traits?: Record<string, number>;
+  }
+  interface MatchPayload {
+    profileLabel: string;
+    summary: string;
+    tips: string[];
+    matchedBy: 'ai' | 'fallback';
+    matches: MatchResult[];
+    subscribed?: boolean;
+  }
+
+  const dataEl = document.getElementById('quiz-data');
+  if (dataEl) {
+    const DATA: QuizData = JSON.parse(dataEl.textContent || '{}');
+    const STORAGE_KEY = 'pawlabs-quiz-v1';
+    const RESULT_KEY = 'pawlabs-quiz-result-v1';
+
+    type PetType = 'dog' | 'cat' | 'either';
+    type Stage = 'intro' | 'pet' | 'question' | 'email' | 'loading' | 'results';
+
+    const state = {
+      stage: 'intro' as Stage,
+      petType: null as PetType | null,
+      index: 0,
+      answers: {} as Record<string, string[]>,
+      email: '',
+      // Opt-in, never opt-out: this only becomes true if the reader ticks the box.
+      consent: false,
+    };
+
+    /* ── Elements ─────────────────────────────────── */
+    const screens: Record<string, HTMLElement | null> = {
+      intro: document.getElementById('screen-intro'),
+      pet: document.getElementById('screen-pet'),
+      question: document.getElementById('screen-question'),
+      email: document.getElementById('screen-email'),
+      loading: document.getElementById('screen-loading'),
+      results: document.getElementById('screen-results'),
+    };
+    const progressEl = document.getElementById('quiz-progress')!;
+    const progressTrack = document.getElementById('quiz-progress-track')!;
+    const progressLabel = document.getElementById('quiz-progress-label')!;
+    const backBtn = document.getElementById('quiz-back') as HTMLButtonElement;
+    const questionMount = document.getElementById('question-mount')!;
+    const resultsMount = document.getElementById('results-mount')!;
+
+    const track = (event: string, params: Record<string, unknown> = {}) => {
+      (window as any).gtag?.('event', event, params);
+    };
+
+    /* ── Question flow ────────────────────────────── */
+    const activeQuestions = (): QuizQuestion[] => {
+      if (!state.petType) return [];
+      if (state.petType === 'either') return DATA.questions.filter((q) => q.petScope === 'both');
+      return DATA.questions.filter((q) => q.petScope === 'both' || q.petScope === state.petType);
+    };
+
+    const escapeHtml = (value: string) =>
+      value.replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string,
+      );
+
+    /* ── Screen transitions ───────────────────────── */
+    let transitioning = false;
+
+    function show(stage: Stage, back = false) {
+      if (transitioning || state.stage === stage) {
+        if (state.stage === stage) render(stage);
+        return;
+      }
+      const current = screens[state.stage];
+      const next = screens[stage];
+      if (!next) return;
+
+      transitioning = true;
+      state.stage = stage;
+      render(stage);
+
+      if (current && current !== next) {
+        current.classList.remove('is-active');
+        current.classList.add('is-leaving');
+        window.setTimeout(() => current.classList.remove('is-leaving'), 220);
+      }
+
+      window.setTimeout(
+        () => {
+          next.classList.toggle('is-back', back);
+          next.classList.add('is-active');
+          transitioning = false;
+          updateChrome();
+          const heading = next.querySelector('h1, h2');
+          (heading as HTMLElement | null)?.setAttribute('tabindex', '-1');
+          (heading as HTMLElement | null)?.focus?.();
+          if (stage !== 'results') window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        current && current !== next ? 200 : 0,
+      );
+    }
+
+    function render(stage: Stage) {
+      if (stage === 'question') renderQuestion();
+    }
+
+    function updateChrome() {
+      const inFlow = state.stage === 'pet' || state.stage === 'question';
+      progressEl.hidden = !inFlow;
+      if (!inFlow) return;
+
+      const questions = activeQuestions();
+      const total = questions.length + 1; // + the pet type step
+      const step = state.stage === 'pet' ? 1 : state.index + 2;
+      const pct = Math.round(((step - 1) / total) * 100);
+
+      progressTrack.style.setProperty('--quiz-progress', `${pct}%`);
+      progressTrack.setAttribute('aria-valuenow', String(pct));
+      progressLabel.textContent = `${step} / ${total}`;
+      backBtn.disabled = state.stage === 'pet';
+    }
+
+    /* ── Persistence ──────────────────────────────── */
+    function save() {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            petType: state.petType,
+            index: state.index,
+            answers: state.answers,
+            at: Date.now(),
+          }),
+        );
+      } catch {
+        /* storage disabled — the quiz still works, it just won't resume */
+      }
+    }
+
+    function clearSaved() {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function loadSaved() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        // A week-old half-finished quiz is not worth resuming.
+        if (!parsed?.petType || Date.now() - (parsed.at ?? 0) > 7 * 864e5) return null;
+        if (!Object.keys(parsed.answers ?? {}).length) return null;
+        return parsed as { petType: PetType; index: number; answers: Record<string, string[]> };
+      } catch {
+        return null;
+      }
+    }
+
+    /* ── Question rendering ───────────────────────── */
+    function renderQuestion() {
+      const questions = activeQuestions();
+      const q = questions[state.index];
+      if (!q) return;
+
+      const selected = state.answers[q.key] ?? [];
+
+      const optionsHtml = q.options
+        .map((opt, i) => {
+          const isSelected = selected.includes(opt.value);
+          return `
+            <button class="quiz-option${isSelected ? ' is-selected' : ''}" type="button"
+              data-value="${escapeHtml(opt.value)}"
+              role="${q.type === 'multi' ? 'checkbox' : 'radio'}"
+              aria-checked="${isSelected}">
+              <span class="quiz-option-key">${i + 1}</span>
+              ${opt.emoji ? `<span class="quiz-option-emoji">${escapeHtml(opt.emoji)}</span>` : ''}
+              <span class="quiz-option-body">
+                <span class="quiz-option-label">${escapeHtml(opt.label)}</span>
+                ${opt.description ? `<span class="quiz-option-desc">${escapeHtml(opt.description)}</span>` : ''}
+              </span>
+              <span class="quiz-option-check" aria-hidden="true">✓</span>
+            </button>`;
+        })
+        .join('');
+
+      const body =
+        q.type === 'text'
+          ? `<textarea class="quiz-textarea" id="quiz-text-input" placeholder="${escapeHtml(
+              q.placeholder ?? 'Tell us anything else…',
+            )}">${escapeHtml(selected[0] ?? '')}</textarea>
+             <div class="quiz-actions">
+               <span class="quiz-actions-hint">Optional — but it makes the match sharper.</span>
+               <button class="quiz-continue" type="button" id="quiz-next">Continue →</button>
+             </div>`
+          : `<div class="quiz-options quiz-options-${q.layout}" id="quiz-options" role="${
+              q.type === 'multi' ? 'group' : 'radiogroup'
+            }" aria-label="${escapeHtml(q.question)}">${optionsHtml}</div>
+             ${
+               q.type === 'multi'
+                 ? `<div class="quiz-actions">
+                      <span class="quiz-actions-hint" id="quiz-multi-hint"></span>
+                      <button class="quiz-continue" type="button" id="quiz-next">Continue →</button>
+                    </div>`
+                 : ''
+             }`;
+
+      questionMount.innerHTML = `
+        <div class="quiz-q-head">
+          <span class="quiz-q-emoji">${escapeHtml(q.emoji ?? '❓')}</span>
+          <h2 class="quiz-q-title">${escapeHtml(q.question)}</h2>
+          ${q.helper ? `<p class="quiz-q-helper">${escapeHtml(q.helper)}</p>` : ''}
+        </div>
+        ${body}`;
+
+      wireQuestion(q);
+    }
+
+    function wireQuestion(q: QuizQuestion) {
+      // Present for free-text and multi-select questions — both need an
+      // explicit continue, since neither can auto-advance on a single tap.
+      const nextBtn = document.getElementById('quiz-next') as HTMLButtonElement | null;
+      nextBtn?.addEventListener('click', () => advance());
+
+      if (q.type === 'text') {
+        const input = document.getElementById('quiz-text-input') as HTMLTextAreaElement;
+        input.addEventListener('input', () => {
+          const value = input.value.trim();
+          if (value) state.answers[q.key] = [value.slice(0, 800)];
+          else delete state.answers[q.key];
+          save();
+        });
+        window.setTimeout(() => input.focus(), 300);
+        return;
+      }
+
+      const updateMulti = () => {
+        const chosen = state.answers[q.key] ?? [];
+        const hint = document.getElementById('quiz-multi-hint');
+        if (hint) {
+          const max = q.maxSelections;
+          hint.textContent = chosen.length
+            ? `${chosen.length} selected${max ? ` · up to ${max}` : ''}`
+            : max
+              ? `Pick up to ${max}`
+              : 'Pick everything that applies';
+        }
+        if (nextBtn) nextBtn.disabled = q.required && chosen.length === 0;
+      };
+
+      document.querySelectorAll<HTMLButtonElement>('#quiz-options .quiz-option').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const value = btn.dataset.value!;
+          if (q.type === 'multi') {
+            const chosen = state.answers[q.key] ?? [];
+            const at = chosen.indexOf(value);
+            if (at >= 0) chosen.splice(at, 1);
+            else if (!q.maxSelections || chosen.length < q.maxSelections) chosen.push(value);
+            else return;
+            state.answers[q.key] = chosen;
+            btn.classList.toggle('is-selected', chosen.includes(value));
+            btn.setAttribute('aria-checked', String(chosen.includes(value)));
+            save();
+            updateMulti();
+          } else {
+            state.answers[q.key] = [value];
+            document.querySelectorAll('#quiz-options .quiz-option').forEach((el) => {
+              el.classList.remove('is-selected');
+              el.setAttribute('aria-checked', 'false');
+            });
+            btn.classList.add('is-selected');
+            btn.setAttribute('aria-checked', 'true');
+            save();
+            // A beat so the selection registers visually before moving on.
+            window.setTimeout(() => advance(), 260);
+          }
+        });
+      });
+
+      if (q.type === 'multi') updateMulti();
+    }
+
+    /* ── Navigation ───────────────────────────────── */
+    function advance() {
+      const questions = activeQuestions();
+      track('quiz_question', { question_key: questions[state.index]?.key, step: state.index + 1 });
+
+      if (state.index < questions.length - 1) {
+        state.index += 1;
+        save();
+        renderQuestion();
+        updateChrome();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      show('email');
+    }
+
+    function goBack() {
+      if (state.stage === 'email') {
+        state.index = Math.max(0, activeQuestions().length - 1);
+        show('question', true);
+        return;
+      }
+      if (state.stage !== 'question') return;
+      if (state.index === 0) {
+        show('pet', true);
+        return;
+      }
+      state.index -= 1;
+      save();
+      renderQuestion();
+      updateChrome();
+    }
+
+    backBtn.addEventListener('click', goBack);
+
+    /* ── Intro ────────────────────────────────────── */
+    document.getElementById('quiz-start')!.addEventListener('click', () => {
+      track('quiz_start');
+      show('pet');
+    });
+
+    const saved = loadSaved();
+    if (saved) {
+      const resumeEl = document.getElementById('quiz-resume')!;
+      resumeEl.hidden = false;
+      document.getElementById('quiz-resume-btn')!.addEventListener('click', () => {
+        state.petType = saved.petType;
+        state.answers = saved.answers;
+        state.index = Math.min(saved.index ?? 0, Math.max(0, activeQuestions().length - 1));
+        track('quiz_resume');
+        show('question');
+      });
+    }
+
+    /* ── Pet type ─────────────────────────────────── */
+    document.querySelectorAll<HTMLButtonElement>('#pet-options .quiz-option-pet').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pet = btn.dataset.pet as PetType;
+        // Changing species changes which questions apply, so start clean.
+        if (state.petType && state.petType !== pet) state.answers = {};
+        state.petType = pet;
+        state.index = 0;
+        document.querySelectorAll('#pet-options .quiz-option-pet').forEach((el) => {
+          el.classList.remove('is-selected');
+          el.setAttribute('aria-checked', 'false');
+        });
+        btn.classList.add('is-selected');
+        btn.setAttribute('aria-checked', 'true');
+        save();
+        track('quiz_pet_type', { pet_type: pet });
+        window.setTimeout(() => show('question'), 260);
+      });
+    });
+
+    // Single available pet type still needs one tap, but pre-select it.
+    if (DATA.petTypes.length === 1) state.petType = DATA.petTypes[0];
+
+    /* ── Email step ───────────────────────────────── */
+    const emailForm = document.getElementById('quiz-email-form') as HTMLFormElement;
+    const emailInput = document.getElementById('quiz-email') as HTMLInputElement;
+    const consentInput = document.getElementById('quiz-consent') as HTMLInputElement;
+    const emailError = document.getElementById('quiz-email-error') as HTMLElement;
+
+    emailForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailError.textContent = 'That email doesn’t look right — or skip this step.';
+        emailError.hidden = false;
+        emailInput.focus();
+        return;
+      }
+      if (!consentInput.checked) {
+        emailError.textContent = 'Tick the box so we’re allowed to email you — or skip this step.';
+        emailError.hidden = false;
+        consentInput.focus();
+        return;
+      }
+      emailError.hidden = true;
+      state.email = email;
+      state.consent = true;
+      track('quiz_email', { consent: true });
+      submit();
+    });
+
+    document.getElementById('quiz-email-skip')!.addEventListener('click', () => {
+      state.email = '';
+      state.consent = false;
+      track('quiz_email_skip');
+      submit();
+    });
+
+    /* ── Submit ───────────────────────────────────── */
+    const LOADING_STATUS = [
+      'Reading your answers',
+      'Scoring every breed we’ve profiled',
+      'Weighing energy, grooming and temperament',
+      'Throwing out the ones that would make you miserable',
+      'Writing your match',
+    ];
+
+    async function submit() {
+      show('loading');
+
+      const questions = activeQuestions();
+      const noteQuestion = questions.find((q) => q.type === 'text');
+      const note = noteQuestion ? (state.answers[noteQuestion.key] ?? [])[0] ?? '' : '';
+
+      const answers = Object.entries(state.answers)
+        .filter(([key]) => questions.some((q) => q.key === key))
+        .map(([key, value]) => ({ key, value }));
+
+      // Status ticker + a progress bar that eases toward 90% while we wait.
+      let statusAt = 0;
+      const fill = document.getElementById('quiz-loading-fill')!;
+      const status = document.getElementById('quiz-loading-status')!;
+      status.textContent = LOADING_STATUS[0];
+      let progress = 8;
+      fill.style.width = '8%';
+      const ticker = window.setInterval(() => {
+        statusAt = Math.min(statusAt + 1, LOADING_STATUS.length - 1);
+        status.textContent = LOADING_STATUS[statusAt];
+        progress = Math.min(progress + 18, 90);
+        fill.style.width = `${progress}%`;
+      }, 2200);
+
+      try {
+        const res = await fetch(DATA.apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            petType: state.petType ?? 'either',
+            answers,
+            note,
+            email: state.email || undefined,
+            consent: state.consent,
+            source: 'quiz-page',
+          }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'We could not build your match.');
+
+        window.clearInterval(ticker);
+        fill.style.width = '100%';
+
+        try {
+          sessionStorage.setItem(RESULT_KEY, JSON.stringify(data));
+        } catch {
+          /* ignore */
+        }
+        clearSaved();
+        track('quiz_complete', {
+          top_breed: data.matches?.[0]?.name,
+          matched_by: data.matchedBy,
+          pet_type: state.petType,
+        });
+
+        window.setTimeout(() => renderResults(data as MatchPayload), 450);
+      } catch (err) {
+        window.clearInterval(ticker);
+        renderError((err as Error).message);
+      }
+    }
+
+    /* ── Results ──────────────────────────────────── */
+    const RESULT_TRAITS = [
+      'energyLevel',
+      'affectionLevel',
+      'trainability',
+      'groomingNeeds',
+      'childFriendly',
+      'adaptability',
+    ];
+
+    // Media filenames in the CMS can contain spaces (and sometimes no extension),
+    // so the path segment has to be encoded.
+    const mediaHtml = (m: MatchResult, emoji: string) =>
+      m.imageFilename
+        ? `<img src="/media/${escapeHtml(encodeURIComponent(m.imageFilename))}" alt="${escapeHtml(
+            m.imageAlt ?? m.name,
+          )}" loading="lazy" />`
+        : `<div class="quiz-top-media-empty">${emoji}</div>`;
+
+    function renderResults(data: MatchPayload) {
+      const [top, ...runners] = data.matches ?? [];
+      if (!top) {
+        renderError('We could not build your match. Please try again.');
+        return;
+      }
+
+      const circumference = 2 * Math.PI * 32;
+      const offset = circumference * (1 - Math.min(top.matchScore, 100) / 100);
+
+      const tags = [top.size, top.breedGroup, top.origin]
+        .filter(Boolean)
+        .map((t) => `<span class="quiz-tag">${escapeHtml(String(t).replace(/-/g, ' '))}</span>`)
+        .join('');
+
+      const traits = RESULT_TRAITS.filter((key) => typeof top.traits?.[key] === 'number')
+        .map((key) => {
+          const value = Math.max(1, Math.min(10, top.traits![key]));
+          return `
+            <div>
+              <div class="quiz-trait-label"><span>${escapeHtml(TRAIT_LABELS[key] ?? key)}</span><span>${value}/10</span></div>
+              <div class="quiz-trait-bar"><div class="quiz-trait-fill" data-width="${value * 10}"></div></div>
+            </div>`;
+        })
+        .join('');
+
+      const runnersHtml = runners
+        .map(
+          (m) => `
+        <a class="quiz-runner" href="/breeds/${escapeHtml(m.slug)}">
+          <div class="quiz-runner-media">
+            ${mediaHtml(m, '🐾')}
+            <span class="quiz-runner-score">${m.matchScore}%</span>
+          </div>
+          <div class="quiz-runner-body">
+            <span class="quiz-runner-name">${escapeHtml(m.name)}</span>
+            <p class="quiz-runner-text">${escapeHtml(m.headline || m.shortDescription || '')}</p>
+            <span class="quiz-runner-link">Read the profile →</span>
+          </div>
+        </a>`,
+        )
+        .join('');
+
+      const tipsHtml = (data.tips ?? [])
+        .map((tip, i) => `<div class="quiz-tip"><span>${i + 1}</span><p>${escapeHtml(tip)}</p></div>`)
+        .join('');
+
+      // Every network points at the same stable result page, which is what
+      // carries the og tags and the share card.
+      const resultUrl = `${window.location.origin}/quiz/result/${top.slug}`;
+      const cardUrl = `${window.location.origin}/share/${top.slug}.jpg`;
+      const shareText = `My perfect dog breed is the ${top.name}! 🐾 Find yours with the PawLabs breed quiz:`;
+      const e = encodeURIComponent;
+      const shareTargets = [
+        { key: 'x', label: 'X', href: `https://twitter.com/intent/tweet?text=${e(shareText)}&url=${e(resultUrl)}` },
+        { key: 'facebook', label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${e(resultUrl)}` },
+        { key: 'whatsapp', label: 'WhatsApp', href: `https://api.whatsapp.com/send?text=${e(`${shareText} ${resultUrl}`)}` },
+        { key: 'pinterest', label: 'Pinterest', href: `https://pinterest.com/pin/create/button/?url=${e(resultUrl)}&description=${e(shareText)}&media=${e(cardUrl)}` },
+      ];
+
+      resultsMount.innerHTML = `
+        <div class="quiz-results">
+          <div class="quiz-result-head">
+            ${data.profileLabel ? `<div class="quiz-profile-chip">🐾 ${escapeHtml(data.profileLabel)}</div>` : ''}
+            <h2 class="quiz-result-title">Your match is the ${escapeHtml(top.name)}</h2>
+            ${data.summary ? `<p class="quiz-result-summary">${escapeHtml(data.summary)}</p>` : ''}
+          </div>
+
+          <div class="quiz-top-card">
+            <div class="quiz-top-media">
+              ${mediaHtml(top, '🐶')}
+              <div class="quiz-top-overlay">
+                <div>
+                  <div class="quiz-top-name">${escapeHtml(top.name)}</div>
+                  <div class="quiz-top-meta">${tags}</div>
+                </div>
+                <div class="quiz-ring" style="--quiz-circ:${circumference};--quiz-offset:${offset}">
+                  <svg viewBox="0 0 72 72" aria-hidden="true">
+                    <circle class="quiz-ring-bg" cx="36" cy="36" r="32"></circle>
+                    <circle class="quiz-ring-fg" cx="36" cy="36" r="32"></circle>
+                  </svg>
+                  <div class="quiz-ring-value"><strong>${top.matchScore}%</strong><span>match</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="quiz-top-body">
+              ${top.headline ? `<p class="quiz-headline">${escapeHtml(top.headline)}</p>` : ''}
+              <div class="quiz-why">${top.why.map((w) => `<p>${escapeHtml(w)}</p>`).join('')}</div>
+              ${
+                top.dayInTheLife
+                  ? `<div class="quiz-callout quiz-callout-day"><strong>A normal Tuesday</strong>${escapeHtml(top.dayInTheLife)}</div>`
+                  : ''
+              }
+              ${
+                top.watchOut
+                  ? `<div class="quiz-callout quiz-callout-warn"><strong>Worth knowing</strong>${escapeHtml(top.watchOut)}</div>`
+                  : ''
+              }
+              ${traits ? `<div class="quiz-traits">${traits}</div>` : ''}
+              <a class="quiz-result-cta" href="/breeds/${escapeHtml(top.slug)}">Read the full ${escapeHtml(top.name)} profile →</a>
+            </div>
+          </div>
+
+          ${runnersHtml ? `<div class="quiz-runners">${runnersHtml}</div>` : ''}
+          ${tipsHtml ? `<div class="quiz-panel"><h3>What to do next</h3><div class="quiz-tips">${tipsHtml}</div></div>` : ''}
+          ${
+            data.subscribed
+              ? `<div class="quiz-panel"><h3>Check your inbox 📬</h3><p class="quiz-runner-text">Your match is on its way, along with a weekly breed profile. Unsubscribe in one click, any time.</p></div>`
+              : ''
+          }
+
+          <div class="quiz-panel quiz-share-panel">
+            <h3>Share my match</h3>
+            <p class="quiz-share-note">Everyone lands on your result page, not a blank quiz.</p>
+            <div class="quiz-share-row">
+              <button class="quiz-ghost-btn" type="button" id="quiz-share">🔗 Copy link</button>
+              ${shareTargets
+                .map(
+                  (t) =>
+                    `<a class="quiz-ghost-btn" href="${escapeHtml(t.href)}" target="_blank" rel="noopener noreferrer" data-share="${t.key}">${t.label}</a>`,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="quiz-result-actions">
+            <a class="quiz-ghost-btn" href="/quiz/result/${escapeHtml(top.slug)}">🔗 View my result page</a>
+            ${runners.length ? `<a class="quiz-ghost-btn" href="/compare">⚖️ Compare these breeds</a>` : ''}
+            <button class="quiz-ghost-btn" type="button" id="quiz-retake">↻ Take it again</button>
+          </div>
+
+          ${
+            data.matchedBy === 'fallback'
+              ? `<p class="quiz-fallback-note">Our AI writer was unavailable, so this match came straight from trait scoring. The breeds are still ranked against your answers.</p>`
+              : ''
+          }
+        </div>`;
+
+      show('results');
+
+      window.requestAnimationFrame(() => {
+        document.querySelectorAll<HTMLElement>('.quiz-trait-fill').forEach((el) => {
+          el.style.width = `${el.dataset.width}%`;
+        });
+      });
+
+      document.getElementById('quiz-retake')?.addEventListener('click', () => {
+        state.answers = {};
+        state.index = 0;
+        state.petType = null;
+        state.email = '';
+        clearSaved();
+        try {
+          sessionStorage.removeItem(RESULT_KEY);
+        } catch {
+          /* ignore */
+        }
+        document.querySelectorAll('#pet-options .quiz-option-pet').forEach((el) => {
+          el.classList.remove('is-selected');
+          el.setAttribute('aria-checked', 'false');
+        });
+        show('pet');
+      });
+
+      document.getElementById('quiz-share')?.addEventListener('click', async () => {
+        const btn = document.getElementById('quiz-share')!;
+        const confirmCopied = () => {
+          btn.textContent = '✓ Copied!';
+          window.setTimeout(() => {
+            btn.textContent = '🔗 Copy link';
+          }, 2000);
+        };
+
+        try {
+          if (navigator.share) {
+            await navigator.share({
+              title: 'PawLabs Breed Match',
+              text: shareText,
+              url: resultUrl,
+            });
+          } else {
+            // clipboard API needs a secure context — fall back if unavailable.
+            await navigator.clipboard.writeText(resultUrl);
+            confirmCopied();
+          }
+          track('quiz_share', { method: 'native_or_copy', breed: top.name });
+        } catch (err) {
+          // AbortError just means the user dismissed the share sheet.
+          if ((err as Error)?.name === 'AbortError') return;
+          window.prompt('Copy this link:', resultUrl);
+        }
+      });
+
+      document.querySelectorAll<HTMLAnchorElement>('.quiz-share-row a[data-share]').forEach((link) => {
+        link.addEventListener('click', () => {
+          track('quiz_share', { method: link.dataset.share, breed: top.name });
+        });
+      });
+
+      celebrate();
+    }
+
+    function renderError(message: string) {
+      resultsMount.innerHTML = `
+        <div class="quiz-error">
+          <h2>That didn't work</h2>
+          <p>${escapeHtml(message)}</p>
+          <button class="quiz-cta" type="button" id="quiz-retry">Try again</button>
+        </div>`;
+      show('results');
+      document.getElementById('quiz-retry')?.addEventListener('click', () => submit());
+    }
+
+    /* ── Confetti ─────────────────────────────────── */
+    function celebrate() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const canvas = document.getElementById('quiz-confetti') as HTMLCanvasElement;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.classList.add('is-on');
+
+      const colors = ['#3ABF8E', '#C2F030', '#207A5B', '#93EAC7', '#D4FF59'];
+      const pieces = Array.from({ length: 110 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: -20 - Math.random() * window.innerHeight * 0.5,
+        w: 6 + Math.random() * 7,
+        h: 8 + Math.random() * 10,
+        vy: 2.2 + Math.random() * 3.2,
+        vx: -1.2 + Math.random() * 2.4,
+        rot: Math.random() * Math.PI,
+        vr: -0.12 + Math.random() * 0.24,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      }));
+
+      const start = performance.now();
+      const tick = (now: number) => {
+        const elapsed = now - start;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        const fade = elapsed > 2600 ? Math.max(0, 1 - (elapsed - 2600) / 900) : 1;
+
+        for (const p of pieces) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vr;
+          ctx.save();
+          ctx.globalAlpha = fade;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        }
+
+        if (elapsed < 3600) {
+          window.requestAnimationFrame(tick);
+        } else {
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          canvas.classList.remove('is-on');
+        }
+      };
+      window.requestAnimationFrame(tick);
+    }
+
+    /* ── Keyboard ─────────────────────────────────── */
+    document.addEventListener('keydown', (e) => {
+      if (state.stage !== 'question' && state.stage !== 'pet') return;
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') return;
+
+      if (e.key === 'Backspace' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goBack();
+        return;
+      }
+
+      const container =
+        state.stage === 'pet'
+          ? document.getElementById('pet-options')
+          : document.getElementById('quiz-options');
+      const options = container?.querySelectorAll<HTMLButtonElement>('.quiz-option');
+      if (!options?.length) return;
+
+      if (/^[1-9]$/.test(e.key)) {
+        const index = Number(e.key) - 1;
+        if (options[index]) {
+          e.preventDefault();
+          options[index].click();
+        }
+        return;
+      }
+
+      if (e.key === 'Enter') {
+        const next = document.getElementById('quiz-next') as HTMLButtonElement | null;
+        if (next && !next.disabled) {
+          e.preventDefault();
+          next.click();
+        }
+      }
+    });
+
+    /* ── Deep link: /quiz#start ───────────────────── */
+    if (window.location.hash === '#start') {
+      track('quiz_start', { via: 'deep-link' });
+      show('pet');
+    }
+  }
+</script>
