@@ -1,0 +1,181 @@
+---
+import ContentPage from '../layouts/ContentPage.astro';
+import QuizPromo from '../components/QuizPromo.astro';
+import { getBreeds, getComparisons } from '../lib/payload';
+import { aboutPageJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, EDITORIAL_TEAM } from '../lib/site';
+
+const [breeds, comparisons] = await Promise.all([getBreeds(), getComparisons()]);
+const breedCount = breeds.length;
+const comparisonCount = comparisons.length;
+
+const toc = [
+  { id: 'what-this-is', label: 'What PawLabs is' },
+  { id: 'who-writes-this', label: 'Who writes this' },
+  { id: 'how-we-research', label: 'How we research a breed' },
+  { id: 'how-we-use-ai', label: 'How we use AI' },
+  { id: 'editorial-standards', label: 'Editorial standards' },
+  { id: 'corrections', label: 'Corrections' },
+  { id: 'money', label: 'How we make money' },
+  { id: 'not-a-vet', label: 'What this is not' },
+];
+---
+
+<ContentPage
+  title="About PawLabs"
+  metaTitle="About PawLabs — Who We Are and How We Research Breeds"
+  description={`PawLabs is an independent dog breed encyclopedia. ${breedCount} breed profiles scored on 14 traits, researched from kennel club standards and veterinary sources. Here's who writes it and how.`}
+  canonicalUrl="/about"
+  lede={`An independent breed encyclopedia. ${breedCount} profiles, each scored on the same 14 traits, so you can compare breeds on something firmer than a feeling.`}
+  jsonLd={aboutPageJsonLd(breedCount)}
+  toc={toc}
+>
+  <h2 id="what-this-is">What PawLabs is</h2>
+  <p>
+    PawLabs exists because choosing a breed is usually done badly. People pick on looks, on a dog
+    they met once, or on a list that ranks every breed as "loyal and loving" — and then discover in
+    month three that the breed needs two hours of exercise they do not have.
+  </p>
+  <p>
+    So we do the boring thing properly. Every breed gets the same treatment: a full profile,
+    the same <strong>14 traits scored 1–10</strong>, honest weaknesses alongside the strengths, and a
+    clear statement of who should <em>not</em> get it. Because the scoring is identical across breeds,
+    you can put any two side by side and the numbers actually mean something relative to each other.
+  </p>
+  <p>Today the site holds:</p>
+  <ul>
+    <li><strong>{breedCount} breed profiles</strong>, each with temperament, health, grooming, exercise and living-condition detail.</li>
+    {comparisonCount > 0 && <li><strong>{comparisonCount} head-to-head comparisons</strong> for the match-ups people agonise over.</li>}
+    <li>A <a href="/quiz">Breed Match quiz</a> that scores your answers against every published breed rather than handing you the same five popular dogs everyone else gets.</li>
+  </ul>
+  <p>
+    We are independent. No breeder, kennel club, pet food company or rescue organisation pays for
+    placement here, and none of them get a say in what a profile says.
+  </p>
+
+  <h2 id="who-writes-this">Who writes this</h2>
+  <div class="legal-callout">
+    <p><strong>{EDITORIAL_TEAM.name}</strong> — {EDITORIAL_TEAM.role}</p>
+    <p style="margin-top:0.65rem">{EDITORIAL_TEAM.bio}</p>
+  </div>
+  <p>
+    Every breed profile and comparison on this site carries that byline. It is a team, not a
+    pseudonym for one person, and it is not a stand-in for a veterinarian — we are researchers and
+    editors, not clinicians. Where a claim is genuinely medical, we point you at your vet rather
+    than pretending otherwise.
+  </p>
+  <p>
+    If you are a veterinarian, breeder, trainer or behaviourist and you want to review a profile, or
+    argue with one, we would like to hear from you: <a href={`mailto:${CONTACT_EMAIL}?subject=Editorial`}>{CONTACT_EMAIL}</a>.
+  </p>
+
+  <h2 id="how-we-research">How we research a breed</h2>
+  <p>Each profile is built from the same source hierarchy, in this order:</p>
+  <ol>
+    <li>
+      <strong>Published kennel club breed standards.</strong> The recognised standards define what a
+      breed is meant to be — size, coat, structure, original working purpose, described temperament.
+      This is where the structural facts come from.
+    </li>
+    <li>
+      <strong>Veterinary and breed-health reference sources.</strong> Lifespan ranges and the
+      conditions a breed is predisposed to are drawn from veterinary literature and breed health
+      surveys, not from anecdote.
+    </li>
+    <li>
+      <strong>The breed's working history.</strong> What a breed was bred to do explains most of what
+      it is like to live with. A dog bred to run all day is not going to be satisfied by a walk
+      around the block, whatever a listicle says.
+    </li>
+  </ol>
+  <p>
+    The 14 trait scores are assigned against that source material and deliberately spread across the
+    range. If everything scored 8 out of 10 the scores would be worthless, so a breed that is genuinely
+    hard to train gets a low trainability score and we say why.
+  </p>
+
+  <h2 id="how-we-use-ai">How we use AI</h2>
+  <p>
+    We use AI, and we would rather tell you than have you work it out. Here is exactly where:
+  </p>
+  <ul>
+    <li>
+      <strong>Drafting profiles.</strong> Breed profiles and comparisons are drafted by a large
+      language model working from the source material described above. Every draft is saved
+      unpublished and goes through human review before it can appear on the site.
+    </li>
+    <li>
+      <strong>Quiz matching.</strong> Your quiz answers are scored against every published breed by a
+      deterministic scoring function first. AI then picks from that shortlist and writes the
+      explanation. If the AI service is unavailable, the scoring alone produces your result and we
+      label it as such on the page.
+    </li>
+  </ul>
+  <p>
+    What AI does <em>not</em> do here: it does not decide trait scores without review, it does not
+    publish anything on its own, and it is never used to invent a credential or a qualification. We
+    do not claim veterinary standing we do not have.
+  </p>
+  <p>
+    One thing we are actively cleaning up: some older profiles are written in a first-person voice
+    that reads like lived experience with a particular dog. That was a drafting style we have since
+    dropped, because a research team should not write as though it has personally owned every breed.
+    Newer profiles describe what breed data and owner reports show, in the second person. If you spot
+    an older one that still reads the wrong way, <a href="/contact#corrections">tell us</a> and we
+    will rewrite it.
+  </p>
+
+  <h2 id="editorial-standards">Editorial standards</h2>
+  <ul>
+    <li><strong>No pay for placement.</strong> No one can buy a higher trait score, a better quiz match, or a place in a comparison.</li>
+    <li><strong>Commercial relationships never touch the ratings.</strong> Trait scores come from breed standards and health data. Affiliate arrangements are described in full on our <a href="/affiliate-disclosure">Affiliate Disclosure</a> page.</li>
+    <li><strong>Weaknesses get equal billing.</strong> Every profile names who should avoid the breed. A profile that cannot say anything negative about a breed has not been researched.</li>
+    <li><strong>Health claims stay conservative.</strong> We describe predispositions and typical lifespans. We do not diagnose, recommend treatment, or suggest you skip a vet visit.</li>
+    <li><strong>Profiles get revised.</strong> When breed health data or a standard changes, or when a reader shows us we are wrong, the page changes and the modified date moves with it.</li>
+  </ul>
+
+  <h2 id="corrections">Corrections</h2>
+  <p>
+    We will get things wrong. When that happens we want to know, and we would rather fix it quickly
+    than defend it. Email <a href={`mailto:${CONTACT_EMAIL}?subject=Correction`}>{CONTACT_EMAIL}</a> with
+    the page, the specific claim, and — if you have one — a source. Substantive factual corrections are
+    made to the page and the last-updated date is moved.
+  </p>
+  <p>
+    Full detail on what to include is on the <a href="/contact">Contact</a> page.
+  </p>
+
+  <h2 id="money">How we make money</h2>
+  <p>
+    Running a site of this size costs money, and we would rather be straight about where it comes
+    from than pretend it appears from nowhere. PawLabs is supported by affiliate commissions and
+    advertising. Neither buys influence over the ratings or the quiz.
+  </p>
+  <p>
+    The mechanics — what an affiliate link is, how ours are labelled, and what it means for what you
+    read — are set out on the <a href="/affiliate-disclosure">Affiliate Disclosure</a> page. What data
+    we collect and who processes it is on the <a href="/privacy">Privacy Policy</a> page.
+  </p>
+
+  <h2 id="not-a-vet">What this is not</h2>
+  <div class="legal-callout legal-callout-warn">
+    <p>
+      <strong>PawLabs is not veterinary advice.</strong> Everything here is general breed reference
+      written before we knew your animal existed. It cannot account for your dog's history, age or
+      symptoms. If something is wrong with your animal, or you are making a decision about their
+      health, talk to a veterinarian who can examine them. If it is urgent, contact an emergency vet
+      now rather than reading another web page.
+    </p>
+  </div>
+
+  <h2 id="get-in-touch">Get in touch</h2>
+  <p>
+    Questions, corrections, press enquiries and data requests all go to
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, or use the routes on the
+    <a href="/contact">Contact</a> page. A real person reads it.
+  </p>
+
+  <div style="margin-top:2.5rem">
+    <QuizPromo variant="hero" breedCount={breedCount} source="about" />
+  </div>
+</ContentPage>

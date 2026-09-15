@@ -1,0 +1,90 @@
+---
+import ContentPage from '../layouts/ContentPage.astro';
+import { contactPageJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, CONTACT_ROUTES, EDITORIAL_TEAM } from '../lib/site';
+import { Mail, ArrowUpRight } from 'lucide-astro';
+---
+
+<ContentPage
+  title="Contact PawLabs"
+  metaTitle="Contact PawLabs — Corrections, Questions, Press and Data Requests"
+  description="Get in touch with the PawLabs editorial team. Corrections, general questions, privacy and data requests, press and partnership enquiries."
+  canonicalUrl="/contact"
+  lede="A real person reads this inbox. Corrections get read first."
+  jsonLd={contactPageJsonLd()}
+>
+  <div class="not-prose" style="display:grid;gap:0.75rem;margin-bottom:2.5rem">
+    {CONTACT_ROUTES.map((route) => (
+      <a
+        href={`mailto:${route.email}?subject=${encodeURIComponent(`[${route.subject}] `)}`}
+        class="group flex items-center gap-4 rounded-2xl border border-ink/6 bg-surface-raised p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-900/5"
+        style="text-decoration:none"
+      >
+        <span class="shrink-0 w-10 h-10 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
+          <Mail class="w-4 h-4" />
+        </span>
+        <span class="flex-1 min-w-0">
+          <span class="block font-display font-bold text-ink text-[0.95rem]">{route.label}</span>
+          <span class="block text-sm text-ink-muted font-medium">{route.blurb}</span>
+          <span class="block text-xs text-brand-700 font-semibold mt-1">{route.email}</span>
+        </span>
+        <ArrowUpRight class="w-4 h-4 shrink-0 text-ink-muted/40 group-hover:text-brand-600 transition-colors" />
+      </a>
+    ))}
+  </div>
+
+  <h2 id="corrections">Reporting a correction</h2>
+  <p>
+    This is the message we most want to receive. If something on the site is factually wrong, tell us
+    and we will fix it or explain why we think it is right. To make that fast, include:
+  </p>
+  <ul>
+    <li><strong>The page.</strong> A URL beats a breed name — some breeds have several profiles that mention them.</li>
+    <li><strong>The specific claim.</strong> Quote the sentence if you can.</li>
+    <li><strong>What it should say instead</strong>, and a source if you have one. A kennel club standard, a veterinary reference or a published health survey carries more weight than a forum thread — but tell us anyway, we will go and check.</li>
+  </ul>
+  <p>
+    Substantive factual corrections are made to the page, and the last-updated date on that page
+    moves. We do not quietly rewrite pages to make ourselves look better after the fact.
+  </p>
+
+  <h2 id="response">What to expect</h2>
+  <p>
+    {EDITORIAL_TEAM.name} reads everything that arrives and aims to reply within a few business days.
+    Corrections are triaged ahead of everything else. We cannot always reply to every message, but
+    every correction gets looked at.
+  </p>
+  <div class="legal-callout legal-callout-warn">
+    <p>
+      <strong>We cannot answer questions about your own animal.</strong> We are not veterinarians and
+      we have never met your dog. If they are unwell, behaving in a way that worries you, or you are
+      weighing a health decision, please speak to a vet who can examine them — and if it is urgent,
+      contact an emergency vet rather than waiting on an email from us.
+    </p>
+  </div>
+
+  <h2 id="privacy-requests">Privacy and data requests</h2>
+  <p>
+    To ask what we hold about you, to get it deleted, or to opt out of anything, email
+    <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Data request] ')}`}>{CONTACT_EMAIL}</a> with
+    "Data request" in the subject. Send it from the address you gave us where possible — it is the
+    simplest way for us to be sure the request is yours.
+  </p>
+  <p>
+    Full detail on what we collect, who processes it and how long we keep it is in the
+    <a href="/privacy">Privacy Policy</a>. If you only want out of the newsletter, the unsubscribe link
+    at the bottom of any email we send is instant and does not need to go through us.
+  </p>
+
+  <h2 id="press">Press and partnerships</h2>
+  <p>
+    For interviews, data or methodology questions from journalists, or commercial enquiries, email
+    <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Press] ')}`}>{CONTACT_EMAIL}</a> with
+    "Press" in the subject and a deadline if you are working to one.
+  </p>
+  <p>
+    On partnerships, so nobody wastes an email: we do not sell placement in breed profiles,
+    comparisons or quiz results, and we do not publish sponsored posts dressed as editorial. Anything
+    commercial is disclosed — see the <a href="/affiliate-disclosure">Affiliate Disclosure</a>.
+  </p>
+</ContentPage>

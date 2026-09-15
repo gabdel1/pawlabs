@@ -1,0 +1,130 @@
+---
+import ContentPage from '../layouts/ContentPage.astro';
+import { policyPageJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, POLICY_UPDATED } from '../lib/site';
+
+const toc = [
+  { id: 'disclosure', label: 'The disclosure' },
+  { id: 'how-it-works', label: 'How affiliate links work' },
+  { id: 'what-it-doesnt-affect', label: 'What it does not affect' },
+  { id: 'labelling', label: 'How we label links' },
+  { id: 'advertising', label: 'Advertising' },
+  { id: 'why', label: 'Why we do it this way' },
+];
+---
+
+<ContentPage
+  title="Affiliate Disclosure"
+  metaTitle="Affiliate Disclosure | PawLabs"
+  description="PawLabs may earn a commission from qualifying purchases made through links on this site. Here is exactly how that works, and what it does and does not influence."
+  canonicalUrl="/affiliate-disclosure"
+  lede="How PawLabs makes money, and the firewall between that and what we publish."
+  updated={POLICY_UPDATED}
+  jsonLd={policyPageJsonLd('Affiliate Disclosure', '/affiliate-disclosure', 'How PawLabs earns affiliate commission and what it does not influence.')}
+  toc={toc}
+>
+  <h2 id="disclosure">The disclosure</h2>
+  <div class="legal-callout">
+    <p>
+      <strong>PawLabs is reader-supported. Some links on this site are affiliate links, which means we
+      may earn a commission when you buy something through one — at no additional cost to you.</strong>
+      You never pay more for using our link than you would going direct.
+    </p>
+  </div>
+  <p>
+    This statement is made in line with the US Federal Trade Commission's Guides Concerning the Use of
+    Endorsements and Testimonials in Advertising (16 CFR Part 255), and with the disclosure rules of
+    the affiliate programmes we take part in. Equivalent rules apply elsewhere — UK CAP Code guidance
+    on affiliate marketing, for instance — and this page is written to satisfy all of them.
+  </p>
+
+  <h2 id="how-it-works">How affiliate links work</h2>
+  <p>
+    An affiliate link carries a tag identifying PawLabs as the referrer. When you follow one, the
+    retailer sets a cookie on their own site. If you then buy something, the retailer pays us a small
+    percentage of the sale.
+  </p>
+  <ul>
+    <li><strong>You pay nothing extra.</strong> The commission comes out of the retailer's margin, not your price.</li>
+    <li><strong>We do not see your purchase.</strong> Networks report totals — how many referrals converted, and the commission owed. We are not told who you are or what you bought as an individual.</li>
+    <li><strong>You can opt out entirely</strong> by blocking third-party cookies, or by searching for the product yourself instead of using our link. Nothing on this site is gated behind an affiliate link.</li>
+  </ul>
+  <p>
+    What data those cookies involve is set out in the <a href="/privacy">Privacy Policy</a>.
+  </p>
+
+  <h2 id="what-it-doesnt-affect">What it does not affect</h2>
+  <p>
+    This is the part that matters, because an affiliate site that lets commissions steer its
+    recommendations is worthless to you. Ours cannot, structurally:
+  </p>
+  <ul>
+    <li>
+      <strong>Trait scores.</strong> All 14 scores on every breed profile come from published kennel
+      club standards and veterinary health data. There is no commercial input to a number on this site,
+      and no way to buy a higher one.
+    </li>
+    <li>
+      <strong>Breed Match quiz results.</strong> Your match is produced by scoring your answers against
+      every published breed, then having an AI pick from the highest-scoring shortlist. No breed is
+      weighted up because it is commercially convenient, and no advertiser can buy a place in your
+      results.
+    </li>
+    <li>
+      <strong>Which breeds we cover.</strong> We profile breeds because they are recognised breeds, not
+      because there is money attached to them. Plenty of profiles here have no commercial upside at all.
+    </li>
+    <li>
+      <strong>What a profile says.</strong> Every profile names the breed's weaknesses and says who
+      should not get it. Nobody pays to have that softened.
+    </li>
+  </ul>
+  <p>
+    We do not publish sponsored posts dressed up as editorial, we do not accept payment for placement
+    in a comparison, and we do not let a brand approve copy before it goes live. If that ever changes,
+    this page changes first and the arrangement is labelled on the page it affects.
+  </p>
+
+  <h2 id="labelling">How we label links</h2>
+  <p>
+    Where a page carries affiliate links, it says so at the top of that page — not only here. Outbound
+    commercial links carry <code>rel="sponsored nofollow"</code>, which is the machine-readable version
+    of the same disclosure and what Google asks publishers to use.
+  </p>
+  <p>
+    The intent is that you should never be surprised. If you clicked a link and did not realise it was
+    commercial, we have done this badly and we would like to know:
+    <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Disclosure] ')}`}>{CONTACT_EMAIL}</a>.
+  </p>
+
+  <h2 id="advertising">Advertising</h2>
+  <p>
+    We may also show display advertising. Ads are served by third-party ad networks, which may use
+    cookies to choose what to show you. Ad networks have no involvement in editorial decisions — no
+    advertiser sees a page before it is published, and no advertiser can have one changed.
+  </p>
+  <p>
+    You can control ad personalisation through
+    <a href="https://myadcenter.google.com/" rel="nofollow noopener" target="_blank">Google's My Ad Center</a>
+    and through your browser's cookie settings. See the <a href="/privacy">Privacy Policy</a> for what
+    is collected.
+  </p>
+
+  <h2 id="why">Why we do it this way</h2>
+  <p>
+    Someone has to pay for 200-odd researched breed profiles, and the realistic options are a paywall,
+    advertising and affiliate commission, or selling reader data. We have picked the middle one and
+    ruled out the third — see the <a href="/privacy">Privacy Policy</a>, where we say plainly that we do
+    not sell personal information.
+  </p>
+  <p>
+    That leaves one thing worth protecting: your reason to believe the ratings. A trait score is only
+    worth reading if it was not for sale. That is the line, and this page exists so you can hold us to
+    it.
+  </p>
+  <p>
+    Questions about any commercial relationship on this site go to
+    <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Disclosure] ')}`}>{CONTACT_EMAIL}</a>.
+    We will answer them.
+  </p>
+</ContentPage>

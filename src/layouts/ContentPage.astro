@@ -1,0 +1,88 @@
+---
+/**
+ * Shell for the standing pages — About, Contact, Privacy, Affiliate Disclosure.
+ *
+ * Content is passed as a slot, so the prose styles live in global.css under
+ * `.legal-prose` rather than being scoped here (scoped styles would not reach
+ * slotted markup).
+ */
+import Layout from './Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { formatPolicyDate } from '../lib/site';
+
+interface Props {
+  title: string;
+  /** <title> and meta description */
+  metaTitle?: string;
+  description: string;
+  canonicalUrl: string;
+  /** Short line under the H1. */
+  lede?: string;
+  /** ISO date — renders a "Last updated" stamp. */
+  updated?: string;
+  jsonLd?: string | string[];
+  /** Anchor links rendered as an on-page contents list. */
+  toc?: { id: string; label: string }[];
+}
+
+const { title, metaTitle, description, canonicalUrl, lede, updated, jsonLd, toc = [] } = Astro.props;
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: title },
+];
+---
+
+<Layout
+  title={metaTitle ?? `${title} | PawLabs`}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  ogType="website"
+  jsonLd={jsonLd}
+>
+  <Nav />
+
+  <div class="pt-32 sm:pt-36">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <Breadcrumbs items={breadcrumbs} />
+    </div>
+  </div>
+
+  <main class="min-h-screen bg-surface noise">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <header class="mb-8 sm:mb-12 reveal">
+        <h1 class="display-heading display-fluid-md text-ink mb-4 text-balance">{title}</h1>
+        {lede && <p class="text-ink-muted text-base sm:text-lg font-medium leading-relaxed text-pretty">{lede}</p>}
+        {updated && (
+          <p class="mt-5 text-xs font-semibold uppercase tracking-widest text-ink-muted/60">
+            Last updated {formatPolicyDate(updated)}
+          </p>
+        )}
+      </header>
+
+      {toc.length > 0 && (
+        <nav aria-label="On this page" class="glass-card rounded-2xl p-5 sm:p-6 mb-10 reveal reveal-delay-1">
+          <h2 class="font-display font-bold text-ink text-sm mb-3">On this page</h2>
+          <ol class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
+            {toc.map((item, i) => (
+              <li class="flex gap-2">
+                <span class="text-ink-muted/40 font-semibold tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                <a href={`#${item.id}`} class="text-brand-700 hover:text-brand-900 font-semibold transition-colors">
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      <div class="legal-prose reveal reveal-delay-2">
+        <slot />
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

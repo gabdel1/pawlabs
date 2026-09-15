@@ -1,0 +1,96 @@
+---
+/**
+ * "Written by…" attribution for breed profiles and comparisons.
+ *
+ * Anonymous content scores badly on E-E-A-T, and pet-health-adjacent content
+ * is held to a higher bar than most. This puts a named team, a sourcing
+ * statement and a review date on every article — and links out to the bio and
+ * corrections policy so the claim is checkable rather than decorative.
+ */
+import { PawPrint, ShieldCheck, CalendarClock } from 'lucide-astro';
+import { EDITORIAL_TEAM, CONTENT_DISCLAIMER } from '../lib/site';
+
+interface Props {
+  /** Author stored on the document; falls back to the editorial team. */
+  author?: string;
+  /** ISO date the content was last revised. */
+  updated?: string;
+  published?: string;
+  /** Compact variant omits the disclaimer — use where one already appears. */
+  variant?: 'full' | 'compact';
+  class?: string;
+}
+
+const { author, updated, published, variant = 'full', class: className = '' } = Astro.props;
+
+// Documents default to "PawLabs Team"; show the full editorial team name instead
+// so the byline matches the bio it links to.
+const isDefaultAuthor = !author || /^pawlabs( team)?$/i.test(author.trim());
+const displayAuthor = isDefaultAuthor ? EDITORIAL_TEAM.name : author!;
+
+function formatDate(value?: string): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const updatedLabel = formatDate(updated);
+const publishedLabel = formatDate(published);
+---
+
+<div class={`glass-card rounded-2xl p-5 sm:p-6 border border-brand-100/50 ${className}`}>
+  <div class="flex items-start gap-4">
+    <div class="shrink-0 w-11 h-11 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center">
+      <PawPrint class="w-5 h-5" />
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <p class="text-sm text-ink font-medium">
+        Written and reviewed by
+        <a href="/about#who-writes-this" class="font-display font-bold text-brand-700 hover:text-brand-900 transition-colors">
+          {displayAuthor}
+        </a>
+      </p>
+
+      <div class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-muted font-medium">
+        {updatedLabel && (
+          <span class="inline-flex items-center gap-1.5">
+            <CalendarClock class="w-3.5 h-3.5" />
+            Updated {updatedLabel}
+          </span>
+        )}
+        {!updatedLabel && publishedLabel && (
+          <span class="inline-flex items-center gap-1.5">
+            <CalendarClock class="w-3.5 h-3.5" />
+            Published {publishedLabel}
+          </span>
+        )}
+        <span class="inline-flex items-center gap-1.5">
+          <ShieldCheck class="w-3.5 h-3.5" />
+          Sourced from kennel club standards
+        </span>
+      </div>
+
+      {variant === 'full' && (
+        <p class="mt-3 text-xs text-ink-muted leading-relaxed">
+          {EDITORIAL_TEAM.bio}
+          {' '}
+          <a href="/about#how-we-research" class="text-brand-700 font-semibold hover:text-brand-900 transition-colors">
+            How we research breeds
+          </a>
+          {' · '}
+          <a href="/contact#corrections" class="text-brand-700 font-semibold hover:text-brand-900 transition-colors">
+            Report a correction
+          </a>
+        </p>
+      )}
+    </div>
+  </div>
+
+  {variant === 'full' && (
+    <p class="mt-4 pt-4 border-t border-ink/5 text-xs text-ink-muted/80 leading-relaxed">
+      <strong class="text-ink-muted">Note:</strong> {CONTENT_DISCLAIMER}
+    </p>
+  )}
+</div>
