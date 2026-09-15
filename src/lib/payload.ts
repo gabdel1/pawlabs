@@ -126,7 +126,7 @@ function writeCache<T>(key: string, data: T): void {
   }
 }
 
-async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+export async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
   const url = new URL(`${PAYLOAD_API_URL}/${endpoint}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
@@ -181,26 +181,17 @@ export function getMediaUrl(media: Media | string | undefined | null): string | 
   // Payload URLs look like: /api/media/file/<filename> or full http://host/api/media/file/<filename>
   const filename = media.filename || url.split('/').pop();
   if (filename) {
-    return `/media/${filename}`;
+    // Percent-encode the filename. Filenames are slugs now, but historic
+    // uploads carried raw spaces, and an unencoded space makes crawlers
+    // truncate the URL — which is what produced the 404 family in Search
+    // Console. Encoding here means a future non-slug upload cannot leak one.
+    return `/media/${encodeURIComponent(filename)}`;
   }
   return url;
 }
 
-/** Breed group labels */
-export const BREED_GROUP_LABELS: Record<string, string> = {
-  'sporting': 'Sporting',
-  'working': 'Working',
-  'herding': 'Herding',
-  'toy': 'Toy',
-  'terrier': 'Terrier',
-  'hound': 'Hound',
-  'non-sporting': 'Non-Sporting',
-  'foundation-stock': 'Foundation Stock',
-  'natural': 'Natural',
-  'hybrid': 'Hybrid',
-  'mutation': 'Mutation',
-  'crossbreed': 'Crossbreed',
-};
+/** Breed group labels — defined in traits.ts so client and CLI code can import them too */
+export { BREED_GROUP_LABELS } from './traits';
 
 /** Size labels */
 export const SIZE_LABELS: Record<string, string> = {
@@ -210,23 +201,8 @@ export const SIZE_LABELS: Record<string, string> = {
   'giant': 'Giant',
 };
 
-/** Trait labels for breed ratings */
-export const TRAIT_LABELS: Record<string, string> = {
-  'affectionLevel': 'Affection Level',
-  'childFriendly': 'Child Friendly',
-  'petFriendly': 'Pet Friendly',
-  'strangerFriendly': 'Stranger Friendly',
-  'trainability': 'Trainability',
-  'energyLevel': 'Energy Level',
-  'groomingNeeds': 'Grooming Needs',
-  'sheddingLevel': 'Shedding Level',
-  'barkingLevel': 'Barking Level',
-  'intelligence': 'Intelligence',
-  'playfulness': 'Playfulness',
-  'watchdogAbility': 'Watchdog Ability',
-  'adaptability': 'Adaptability',
-  'healthRobustness': 'Health Robustness',
-};
+/** Trait labels for breed ratings — defined in traits.ts so client code can import them too */
+export { TRAIT_LABELS } from './traits';
 
 /** Labels for the derived comparison criteria used by the comparison table */
 export const CRITERION_LABELS: Record<string, string> = {
@@ -272,6 +248,26 @@ export async function getBreedBySlug(slug: string): Promise<Breed | null> {
     console.error('[payload] Failed to fetch breed by slug:', slug, e);
     return null;
   }
+}
+
+/**
+ * Breed ids referenced by a comparison, as strings.
+ *
+ * The `breeds` relation comes back as full documents at depth 2 and as bare ids
+ * at depth 0, so normalise both shapes before comparing.
+ */
+export function comparisonBreedIds(comparison: Comparison): string[] {
+  return (comparison.breeds ?? [])
+    .map((b) => (typeof b === 'string' ? b : b?.id))
+    .filter((id): id is string => Boolean(id))
+    .map(String);
+}
+
+/** Sort key for a comparison — published date, falling back to creation. */
+export function comparisonDate(comparison: Comparison): number {
+  const raw = comparison.publishedDate || comparison.createdAt;
+  const time = raw ? new Date(raw).getTime() : 0;
+  return Number.isNaN(time) ? 0 : time;
 }
 
 /** Fetch all published breed comparisons */

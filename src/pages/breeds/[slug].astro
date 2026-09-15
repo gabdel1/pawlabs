@@ -3,20 +3,33 @@ import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import QuizPromo from '../../components/QuizPromo.astro';
+import AuthorByline from '../../components/AuthorByline.astro';
 import Footer from '../../components/Footer.astro';
-import { getBreeds, getBreedBySlug, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS, TRAIT_LABELS } from '../../lib/payload';
-import type { Breed, Media } from '../../lib/payload';
-import { Dog, Cat, Star as StarIcon } from 'lucide-astro';
+import { getBreeds, getBreedBySlug, getComparisons, getMediaUrl, comparisonBreedIds, comparisonDate, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS, TRAIT_LABELS } from '../../lib/payload';
+import { breedJsonLd, breedFaqJsonLd } from '../../lib/seo';
+import { breedMetaTitle, breedMetaDescription, familyRoundupFor } from '../../lib/meta';
+import { buildBreedFaqs } from '../../lib/breed-faq';
+import type { Breed, Comparison, Media } from '../../lib/payload';
+import { Dog, Cat, Star as StarIcon, Scale, ArrowUpRight } from 'lucide-astro';
 
 export async function getStaticPaths() {
-  const breeds = await getBreeds();
+  // Comparisons are fetched once here rather than in the page body, which would
+  // re-request them for each of the 200+ breed pages.
+  const [breeds, comparisons] = await Promise.all([getBreeds(), getComparisons()]);
+
   return breeds.map((breed) => ({
     params: { slug: breed.slug },
-    props: { breed },
+    props: {
+      breed,
+      featuredIn: comparisons
+        .filter((c) => comparisonBreedIds(c).includes(String(breed.id)))
+        .sort((a, b) => comparisonDate(b) - comparisonDate(a)),
+    },
   }));
 }
 
-const { breed } = Astro.props as { breed: Breed };
+const { breed, featuredIn = [] } = Astro.props as { breed: Breed; featuredIn?: Comparison[] };
 const allBreeds = (await getBreeds()).filter(b => b.slug !== breed.slug && b.petType === breed.petType);
 const imageUrl = getMediaUrl(breed.image as Media);
 const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
@@ -56,25 +69,27 @@ function traitBg(val: number): string {
   return 'bg-red-500';
 }
 
-// JSON-LD for breed
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: `${breed.name} Breed Profile`,
-  description: breed.shortDescription || `Complete ${breed.name} breed profile with traits, ratings, and expert analysis.`,
-  author: { '@type': 'Organization', name: 'PawLabs' },
-  datePublished: breed.publishedDate || breed.createdAt,
-  dateModified: breed.updatedAt,
-};
+// JSON-LD for breed — author, publisher and corrections policy live in seo.ts
+const jsonLd = breedJsonLd(breed);
+
+// FAQs are derived from the trait scores, rendered below, and marked up from
+// the same array so the schema can never drift from the visible text.
+// Where one of our own roundups ranks this breed for life with children, the
+// child-friendliness answer cites it inline.
+const familyRoundup = familyRoundupFor(breed, featuredIn);
+const faqs = buildBreedFaqs(breed, { familyRoundup });
+const faqJsonLd = breedFaqJsonLd(faqs, breed.slug);
+const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
 ---
 
 <Layout
-  title={`${breed.name} — Breed Profile & Traits | PawLabs`}
-  description={breed.shortDescription || `Complete ${breed.name} breed profile with trait ratings, temperament, health info, and expert analysis.`}
+  title={breedMetaTitle(breed)}
+  description={breedMetaDescription(breed)}
+  ogTitle={`${breed.name} — Breed Profile & Traits`}
   canonicalUrl={`/breeds/${breed.slug}`}
   ogType="article"
   ogImage={imageUrl}
-  jsonLd={[JSON.stringify(jsonLd)]}
+  jsonLd={pageSchemas}
   publishedTime={breed.publishedDate || breed.createdAt}
   modifiedTime={breed.updatedAt}
 >
@@ -233,6 +248,36 @@ const jsonLd = {
               <div class="breed-prose" set:html={breed.article} />
             </div>
           )}
+
+          <!-- FAQs — mirrored exactly by the FAQPage JSON-LD -->
+          {faqs.length > 0 && (
+            <section id="faq" class="glass-card rounded-2xl p-6 sm:p-8 reveal reveal-delay-3">
+              <h2 class="font-display font-bold text-ink text-xl mb-1.5 flex items-center gap-2">
+                <span class="text-lg">❓</span> {breed.name} FAQs
+              </h2>
+              <p class="text-sm text-ink-muted font-medium mb-6">
+                The questions people ask most, answered from this breed's trait scores.
+              </p>
+              <div class="divide-y divide-ink/5">
+                {faqs.map((faq) => (
+                  <div class="py-4 first:pt-0 last:pb-0">
+                    <h3 class="font-display font-bold text-ink text-[0.95rem] mb-2">{faq.question}</h3>
+                    {faq.answerHtml
+                      ? <p class="text-sm text-ink-light leading-relaxed" set:html={faq.answerHtml} />
+                      : <p class="text-sm text-ink-light leading-relaxed">{faq.answer}</p>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <!-- Attribution -->
+          <AuthorByline
+            author={breed.author}
+            published={breed.publishedDate || breed.createdAt}
+            updated={breed.updatedAt}
+            class="reveal reveal-delay-3"
+          />
         </div>
 
         <!-- Right: Sidebar with Trait Ratings -->
@@ -333,6 +378,56 @@ const jsonLd = {
       </div>
     </div>
   </main>
+
+  <!-- Comparisons featuring this breed -->
+  {featuredIn.length > 0 && (
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 mt-10 reveal">
+      <div class="glass-card rounded-2xl p-6 sm:p-8">
+        <div class="flex items-center gap-2 mb-1.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
+            <Scale class="w-4 h-4 text-brand-700" />
+          </div>
+          <h2 class="font-display font-bold text-ink text-xl">
+            Comparisons featuring the {breed.name}
+          </h2>
+        </div>
+        <p class="text-sm text-ink-muted font-medium mb-5">
+          See how the {breed.name} stacks up against other breeds.
+        </p>
+
+        <ul class="grid sm:grid-cols-2 gap-3">
+          {featuredIn.map((comparison) => (
+            <li>
+              <a
+                href={`/compare/${comparison.slug}`}
+                class="group flex items-start gap-3 rounded-xl border border-ink/5 bg-surface-raised p-4 h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-900/5"
+              >
+                <span class="flex-1 min-w-0">
+                  <span class="block font-display font-bold text-ink text-[0.95rem] leading-snug group-hover:text-brand-700 transition-colors">
+                    {comparison.title}
+                  </span>
+                  {comparison.summary && (
+                    <span class="block text-xs text-ink-muted mt-1 line-clamp-2">{comparison.summary}</span>
+                  )}
+                </span>
+                <ArrowUpRight class="w-4 h-4 shrink-0 mt-0.5 text-ink-muted/40 group-hover:text-brand-600 transition-colors" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- Breed Match Quiz -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-10 reveal">
+    <QuizPromo
+      variant="hero"
+      heading={`Is the ${breed.name} actually right for you?`}
+      subtitle={`Liking a breed and living with one are different things. Answer ten questions about your home and your week, and we'll tell you honestly whether the ${breed.name} fits — or which breed does instead.`}
+      source="breed-detail"
+    />
+  </div>
 
   <!-- Newsletter -->
   <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-10 mb-12 reveal">

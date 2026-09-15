@@ -4,25 +4,63 @@ import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BreedComparisonTable from '../../components/BreedComparisonTable.astro';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
+import QuizPromo from '../../components/QuizPromo.astro';
+import AuthorByline from '../../components/AuthorByline.astro';
 import Footer from '../../components/Footer.astro';
-import { getComparisons, getMediaUrl } from '../../lib/payload';
+import { getComparisons, getMediaUrl, comparisonBreedIds, comparisonDate } from '../../lib/payload';
 import type { Breed, Comparison, Media } from '../../lib/payload';
-import { comparisonJsonLd } from '../../lib/seo';
+import { comparisonJsonLd, comparisonFaqJsonLd } from '../../lib/seo';
+import { comparisonMetaTitle, comparisonDescription } from '../../lib/meta';
+import { buildComparisonFaqs } from '../../lib/comparison-faq';
+import { EDITORIAL_TEAM } from '../../lib/site';
 import { Scale, ArrowUpRight, Calendar } from 'lucide-astro';
 
 export async function getStaticPaths() {
   const comparisons = await getComparisons();
-  return comparisons.map((comparison) => ({
-    params: { slug: comparison.slug },
-    props: { comparison },
-  }));
+
+  return comparisons.map((comparison) => {
+    const ownBreeds = new Set(comparisonBreedIds(comparison));
+
+    // Most shared breeds first; newest wins a tie.
+    const related = comparisons
+      .filter((other) => other.slug !== comparison.slug)
+      .map((other) => ({
+        comparison: other,
+        overlap: comparisonBreedIds(other).filter((id) => ownBreeds.has(id)).length,
+      }))
+      .filter((entry) => entry.overlap > 0)
+      .sort(
+        (a, b) =>
+          b.overlap - a.overlap || comparisonDate(b.comparison) - comparisonDate(a.comparison),
+      )
+      .slice(0, 3)
+      .map((entry) => entry.comparison);
+
+    return {
+      params: { slug: comparison.slug },
+      props: { comparison, related },
+    };
+  });
 }
 
-const { comparison } = Astro.props as { comparison: Comparison };
+const { comparison, related = [] } = Astro.props as { comparison: Comparison; related?: Comparison[] };
 
 const linkedBreeds = (comparison.breeds || []).filter(b => typeof b !== 'string') as Breed[];
 const criteria = (comparison.comparisonCriteria || []).map(c => c.criterion).filter(Boolean);
 const imageUrl = getMediaUrl(comparison.featuredImage as Media);
+
+// Documents default to "PawLabs Team" — show the editorial team name the byline
+// links through to, so the attribution and the bio match.
+const bylineAuthor =
+  !comparison.author || /^pawlabs( team)?$/i.test(comparison.author.trim())
+    ? EDITORIAL_TEAM.name
+    : comparison.author;
+
+// FAQs are extracted verbatim from this article's own prose. The page renders
+// them visibly below and the FAQPage markup is built from the same array, so
+// the schema can never reference text that is not on the page.
+const faqs = buildComparisonFaqs(comparison, linkedBreeds);
+const faqJsonLd = comparisonFaqJsonLd(faqs, comparison.slug);
 
 const publishedDate = comparison.publishedDate || comparison.createdAt;
 const formattedDate = publishedDate
@@ -37,12 +75,15 @@ const breadcrumbs = [
 ---
 
 <Layout
-  title={`${comparison.title} | PawLabs`}
-  description={comparison.summary || `Head-to-head comparison of ${linkedBreeds.map(b => b.name).join(' and ')}.`}
+  title={comparisonMetaTitle(comparison)}
+  description={comparisonDescription(comparison, linkedBreeds)}
+  ogTitle={comparison.title}
   canonicalUrl={`/compare/${comparison.slug}`}
   ogType="article"
   ogImage={imageUrl}
-  jsonLd={[comparisonJsonLd(comparison, linkedBreeds)]}
+  jsonLd={faqJsonLd
+    ? [comparisonJsonLd(comparison, linkedBreeds), faqJsonLd]
+    : [comparisonJsonLd(comparison, linkedBreeds)]}
   publishedTime={publishedDate}
   modifiedTime={comparison.updatedAt}
 >
@@ -67,7 +108,9 @@ const breadcrumbs = [
         )}
 
         <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-light font-medium">
-          {comparison.author && <span>By {comparison.author}</span>}
+          <span>
+            By <a href="/about#who-writes-this" class="font-semibold text-brand-700 hover:text-brand-900 transition-colors">{bylineAuthor}</a>
+          </span>
           {formattedDate && (
             <span class="inline-flex items-center gap-1.5">
               <Calendar class="w-3.5 h-3.5" /> {formattedDate}
@@ -75,6 +118,23 @@ const breadcrumbs = [
           )}
           {linkedBreeds.length > 0 && <span>{linkedBreeds.length} breeds compared</span>}
         </div>
+
+        {linkedBreeds.length > 0 && (
+          <div class="mt-5 flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-ink-muted/70 mr-1">
+              In this comparison
+            </span>
+            {linkedBreeds.map((breed) => (
+              <a
+                href={`/breeds/${breed.slug}`}
+                class="inline-flex items-center gap-1.5 rounded-full border border-ink/8 bg-surface-raised px-3.5 py-1.5 text-sm font-semibold text-ink transition-all duration-200 hover:border-brand-400 hover:text-brand-700 hover:-translate-y-0.5"
+              >
+                {breed.name}
+                <ArrowUpRight class="w-3 h-3 opacity-40" />
+              </a>
+            ))}
+          </div>
+        )}
       </header>
 
       {imageUrl && (
@@ -130,6 +190,77 @@ const breadcrumbs = [
           </div>
         </section>
       )}
+
+      <!-- FAQs — mirrored exactly by the FAQPage JSON-LD -->
+      {faqs.length > 0 && (
+        <section id="faq" class="glass-card rounded-2xl p-6 sm:p-8 mb-12 reveal">
+          <h2 class="font-display font-bold text-ink text-xl mb-1.5 flex items-center gap-2">
+            <span class="text-lg">❓</span> Common questions
+          </h2>
+          <p class="text-sm text-ink-muted font-medium mb-6">
+            Answered from this comparison.
+          </p>
+          <div class="divide-y divide-ink/5">
+            {faqs.map((faq) => (
+              <div class="py-4 first:pt-0 last:pb-0">
+                <h3 class="font-display font-bold text-ink text-[0.95rem] mb-2">{faq.question}</h3>
+                <p class="text-sm text-ink-light leading-relaxed">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Related comparisons — shares at least one breed with this one -->
+      {related.length > 0 && (
+        <section class="mb-12 reveal">
+          <h2 class="display-heading text-xl sm:text-2xl text-ink mb-2">Related comparisons</h2>
+          <p class="text-sm text-ink-muted font-medium mb-5">
+            Other head-to-heads featuring these breeds.
+          </p>
+          <ul class="grid sm:grid-cols-3 gap-4">
+            {related.map((entry) => (
+              <li>
+                <a
+                  href={`/compare/${entry.slug}`}
+                  class="group glass-card rounded-2xl p-5 flex flex-col h-full border-transparent hover:border-brand-200 transition-all duration-200 hover:-translate-y-1"
+                >
+                  <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-700 mb-2">
+                    <Scale class="w-3 h-3" /> Comparison
+                  </span>
+                  <span class="font-display font-bold text-ink text-[0.95rem] leading-snug group-hover:text-brand-700 transition-colors">
+                    {entry.title}
+                  </span>
+                  {entry.summary && (
+                    <span class="text-xs text-ink-muted mt-2 line-clamp-3">{entry.summary}</span>
+                  )}
+                  <span class="mt-auto pt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-700">
+                    Read it
+                    <ArrowUpRight class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div class="mb-8 reveal">
+        <AuthorByline
+          author={comparison.author}
+          published={comparison.publishedDate || comparison.createdAt}
+          updated={comparison.updatedAt}
+        />
+      </div>
+
+      <div class="mb-8 reveal">
+        <QuizPromo
+          variant="hero"
+          heading="Still can't call it?"
+          subtitle="Ten questions about your home, your week and your household — then a straight answer on which of these actually suits you, and what you'd be signing up for."
+          source="comparison-detail"
+        />
+      </div>
 
       <div class="mb-12 reveal">
         <NewsletterSignup
