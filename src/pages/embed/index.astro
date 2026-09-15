@@ -1,0 +1,239 @@
+---
+/**
+ * Embed snippet generator — /embed
+ *
+ * Indexable (unlike the widget itself). Lets a site owner pick two default
+ * breeds, previews the widget live, and hands over a copyable iframe snippet
+ * plus a plain-HTML credit line.
+ *
+ * The credit line matters: links inside an iframe pass visitors but are not
+ * attributed to the embedding page, so the crawlable backlink has to live in
+ * the host page's own HTML. The copy on this page says so plainly rather than
+ * burying it.
+ */
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getBreeds } from '../../lib/payload';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { Code2, Check, Info } from 'lucide-astro';
+
+const breeds = await getBreeds();
+
+const options = breeds
+  .filter((b) => b.slug && b.name)
+  .map((b) => ({ slug: b.slug, name: b.name }));
+
+const defaultA = options.find((b) => b.slug === 'golden-retriever') ?? options[0];
+const defaultB = options.find((b) => b.slug === 'labrador-retriever') ?? options[1];
+
+const optionsJson = JSON.stringify(options).replace(/</g, '\\u003c');
+---
+
+<Layout
+  title="Embed our breed comparison tool — free widget for your site"
+  description="Add a free dog breed comparison widget to your site. Pick two breeds, copy one line of HTML, and give your readers side-by-side trait ratings for 201 breeds."
+  canonicalUrl="/embed"
+  ogType="website"
+  jsonLd={[breadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Embed the compare tool', url: '/embed' },
+  ])]}
+>
+  <Nav />
+
+  <div class="pt-32 sm:pt-36">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Embed our compare tool' }]} />
+    </div>
+  </div>
+
+  <main class="min-h-screen bg-surface noise">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+      <header class="mb-10 reveal">
+        <div class="inline-flex items-center gap-2 badge bg-brand-100 text-brand-800 mb-4">
+          <Code2 class="w-3.5 h-3.5" /> Free Widget
+        </div>
+        <h1 class="display-heading display-fluid-md text-ink mb-4 text-balance">
+          Embed our breed comparison tool
+        </h1>
+        <p class="text-ink-muted text-base sm:text-lg font-medium leading-relaxed text-pretty max-w-2xl">
+          Breeders, rescues and pet blogs: drop a side-by-side breed comparison into any page with
+          one line of HTML. It covers all {breeds.length} breeds we've profiled, scored on the traits
+          that actually decide things. Free, no signup, no tracking scripts.
+        </p>
+      </header>
+
+      <!-- Breed pickers -->
+      <section class="glass-card rounded-2xl p-6 sm:p-8 mb-6 reveal reveal-delay-1">
+        <h2 class="font-display font-bold text-ink text-lg mb-1.5">1. Pick the two default breeds</h2>
+        <p class="text-sm text-ink-muted font-medium mb-5">
+          What your visitors see first. They can change them inside the widget.
+        </p>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="block text-xs font-bold uppercase tracking-widest text-ink-muted mb-2">Breed A</span>
+            <select id="embed-a" class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm font-semibold text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200">
+              {options.map((b) => (
+                <option value={b.slug} selected={b.slug === defaultA?.slug}>{b.name}</option>
+              ))}
+            </select>
+          </label>
+          <label class="block">
+            <span class="block text-xs font-bold uppercase tracking-widest text-ink-muted mb-2">Breed B</span>
+            <select id="embed-b" class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm font-semibold text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200">
+              {options.map((b) => (
+                <option value={b.slug} selected={b.slug === defaultB?.slug}>{b.name}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <!-- Live preview -->
+      <section class="glass-card rounded-2xl p-6 sm:p-8 mb-6 reveal reveal-delay-2">
+        <h2 class="font-display font-bold text-ink text-lg mb-1.5">2. Live preview</h2>
+        <p class="text-sm text-ink-muted font-medium mb-5">Exactly what your readers will see.</p>
+        <div class="rounded-xl overflow-hidden border border-ink/10 bg-white">
+          <iframe
+            id="embed-preview"
+            src={`/embed/compare?a=${defaultA?.slug}&b=${defaultB?.slug}`}
+            width="100%"
+            height="480"
+            style="border:0;display:block"
+            title="Dog breed comparison — PawLabs"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </section>
+
+      <!-- Snippet -->
+      <section class="glass-card rounded-2xl p-6 sm:p-8 mb-6 reveal reveal-delay-3">
+        <h2 class="font-display font-bold text-ink text-lg mb-1.5">3. Copy the code</h2>
+        <p class="text-sm text-ink-muted font-medium mb-5">
+          Paste both blocks where you want the comparison to appear.
+        </p>
+
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-ink-muted">The widget</span>
+            <button type="button" data-copy="embed-iframe" class="copy-btn inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-surface-raised px-3 py-1.5 text-xs font-bold text-ink transition-all hover:border-brand-400 hover:text-brand-700">
+              <Check class="w-3.5 h-3.5 copy-done hidden" />
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+          <pre class="embed-code" id="embed-iframe"></pre>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-ink-muted">The credit line</span>
+            <button type="button" data-copy="embed-credit" class="copy-btn inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-surface-raised px-3 py-1.5 text-xs font-bold text-ink transition-all hover:border-brand-400 hover:text-brand-700">
+              <Check class="w-3.5 h-3.5 copy-done hidden" />
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+          <pre class="embed-code" id="embed-credit">&lt;p&gt;Breed comparison by &lt;a href="https://pawlabs.org"&gt;PawLabs&lt;/a&gt;&lt;/p&gt;</pre>
+        </div>
+
+        <div class="mt-5 rounded-xl bg-brand-50 border border-brand-100 p-4 flex gap-3">
+          <Info class="w-4 h-4 text-brand-700 shrink-0 mt-0.5" />
+          <p class="text-sm text-brand-900 leading-relaxed">
+            <strong>Please keep the credit line to support the free tool.</strong> Links inside an
+            iframe send us visitors but search engines attribute them to the iframe, not to your
+            page — so that one plain line of HTML is what actually credits us. It is the entire
+            price of the widget.
+          </p>
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="glass-card rounded-2xl p-6 sm:p-8 reveal reveal-delay-3">
+        <h2 class="font-display font-bold text-ink text-lg mb-4">Good to know</h2>
+        <ul class="space-y-3 text-sm text-ink-light leading-relaxed">
+          <li class="flex gap-2.5"><span class="text-brand-600 font-bold">·</span><span><strong class="text-ink">No tracking.</strong> The widget sets no cookies and loads no analytics or third-party scripts. Safe to drop on any page, including in the EU.</span></li>
+          <li class="flex gap-2.5"><span class="text-brand-600 font-bold">·</span><span><strong class="text-ink">Responsive.</strong> Works from 300px wide up. Set <code>width="100%"</code> and it fills its container. If your layout is narrow, raise the height a little.</span></li>
+          <li class="flex gap-2.5"><span class="text-brand-600 font-bold">·</span><span><strong class="text-ink">Always current.</strong> Ratings update when we update them — nothing to re-paste.</span></li>
+          <li class="flex gap-2.5"><span class="text-brand-600 font-bold">·</span><span><strong class="text-ink">Free, commercial use included.</strong> Use it on client sites. Just keep the credit line.</span></li>
+          <li class="flex gap-2.5"><span class="text-brand-600 font-bold">·</span><span><strong class="text-ink">Questions?</strong> Email <a href="mailto:contact@pawlabs.org" class="text-brand-700 font-semibold hover:text-brand-900">contact@pawlabs.org</a>.</span></li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style is:global>
+  .embed-code {
+    display: block;
+    background: var(--color-ink);
+    color: #DEFAF0;
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+</style>
+
+<script is:inline define:vars={{ optionsJson }}>
+  (function () {
+    var a = document.getElementById('embed-a');
+    var b = document.getElementById('embed-b');
+    var frame = document.getElementById('embed-preview');
+    var code = document.getElementById('embed-iframe');
+
+    function snippet(slugA, slugB) {
+      return (
+        '<iframe src="https://pawlabs.org/embed/compare?a=' + slugA + '&b=' + slugB + '" ' +
+        'width="100%" height="480" style="border:0;border-radius:12px" ' +
+        'title="Dog breed comparison — PawLabs" loading="lazy"></iframe>'
+      );
+    }
+
+    function update() {
+      var slugA = a.value;
+      var slugB = b.value;
+      code.textContent = snippet(slugA, slugB);
+      frame.src = '/embed/compare?a=' + encodeURIComponent(slugA) + '&b=' + encodeURIComponent(slugB);
+    }
+
+    a.addEventListener('change', update);
+    b.addEventListener('change', update);
+    update();
+
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var target = document.getElementById(btn.getAttribute('data-copy'));
+        var text = target.textContent;
+        var label = btn.querySelector('.copy-label');
+        var done = btn.querySelector('.copy-done');
+
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (e) {
+          var field = document.createElement('textarea');
+          field.value = text;
+          document.body.appendChild(field);
+          field.select();
+          try { document.execCommand('copy'); } catch (e2) { window.prompt('Copy:', text); }
+          field.remove();
+        }
+
+        if (label) label.textContent = 'Copied!';
+        if (done) done.classList.remove('hidden');
+        window.setTimeout(function () {
+          if (label) label.textContent = 'Copy';
+          if (done) done.classList.add('hidden');
+        }, 2000);
+      });
+    });
+  })();
+</script>

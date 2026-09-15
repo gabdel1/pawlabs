@@ -1,0 +1,467 @@
+---
+/**
+ * Embeddable breed-comparison widget — /embed/compare
+ *
+ * Deliberately does NOT use the site Layout. That layout pulls Google
+ * Analytics, Google Fonts and the full Tailwind bundle, none of which belong on
+ * someone else's page: this runs on third-party sites, so it ships no
+ * analytics, sets no cookies, loads no third-party resources, and uses a system
+ * font stack. The only network calls are this page, breeds.json, and two images
+ * from pawlabs.org.
+ *
+ * Breed data is fetched as JSON rather than inlined because the page is a
+ * single static file serving all 201×201 possible pairings.
+ */
+
+const ORIGIN = 'https://pawlabs.org';
+const UTM = '?utm_source=embed&utm_medium=widget';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dog breed comparison — PawLabs</title>
+    <!-- The widget must not compete with the real pages in search. -->
+    <meta name="robots" content="noindex, follow" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="canonical" href={`${ORIGIN}/embed/compare`} />
+
+    <!--
+      is:inline is required, not cosmetic: Astro scopes <style> by default, and
+      almost all of this markup is created by JS at runtime, so it would never
+      carry the generated scope attribute. Inlining also keeps the widget to a
+      single request.
+    -->
+    <style is:inline>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      :root {
+        --brand: #207A5B;
+        --brand-dark: #18503E;
+        --brand-light: #DEFAF0;
+        --ink: #0A0F1A;
+        --muted: #5A6982;
+        --line: rgba(10, 15, 26, 0.08);
+        --bg: #FFFFFF;
+        --panel: #F8F9FA;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .w {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 11px 12px 9px;
+      }
+
+      /* ── Breed columns ─────────────────────────────── */
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .col { min-width: 0; }
+
+      /* Combobox */
+      .cb { position: relative; }
+      .cb-input {
+        width: 100%;
+        padding: 8px 10px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        outline: none;
+      }
+      .cb-input:focus {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(32, 122, 91, 0.15);
+        background: #fff;
+      }
+      .cb-list {
+        position: absolute;
+        z-index: 20;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        max-height: 210px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 10px 28px -12px rgba(10, 15, 26, 0.3);
+        display: none;
+        margin: 0;
+        padding: 4px;
+        list-style: none;
+      }
+      .cb-list.open { display: block; }
+      .cb-list li {
+        padding: 7px 9px;
+        font-size: 13px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .cb-list li[aria-selected='true'],
+      .cb-list li:hover { background: var(--brand-light); color: var(--brand-dark); }
+      .cb-empty { padding: 9px; font-size: 12.5px; color: var(--muted); }
+
+      /* Photo + name */
+      /*
+        Square box, capped by height so the widget fits the 480px frame the
+        snippet asks for. Full-column-width would make a ~3.5:1 letterbox, and
+        `cover` would then crop away most of the dog — the source photos are
+        square or 4:3, so a square box plus `contain` never crops at all.
+      */
+      .photo {
+        margin: 7px auto 0;
+        display: block;
+        width: 100px;
+        max-width: 100%;
+        height: 100px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--brand-light);
+        border: 1px solid var(--line);
+      }
+      .photo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+      .photo-empty {
+        width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--brand); opacity: 0.4; font-size: 26px;
+      }
+
+      .name {
+        display: block;
+        text-align: center;
+        margin-top: 6px;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.25;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .name:hover { color: var(--brand); text-decoration: underline; }
+      .name span { font-weight: 400; color: var(--muted); font-size: 11px; display: block; margin-top: 1px; }
+
+      /* ── Traits ────────────────────────────────────── */
+      .traits { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 9px; }
+      .trait + .trait { margin-top: 6px; }
+      .trait-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-bottom: 3px;
+      }
+      .trait-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .bar-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
+      .bar {
+        flex: 1;
+        height: 6px;
+        border-radius: 99px;
+        background: rgba(10, 15, 26, 0.07);
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #3ABF8E, var(--brand));
+        width: 0;
+        transition: width 0.35s ease;
+      }
+      .bar-val {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ink);
+        width: 26px;
+        text-align: right;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .bar-na { font-size: 11px; color: var(--muted); }
+
+      /* ── Footer attribution — the point of the widget ── */
+      .credit {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .credit a { color: var(--brand); font-weight: 700; text-decoration: none; }
+      .credit a:hover { text-decoration: underline; }
+      .credit-cta {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--brand);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .credit-cta:hover { text-decoration: underline; }
+
+      .loading { padding: 26px 0; text-align: center; color: var(--muted); font-size: 13px; }
+      .error { padding: 20px 0; text-align: center; color: var(--muted); font-size: 13px; }
+
+      /* Narrow embeds — must stay usable from 300px. */
+      @media (max-width: 380px) {
+        .w { padding: 9px 9px 7px; }
+        .cols, .trait-pair { gap: 7px; }
+        /* Narrow embeds wrap more, so buy the height back from the photo. */
+        .photo { width: 78px; height: 78px; }
+        .name { font-size: 13px; }
+        .trait + .trait { margin-top: 5px; }
+        .bar-val { width: 20px; }
+        .credit { font-size: 11px; justify-content: center; text-align: center; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bar i { transition: none; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="w">
+      <div id="app">
+        <div class="loading">Loading breeds…</div>
+      </div>
+
+      <!-- Rendered server-side so the attribution exists even if JS never runs -->
+      <div class="credit">
+        <span>
+          Data: <a href={`${ORIGIN}/${UTM}`} target="_blank" rel="noopener">PawLabs</a> — the dog breed encyclopedia
+        </span>
+        <a class="credit-cta" href={`${ORIGIN}/quiz${UTM}`} target="_blank" rel="noopener">
+          Find your breed →
+        </a>
+      </div>
+    </div>
+
+    <script is:inline define:vars={{ ORIGIN, UTM }}>
+      (function () {
+        var app = document.getElementById('app');
+        var DATA = null;
+        var sel = [null, null];
+
+        function param(name) {
+          return new URLSearchParams(location.search).get(name);
+        }
+
+        function bySlug(slug) {
+          if (!slug || !DATA) return null;
+          for (var i = 0; i < DATA.breeds.length; i++) {
+            if (DATA.breeds[i].s === slug) return DATA.breeds[i];
+          }
+          return null;
+        }
+
+        function esc(s) {
+          return String(s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+          });
+        }
+
+        function profileUrl(breed) {
+          return ORIGIN + '/breeds/' + encodeURIComponent(breed.s) + UTM;
+        }
+
+        function photoHtml(breed) {
+          if (!breed.i) return '<span class="photo-empty">&#128062;</span>';
+          // Already percent-encoded by getMediaUrl on the server; encoding again
+          // here would turn %20 into %2520.
+          return '<img src="' + ORIGIN + breed.i + '" alt="' + esc(breed.n) + '" loading="lazy" decoding="async">';
+        }
+
+        function render() {
+          var html = '<div class="cols">';
+
+          for (var side = 0; side < 2; side++) {
+            var breed = sel[side];
+            html +=
+              '<div class="col">' +
+                '<div class="cb" data-side="' + side + '">' +
+                  '<input class="cb-input" type="text" role="combobox" aria-expanded="false" ' +
+                    'aria-autocomplete="list" placeholder="Search 200+ breeds…" ' +
+                    'value="' + (breed ? esc(breed.n) : '') + '">' +
+                  '<ul class="cb-list" role="listbox"></ul>' +
+                '</div>';
+
+            if (breed) {
+              html +=
+                '<a class="photo" href="' + profileUrl(breed) + '" target="_blank" rel="noopener" ' +
+                  'title="' + esc(breed.n) + ' profile on PawLabs">' + photoHtml(breed) + '</a>' +
+                '<a class="name" href="' + profileUrl(breed) + '" target="_blank" rel="noopener" ' +
+                  'title="Open the ' + esc(breed.n) + ' profile on PawLabs">' +
+                  esc(breed.n) + ' &#8599;</a>';
+            } else {
+              html += '<div class="photo"><span class="photo-empty">&#128062;</span></div>';
+            }
+            html += '</div>';
+          }
+          html += '</div>';
+
+          if (sel[0] || sel[1]) {
+            html += '<div class="traits">';
+            for (var t = 0; t < DATA.traits.length; t++) {
+              html += '<div class="trait"><div class="trait-label">' + esc(DATA.traits[t]) + '</div><div class="trait-pair">';
+              for (var s2 = 0; s2 < 2; s2++) {
+                var b = sel[s2];
+                var v = b && b.t[t] != null ? b.t[t] : null;
+                html += v == null
+                  ? '<div class="bar-wrap"><span class="bar-na">—</span></div>'
+                  : '<div class="bar-wrap"><span class="bar"><i data-w="' + v * 10 + '"></i></span>' +
+                    '<span class="bar-val">' + v + '</span></div>';
+              }
+              html += '</div></div>';
+            }
+            html += '</div>';
+          }
+
+          app.innerHTML = html;
+
+          // Animate bars after paint.
+          requestAnimationFrame(function () {
+            var bars = app.querySelectorAll('.bar i');
+            for (var i = 0; i < bars.length; i++) bars[i].style.width = bars[i].getAttribute('data-w') + '%';
+          });
+
+          wireComboboxes();
+        }
+
+        function wireComboboxes() {
+          var boxes = app.querySelectorAll('.cb');
+          for (var i = 0; i < boxes.length; i++) {
+            (function (box) {
+              var side = Number(box.getAttribute('data-side'));
+              var input = box.querySelector('.cb-input');
+              var list = box.querySelector('.cb-list');
+              var active = -1;
+              var matches = [];
+
+              function close() {
+                list.classList.remove('open');
+                input.setAttribute('aria-expanded', 'false');
+                active = -1;
+              }
+
+              function open(query) {
+                var q = (query || '').trim().toLowerCase();
+                matches = DATA.breeds
+                  .filter(function (b) { return !q || b.n.toLowerCase().indexOf(q) !== -1; })
+                  .slice(0, 60);
+
+                if (!matches.length) {
+                  list.innerHTML = '<li class="cb-empty" role="presentation">No breeds match that</li>';
+                } else {
+                  var out = '';
+                  for (var m = 0; m < matches.length; m++) {
+                    out += '<li role="option" data-i="' + m + '" aria-selected="false">' + esc(matches[m].n) + '</li>';
+                  }
+                  list.innerHTML = out;
+                }
+                list.classList.add('open');
+                input.setAttribute('aria-expanded', 'true');
+              }
+
+              function choose(index) {
+                var breed = matches[index];
+                if (!breed) return;
+                sel[side] = breed;
+                syncUrl();
+                render();
+              }
+
+              function highlight(next) {
+                var items = list.querySelectorAll('li[role="option"]');
+                if (!items.length) return;
+                if (active >= 0 && items[active]) items[active].setAttribute('aria-selected', 'false');
+                active = (next + items.length) % items.length;
+                items[active].setAttribute('aria-selected', 'true');
+                items[active].scrollIntoView({ block: 'nearest' });
+              }
+
+              input.addEventListener('focus', function () { open(''); input.select(); });
+              input.addEventListener('input', function () { open(input.value); });
+
+              input.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowDown') { e.preventDefault(); highlight(active + 1); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(active - 1); }
+                else if (e.key === 'Enter') {
+                  e.preventDefault();
+                  choose(active >= 0 ? active : 0);
+                } else if (e.key === 'Escape') { close(); input.blur(); }
+              });
+
+              list.addEventListener('mousedown', function (e) {
+                var li = e.target.closest('li[data-i]');
+                if (!li) return;
+                e.preventDefault();
+                choose(Number(li.getAttribute('data-i')));
+              });
+
+              input.addEventListener('blur', function () {
+                // Restore the committed name if the user typed and wandered off.
+                window.setTimeout(function () {
+                  close();
+                  input.value = sel[side] ? sel[side].n : '';
+                }, 120);
+              });
+            })(boxes[i]);
+          }
+        }
+
+        function syncUrl() {
+          try {
+            var q = new URLSearchParams();
+            if (sel[0]) q.set('a', sel[0].s);
+            if (sel[1]) q.set('b', sel[1].s);
+            history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
+          } catch (e) {
+            /* replaceState can throw in sandboxed frames — cosmetic only */
+          }
+        }
+
+        fetch('/embed/breeds.json')
+          .then(function (r) {
+            if (!r.ok) throw new Error(String(r.status));
+            return r.json();
+          })
+          .then(function (data) {
+            DATA = data;
+            sel[0] = bySlug(param('a')) || DATA.breeds[0] || null;
+            sel[1] = bySlug(param('b')) || DATA.breeds[1] || null;
+            render();
+          })
+          .catch(function () {
+            app.innerHTML =
+              '<div class="error">Breed data could not be loaded. ' +
+              '<a href="' + ORIGIN + '/compare' + UTM + '" target="_blank" rel="noopener" style="color:#207A5B;font-weight:700">' +
+              'Compare breeds on PawLabs &#8599;</a></div>';
+          });
+      })();
+    </script>
+  </body>
+</html>
