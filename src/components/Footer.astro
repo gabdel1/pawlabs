@@ -138,32 +138,72 @@ const columns = [
 <!--
   Consent withdrawal.
 
-  The button is hidden until Google's consent management platform confirms it is
-  present, because outside the EEA, the UK and Switzerland no prompt is shown and
-  there is nothing to reopen — a dead link there is worse than no link. `is:inline`
-  so it is not bundled and scoped; it has to run on the raw page.
+  Hidden until a consent management platform is actually present: outside the
+  EEA, the UK and Switzerland no prompt is served, so there is nothing to
+  reopen and a dead control is worse than none. Where a CMP *is* present the
+  control has to appear, because /privacy tells readers it is here and GDPR
+  requires withdrawing consent to be as easy as giving it.
+
+  Two ways in, deliberately. Google's own API (googlefc) is the documented one,
+  but it is not guaranteed to be the surface a given CMP build exposes, and the
+  IAB TCF API is the vendor-neutral fallback. Depending on googlefc alone is
+  how this button silently never appears.
+
+  `is:inline` so Astro neither bundles nor scopes it; it has to run on the raw
+  page alongside scripts it does not control.
 -->
 <script is:inline>
   (function () {
     var btn = document.getElementById('consent-settings');
     if (!btn) return;
 
-    function enable() {
-      btn.hidden = false;
-      btn.addEventListener('click', function () {
-        if (window.googlefc && typeof window.googlefc.showRevocationMessage === 'function') {
-          window.googlefc.showRevocationMessage();
-        }
-      });
+    var wired = false;
+
+    function reopen() {
+      var fc = window.googlefc;
+      if (fc && typeof fc.showRevocationMessage === 'function') {
+        fc.showRevocationMessage();
+        return;
+      }
+      if (typeof window.__tcfapi === 'function') {
+        window.__tcfapi('displayConsentUi', 2, function () {});
+      }
     }
 
+    function available() {
+      return (
+        (window.googlefc && typeof window.googlefc.showRevocationMessage === 'function') ||
+        typeof window.__tcfapi === 'function'
+      );
+    }
+
+    function reveal() {
+      if (wired) return;
+      wired = true;
+      btn.hidden = false;
+      btn.addEventListener('click', reopen);
+    }
+
+    // Primary: Google tells us when consent data is ready.
     window.googlefc = window.googlefc || {};
     window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
     window.googlefc.callbackQueue.push({
       CONSENT_DATA_READY: function () {
-        // Only surface the control where a message was actually served.
-        if (typeof window.googlefc.showRevocationMessage === 'function') enable();
+        if (available()) reveal();
       },
     });
+
+    // Fallback: the CMP loads asynchronously and may never fire the callback
+    // above. Poll briefly, then stop — a visitor outside the covered regions
+    // should not be left with a timer running for the life of the page.
+    var tries = 0;
+    var poll = setInterval(function () {
+      if (available()) {
+        reveal();
+        clearInterval(poll);
+      } else if (++tries > 30) {
+        clearInterval(poll);
+      }
+    }, 400);
   })();
 </script>
