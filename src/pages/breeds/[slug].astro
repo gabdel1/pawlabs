@@ -9,6 +9,7 @@ import Footer from '../../components/Footer.astro';
 import { getBreeds, getBreedBySlug, getComparisons, getMediaUrl, comparisonBreedIds, comparisonDate, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS, TRAIT_LABELS } from '../../lib/payload';
 import { breedJsonLd, breedFaqJsonLd } from '../../lib/seo';
 import { breedMetaTitle, breedMetaDescription, familyRoundupFor } from '../../lib/meta';
+import { findSimilarBreeds } from '../../lib/similar-breeds';
 import { buildBreedFaqs } from '../../lib/breed-faq';
 import type { Breed, Comparison, Media } from '../../lib/payload';
 import { Dog, Cat, Star as StarIcon, Scale, ArrowUpRight } from 'lucide-astro';
@@ -30,7 +31,9 @@ export async function getStaticPaths() {
 }
 
 const { breed, featuredIn = [] } = Astro.props as { breed: Breed; featuredIn?: Comparison[] };
-const allBreeds = (await getBreeds()).filter(b => b.slug !== breed.slug && b.petType === breed.petType);
+// Ranked by actual similarity — same group and size band, closest trait
+// scores. These five are the main breed-to-breed links on the site.
+const similarBreeds = findSimilarBreeds(breed, await getBreeds(), 5);
 const imageUrl = getMediaUrl(breed.image as Media);
 const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
 const sizeLabel = breed.size ? SIZE_LABELS[breed.size] ?? breed.size : null;
@@ -344,11 +347,11 @@ const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
             </div>
 
             <!-- Similar Breeds -->
-            {allBreeds.length > 0 && (
+            {similarBreeds.length > 0 && (
               <div class="glass-card rounded-2xl p-6 reveal reveal-delay-3">
                 <h2 class="font-display font-bold text-ink text-lg mb-4">Similar Breeds</h2>
                 <div class="space-y-3">
-                  {allBreeds.slice(0, 5).map(b => {
+                  {similarBreeds.map(b => {
                     const bImg = getMediaUrl(b.image as Media);
                     return (
                       <a href={`/breeds/${b.slug}`} class="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-ink/5 transition-colors group">

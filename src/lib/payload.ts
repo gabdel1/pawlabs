@@ -220,16 +220,50 @@ export const CRITERION_LABELS: Record<string, string> = {
   'healthRobustness': 'Health Robustness',
 };
 
+/**
+ * Every document in a collection, following pagination to the end.
+ *
+ * A fixed `limit` silently truncates the moment the collection outgrows it, and
+ * does it without an error — the build succeeds and pages simply go missing.
+ * That is a bad failure mode for a site that publishes an article a day, so
+ * nothing here caps the result: we walk pages until the API says there are no
+ * more.
+ *
+ * PAGE_SIZE only controls how many round-trips that takes.
+ */
+const PAGE_SIZE = 200;
+
+async function fetchAllPages<T>(
+  endpoint: string,
+  params: Record<string, string>,
+): Promise<T[]> {
+  const docs: T[] = [];
+  let page = 1;
+
+  // Bounded so a malformed hasNextPage cannot spin forever.
+  for (let guard = 0; guard < 100; guard++) {
+    const data = await fetchAPI<PayloadResponse<T>>(endpoint, {
+      ...params,
+      limit: String(PAGE_SIZE),
+      page: String(page),
+    });
+    docs.push(...data.docs);
+    if (!data.hasNextPage) return docs;
+    page += 1;
+  }
+
+  console.warn(`[payload] ${endpoint}: stopped paginating after 100 pages`);
+  return docs;
+}
+
 /** Fetch all published breeds */
-export async function getBreeds(limit = 300): Promise<Breed[]> {
+export async function getBreeds(): Promise<Breed[]> {
   try {
-    const data = await fetchAPI<PayloadResponse<Breed>>('breeds', {
+    return await fetchAllPages<Breed>('breeds', {
       'where[status][equals]': 'published',
-      limit: String(limit),
       depth: '1',
       sort: 'name',
     });
-    return data.docs;
   } catch (e) {
     console.error('[payload] Failed to fetch breeds:', e);
     return [];
@@ -270,16 +304,14 @@ export function comparisonDate(comparison: Comparison): number {
   return Number.isNaN(time) ? 0 : time;
 }
 
-/** Fetch all published breed comparisons */
-export async function getComparisons(limit = 100): Promise<Comparison[]> {
+/** Fetch all published breed comparisons, newest first */
+export async function getComparisons(): Promise<Comparison[]> {
   try {
-    const data = await fetchAPI<PayloadResponse<Comparison>>('comparisons', {
+    return await fetchAllPages<Comparison>('comparisons', {
       'where[status][equals]': 'published',
-      limit: String(limit),
       depth: '2',
       sort: '-publishedDate',
     });
-    return data.docs;
   } catch (e) {
     console.error('[payload] Failed to fetch comparisons:', e);
     return [];
