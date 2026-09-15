@@ -18,6 +18,7 @@ const linkStyle: React.CSSProperties = {
 const links = [
   { href: '/admin/ai-breed', label: '🐾 AI Breeds' },
   { href: '/admin/ai-breed-compare', label: '⚖️ Breed Compare' },
+  { href: '/admin/ai-quiz', label: '🧩 AI Quiz Questions' },
 ]
 
 export default function AINavLink() {

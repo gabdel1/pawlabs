@@ -9,6 +9,10 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Breeds } from './collections/Breeds'
 import { Comparisons } from './collections/Comparisons'
+import { QuizQuestions } from './collections/QuizQuestions'
+import { QuizSubmissions } from './collections/QuizSubmissions'
+import { ContentPlan } from './collections/ContentPlan'
+import { subscribeToBrevo } from './lib/brevo'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -40,11 +44,19 @@ export default buildConfig({
             description: 'Generate breed comparisons with a comparison table and verdict using Grok AI',
           },
         },
+        aiQuiz: {
+          Component: '/components/AIQuizQuestionView',
+          path: '/ai-quiz',
+          meta: {
+            title: 'AI Quiz Questions',
+            description: 'Draft Breed Match quiz questions from notes using Grok AI',
+          },
+        },
       },
       afterNavLinks: ['/components/AINavLink'],
     },
   },
-  collections: [Users, Media, Breeds, Comparisons],
+  collections: [Users, Media, Breeds, Comparisons, QuizQuestions, QuizSubmissions, ContentPlan],
   plugins: [],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',
@@ -68,14 +80,6 @@ export default buildConfig({
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         }
-        const BREVO_API_KEY = process.env.BREVO_API_KEY
-        if (!BREVO_API_KEY) {
-          return Response.json(
-            { error: 'Email service not configured' },
-            { status: 500, headers: CORS },
-          )
-        }
-
         let body: Record<string, unknown>
         try {
           body = await req.json() as Record<string, unknown>
@@ -86,58 +90,20 @@ export default buildConfig({
           )
         }
 
-        const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          return Response.json(
-            { error: 'A valid email address is required' },
-            { status: 400, headers: CORS },
-          )
-        }
+        const email = typeof body.email === 'string' ? body.email : ''
 
         const attributes: Record<string, string> = {}
         if (typeof body.source === 'string') attributes.SOURCE = body.source
         if (typeof body.breed === 'string') attributes.BREED = body.breed
 
-        try {
-          const res = await fetch('https://api.brevo.com/v3/contacts', {
-            method: 'POST',
-            headers: {
-              'api-key': BREVO_API_KEY,
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-            body: JSON.stringify({
-              email,
-              attributes,
-              updateEnabled: true,
-            }),
-          })
-
-          if (res.status === 201 || res.status === 204) {
-            return Response.json({ ok: true }, { headers: CORS })
-          }
-
-          const data = await res.json().catch(() => ({})) as Record<string, unknown>
-          if (
-            res.status === 400 &&
-            typeof data.message === 'string' &&
-            data.message.toLowerCase().includes('already exist')
-          ) {
-            return Response.json({ ok: true, existing: true }, { headers: CORS })
-          }
-
-          console.error('[subscribe] Brevo error:', res.status, data)
-          return Response.json(
-            { error: 'Subscription failed. Please try again.' },
-            { status: 502, headers: CORS },
-          )
-        } catch (err) {
-          console.error('[subscribe] Network error:', err)
-          return Response.json(
-            { error: 'Service unavailable. Please try again later.' },
-            { status: 503, headers: CORS },
-          )
+        const result = await subscribeToBrevo(email, attributes)
+        if (!result.ok) {
+          return Response.json({ error: result.error }, { status: result.status, headers: CORS })
         }
+        return Response.json(
+          result.existing ? { ok: true, existing: true } : { ok: true },
+          { headers: CORS },
+        )
       }
     },
     {

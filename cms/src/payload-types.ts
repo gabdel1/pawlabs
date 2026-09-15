@@ -71,6 +71,9 @@ export interface Config {
     media: Media;
     breeds: Breed;
     comparisons: Comparison;
+    'quiz-questions': QuizQuestion;
+    'quiz-submissions': QuizSubmission;
+    'content-plan': ContentPlan;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +85,9 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     breeds: BreedsSelect<false> | BreedsSelect<true>;
     comparisons: ComparisonsSelect<false> | ComparisonsSelect<true>;
+    'quiz-questions': QuizQuestionsSelect<false> | QuizQuestionsSelect<true>;
+    'quiz-submissions': QuizSubmissionsSelect<false> | QuizSubmissionsSelect<true>;
+    'content-plan': ContentPlanSelect<false> | ContentPlanSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -377,6 +383,230 @@ export interface Comparison {
   createdAt: string;
 }
 /**
+ * Questions for the Breed Match quiz, with trait weights per answer
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quiz-questions".
+ */
+export interface QuizQuestion {
+  id: number;
+  /**
+   * The question as the visitor reads it. Keep it conversational.
+   */
+  question: string;
+  /**
+   * Optional one-liner under the question — context, or permission to be honest.
+   */
+  helper?: string | null;
+  /**
+   * Machine key used in stored answers (e.g. household-energy). Do not reuse.
+   */
+  key: string;
+  /**
+   * Lower numbers are asked first.
+   */
+  order: number;
+  status?: ('draft' | 'published') | null;
+  /**
+   * Only ask this question when the visitor is after this kind of pet.
+   */
+  petScope?: ('both' | 'dog' | 'cat') | null;
+  type?: ('single' | 'multi' | 'text') | null;
+  /**
+   * Grid for 4-6 rich options, list for wordy ones, scale for a 1-5 style row.
+   */
+  layout?: ('grid' | 'list' | 'scale') | null;
+  /**
+   * Shown above the question. One emoji.
+   */
+  emoji?: string | null;
+  required?: boolean | null;
+  /**
+   * Pick Several only. Leave blank for no limit.
+   */
+  maxSelections?: number | null;
+  /**
+   * Free Text only.
+   */
+  placeholder?: string | null;
+  /**
+   * Each option nudges the match via its trait weights.
+   */
+  options?:
+    | {
+        /**
+         * What the visitor clicks.
+         */
+        label: string;
+        /**
+         * Stored value (e.g. couch-potato).
+         */
+        value: string;
+        /**
+         * One emoji for the option tile.
+         */
+        emoji?: string | null;
+        /**
+         * Optional half-sentence under the label.
+         */
+        description?: string | null;
+        /**
+         * How this answer should shape the match.
+         */
+        weights?:
+          | {
+              trait:
+                | 'affectionLevel'
+                | 'childFriendly'
+                | 'petFriendly'
+                | 'strangerFriendly'
+                | 'trainability'
+                | 'energyLevel'
+                | 'groomingNeeds'
+                | 'sheddingLevel'
+                | 'barkingLevel'
+                | 'intelligence'
+                | 'playfulness'
+                | 'watchdogAbility'
+                | 'adaptability'
+                | 'healthRobustness';
+              /**
+               * The ideal score for this trait, 1-10.
+               */
+              target: number;
+              /**
+               * How much this matters, 1 (nudge) to 5 (dealbreaker).
+               */
+              weight: number;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional — breeds in these size bands get a bonus for this answer.
+         */
+        prefersSizes?: ('small' | 'medium' | 'large' | 'giant')[] | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The note this question was drafted from. Kept for context when reviewing.
+   */
+  sourceNote?: string | null;
+  aiGenerated?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Completed Breed Match quiz runs, with the answers and what we recommended
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quiz-submissions".
+ */
+export interface QuizSubmission {
+  id: number;
+  /**
+   * Blank when the visitor skipped the email step.
+   */
+  email?: string | null;
+  subscribed?: boolean | null;
+  petType?: ('dog' | 'cat' | 'either') | null;
+  /**
+   * Fallback means Grok was unavailable and trait scoring decided the result.
+   */
+  matchedBy?: ('ai' | 'fallback') | null;
+  topBreedName?: string | null;
+  recommendedBreeds?: (number | Breed)[] | null;
+  /**
+   * Free-text the visitor added at the end. Raw material for new questions.
+   */
+  note?: string | null;
+  /**
+   * Every question asked and what they picked.
+   */
+  answers?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * The full match payload returned to the visitor.
+   */
+  result?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Where the quiz was started from.
+   */
+  source?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The rolling plan of articles the daily generator works through
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-plan".
+ */
+export interface ContentPlan {
+  id: number;
+  /**
+   * A placeholder. The writer produces the real headline.
+   */
+  workingTitle: string;
+  style: 'head-to-head' | 'three-way' | 'best-for' | 'group-roundup';
+  status?: ('queued' | 'generated' | 'skipped' | 'failed') | null;
+  /**
+   * The daily job picks the oldest queued item due on or before today.
+   */
+  scheduledFor?: string | null;
+  score?: number | null;
+  /**
+   * For roundups — the lifestyle angle, e.g. apartments. See lib/content-styles.ts.
+   */
+  angleKey?: string | null;
+  /**
+   * For group roundups — which group to cover.
+   */
+  breedGroup?: string | null;
+  /**
+   * Pre-picked for head-to-head and three-way. Roundups leave this empty and shortlist at generation time, so the picks reflect the latest ratings.
+   */
+  breeds?: (number | Breed)[] | null;
+  /**
+   * Optional override. Empty means the generator picks.
+   */
+  criteria?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * What the planner saw in this idea.
+   */
+  reason?: string | null;
+  /**
+   * Filled in once the daily job has written it.
+   */
+  generatedArticle?: (number | null) | Comparison;
+  lastError?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -415,6 +645,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'comparisons';
         value: number | Comparison;
+      } | null)
+    | ({
+        relationTo: 'quiz-questions';
+        value: number | QuizQuestion;
+      } | null)
+    | ({
+        relationTo: 'quiz-submissions';
+        value: number | QuizSubmission;
+      } | null)
+    | ({
+        relationTo: 'content-plan';
+        value: number | ContentPlan;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -592,6 +834,84 @@ export interface ComparisonsSelect<T extends boolean = true> {
   featuredImage?: T;
   publishedDate?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quiz-questions_select".
+ */
+export interface QuizQuestionsSelect<T extends boolean = true> {
+  question?: T;
+  helper?: T;
+  key?: T;
+  order?: T;
+  status?: T;
+  petScope?: T;
+  type?: T;
+  layout?: T;
+  emoji?: T;
+  required?: T;
+  maxSelections?: T;
+  placeholder?: T;
+  options?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        emoji?: T;
+        description?: T;
+        weights?:
+          | T
+          | {
+              trait?: T;
+              target?: T;
+              weight?: T;
+              id?: T;
+            };
+        prefersSizes?: T;
+        id?: T;
+      };
+  sourceNote?: T;
+  aiGenerated?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quiz-submissions_select".
+ */
+export interface QuizSubmissionsSelect<T extends boolean = true> {
+  email?: T;
+  subscribed?: T;
+  petType?: T;
+  matchedBy?: T;
+  topBreedName?: T;
+  recommendedBreeds?: T;
+  note?: T;
+  answers?: T;
+  result?: T;
+  source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-plan_select".
+ */
+export interface ContentPlanSelect<T extends boolean = true> {
+  workingTitle?: T;
+  style?: T;
+  status?: T;
+  scheduledFor?: T;
+  score?: T;
+  angleKey?: T;
+  breedGroup?: T;
+  breeds?: T;
+  criteria?: T;
+  reason?: T;
+  generatedArticle?: T;
+  lastError?: T;
   updatedAt?: T;
   createdAt?: T;
 }
