@@ -49,3 +49,6 @@ public/media/
 
 # Rotated legacy CMS supervisor logs
 .cms.log.*.gz
+
+# Daily comparison job log (systemd unit also writes to journald)
+.daily-comparison.log
