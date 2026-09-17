@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1B525C"/>
+  <g fill="#276570">
+    <circle cx="1083" cy="33" r="14"/><circle cx="1106" cy="14" r="14"/><circle cx="1133" cy="14" r="14"/><circle cx="1157" cy="33" r="14"/>
+    <ellipse cx="1120" cy="78" rx="34" ry="28"/>
+    <circle cx="803" cy="100" r="10"/><circle cx="820" cy="86" r="10"/><circle cx="840" cy="86" r="10"/><circle cx="858" cy="100" r="10"/>
+    <ellipse cx="830" cy="133" rx="25" ry="21"/>
+    <circle cx="812" cy="540" r="10"/><circle cx="830" cy="527" r="10"/><circle cx="850" cy="527" r="10"/><circle cx="868" cy="540" r="10"/>
+    <ellipse cx="840" cy="573" rx="25" ry="20"/>
+    <circle cx="1097" cy="566" r="13"/><circle cx="1118" cy="549" r="13"/><circle cx="1143" cy="549" r="13"/><circle cx="1165" cy="566" r="13"/>
+    <ellipse cx="1130" cy="606" rx="32" ry="27"/>
+  </g>
+  <g font-family="DejaVu Sans" >
+    <text x="72" y="84" font-size="24" font-weight="bold" fill="#4ECDC4" letter-spacing="0.4">PAW LABS</text>
+    <rect x="230" y="58" width="101" height="35" rx="17.5" fill="#FF6B6B"/>
+    <text x="280.5" y="83" font-size="20" font-weight="bold" fill="#FFFFFF" text-anchor="middle">FREE</text>
+    <text x="72" y="245" font-size="96" font-weight="bold" fill="#FFF8F0">What breed</text>
+    <text x="72" y="350" font-size="96" font-weight="bold" fill="#FFF8F0">is my dog?</text>
+    <text x="72" y="425" font-size="34" fill="#FFF8F0">Upload a photo. Get the closest breeds,</text>
+    <text x="72" y="470" font-size="34" fill="#FFF8F0">what gave it away, and how sure we are.</text>
+    <g fill="none" stroke="#4ECDC4" stroke-width="3">
+      <rect x="73.5" y="521.5" width="194" height="45" rx="22.5"/>
+      <rect x="285.5" y="521.5" width="178" height="45" rx="22.5"/>
+      <rect x="481.5" y="521.5" width="302" height="45" rx="22.5"/>
+    </g>
+    <g font-size="24" font-weight="bold" fill="#FFF8F0" text-anchor="middle">
+      <text x="170.5" y="553">201 breeds</text>
+      <text x="374.5" y="553">No signup</text>
+      <text x="632.5" y="553">Photo never stored</text>
+    </g>
+    <text x="72" y="606" font-size="20" fill="#4ECDC4">pawlabs.org/what-breed-is-my-dog</text>
+  </g>
+  <rect x="825" y="140" width="321" height="381" rx="28" fill="#FFF8F0"/>
+  <rect x="849" y="164" width="273" height="227" rx="16" fill="#D5E8E6"/>
+  <g fill="#A3C7C4">
+    <circle cx="919" cy="217" r="24"/><circle cx="962" cy="186" r="24"/><circle cx="1008" cy="186" r="24"/><circle cx="1050" cy="217" r="24"/>
+    <ellipse cx="985" cy="296" rx="58" ry="47"/>
+  </g>
+  <g font-family="DejaVu Sans">
+    <text x="849" y="429" font-size="20" fill="#5A6B70">Best match</text>
+    <rect x="849" y="442" width="273" height="49" rx="12" fill="#1B525C"/>
+    <text x="861" y="474" font-size="23" font-weight="bold" fill="#FFF8F0">Border Collie · 82%</text>
+  </g>
+</svg>

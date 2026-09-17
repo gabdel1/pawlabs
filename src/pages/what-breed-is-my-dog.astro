@@ -10,6 +10,8 @@
  * and never stored. The share image is drawn on a canvas in the visitor's own
  * browser, so their photo never has to leave it again to be shared.
  */
+import fs from 'node:fs';
+import path from 'node:path';
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -52,6 +54,17 @@ const faqs = [
   },
 ];
 
+/**
+ * Share image for Reddit, Slack, WhatsApp, Product Hunt and friends.
+ *
+ * Only emitted if the file is actually in public/. Link unfurlers cache what
+ * they fetch, often for weeks, so a tag pointing at a 404 would stick as a
+ * broken preview long after the file was added.
+ */
+const OG_IMAGE = '/og/what-breed-is-my-dog.png';
+const ogImage = fs.existsSync(path.join(process.cwd(), 'public', OG_IMAGE)) ? OG_IMAGE : null;
+if (!ogImage) console.warn(`[what-breed-is-my-dog] ${OG_IMAGE} is missing — building without a share image`);
+
 const pageData = {
   apiUrl: '/api/breed-identify',
   groupLabels: BREED_GROUP_LABELS,
@@ -65,6 +78,8 @@ const pageDataJson = JSON.stringify(pageData).replace(/</g, '\\u003c');
   title="What Breed Is My Dog? Free Photo Breed Identifier | PawLabs"
   description={`Upload a photo and find out what breed your dog looks like. Free AI breed identifier across ${breedCount} breeds, with lookalike breeds, mix estimates and full profiles. Photos are not stored.`}
   ogTitle="What breed is my dog? Upload a photo and find out"
+  ogImage={ogImage}
+  ogImageAlt="PawLabs breed identifier: upload a photo of your dog and see which breeds it looks like"
   canonicalUrl="/what-breed-is-my-dog"
   ogType="website"
   jsonLd={[
