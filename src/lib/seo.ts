@@ -324,6 +324,44 @@ export function quizJsonLd(questionCount: number, breedCount: number): string {
   });
 }
 
+/**
+ * JSON-LD for the photo breed identifier: the tool itself as a WebApplication,
+ * with its FAQ as a FAQPage node in the same graph. The FAQ array is the one
+ * the page renders, so the markup cannot drift from the visible answers.
+ */
+export function breedIdentifierJsonLd(
+  breedCount: number,
+  faqs: { question: string; answer: string }[],
+): string {
+  const url = `${SITE_URL}/what-breed-is-my-dog`;
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebApplication',
+        '@id': `${url}#app`,
+        name: 'What Breed Is My Dog? Photo Breed Identifier',
+        url,
+        applicationCategory: 'LifestyleApplication',
+        operatingSystem: 'Any',
+        browserRequirements: 'Requires JavaScript',
+        description: `Upload a photo of a dog and see which of ${breedCount} breeds it most resembles, with lookalike breeds and links to each breed profile. Photos are not stored.`,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        publisher: organizationNode(),
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${url}#faq`,
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+        })),
+      },
+    ],
+  });
+}
+
 /** Generate JSON-LD for a breadcrumb trail */
 export function breadcrumbJsonLd(items: { name: string; url: string }[]): string {
   return JSON.stringify({

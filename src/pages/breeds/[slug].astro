@@ -4,6 +4,7 @@ import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
 import QuizPromo from '../../components/QuizPromo.astro';
+import BreedIdPromo from '../../components/BreedIdPromo.astro';
 import AuthorByline from '../../components/AuthorByline.astro';
 import Footer from '../../components/Footer.astro';
 import { getBreeds, getBreedBySlug, getComparisons, getMediaUrl, comparisonBreedIds, comparisonDate, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS, TRAIT_LABELS } from '../../lib/payload';
@@ -375,6 +376,17 @@ const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
                   })}
                 </div>
               </div>
+            )}
+
+            {/* The question a reader on a breed page is often really asking. */}
+            {breed.petType === 'dog' && (
+              <BreedIdPromo
+                variant="inline"
+                heading={`Does your dog look like ${/^[AEIOU]/i.test(breed.name) ? 'an' : 'a'} ${breed.name}?`}
+                subtitle="Upload a photo and we'll show which breeds your dog most resembles. Free, and photos aren't stored."
+                source="breed-profile"
+                class="reveal reveal-delay-3"
+              />
             )}
           </div>
         </div>

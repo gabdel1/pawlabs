@@ -88,7 +88,7 @@ export const CONTENT_DISCLAIMER =
  * Last substantive revision of the policy pages.
  * Update when the wording changes, not on every deploy.
  */
-export const POLICY_UPDATED = '2026-09-15';
+export const POLICY_UPDATED = '2026-09-17';
 
 export function formatPolicyDate(iso: string = POLICY_UPDATED): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {

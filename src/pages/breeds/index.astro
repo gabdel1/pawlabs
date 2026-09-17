@@ -4,6 +4,7 @@ import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
 import QuizPromo from '../../components/QuizPromo.astro';
+import BreedIdPromo from '../../components/BreedIdPromo.astro';
 import Footer from '../../components/Footer.astro';
 import { getBreeds, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, PET_TYPE_LABELS } from '../../lib/payload';
 import { breedsListJsonLd } from '../../lib/seo';
@@ -69,6 +70,15 @@ function traitTextColor(val: number): string {
 
       <div class="mb-8 sm:mb-10 reveal">
         <QuizPromo variant="strip" source="breeds-index" />
+      </div>
+
+      <div class="mb-8 sm:mb-10 reveal">
+        <BreedIdPromo
+          variant="banner"
+          heading="Not sure which breed your dog is?"
+          subtitle="Skip the scrolling. Upload a photo and we'll match your dog against every breed on this page."
+          source="breeds-index"
+        />
       </div>
 
       <div class="mb-8 sm:mb-10 reveal reveal-delay-1 flex xl:items-end xl:justify-between flex-col xl:flex-row gap-4 sm:gap-6">

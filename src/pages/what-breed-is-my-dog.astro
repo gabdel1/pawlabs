@@ -1,0 +1,870 @@
+---
+/**
+ * /what-breed-is-my-dog — photo breed identifier.
+ *
+ * Upload a photo, get the breeds the dog most resembles, each linking to its
+ * profile. The URL is the query people actually type.
+ *
+ * Privacy is designed in, not bolted on: the photo is resized in the browser
+ * (which also strips EXIF, including GPS), sent once to /api/breed-identify,
+ * and never stored. The share image is drawn on a canvas in the visitor's own
+ * browser, so their photo never has to leave it again to be shared.
+ */
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import QuizPromo from '../components/QuizPromo.astro';
+import { getBreeds, BREED_GROUP_LABELS, SIZE_LABELS } from '../lib/payload';
+import { breadcrumbJsonLd, breedIdentifierJsonLd } from '../lib/seo';
+import { ScanSearch, ImagePlus, ShieldCheck, Timer, PawPrint, Camera, Sun, Maximize, Dog } from 'lucide-astro';
+
+const breeds = (await getBreeds()).filter((b) => b.petType === 'dog');
+const breedCount = breeds.length;
+
+const faqs = [
+  {
+    question: 'How accurate is the dog breed identifier?',
+    answer: `It is a best guess from appearance, and it is most reliable on a clear photo of a purebred dog. In our own testing on clear photos of known breeds, the right breed was among the results about three times in four. Mixed breeds, puppies, unusual angles and breeds that closely resemble each other are harder, which is why it shows several likely breeds rather than a single answer.`,
+  },
+  {
+    question: "Can a photo tell me my dog's real breed mix?",
+    answer: `No. The percentages describe how strongly your dog's look points to each breed, not its ancestry. Two dogs with very different family trees can look alike, and a mix often looks nothing like either parent. If you need to know your dog's genetics, a canine DNA test is the only reliable way.`,
+  },
+  {
+    question: 'Is my photo stored?',
+    answer: `No. Your photo is resized in your browser, sent once to be analysed, and not saved anywhere afterwards. Resizing also strips the hidden metadata phones attach to photos, including location. The shareable result image is created on your own device.`,
+  },
+  {
+    question: 'What kind of photo works best?',
+    answer: `One dog, in good light, filling most of the frame, with the head and body both visible — a side-on standing shot is ideal. Avoid heavy filters, costumes, and photos where the dog is far away or partly hidden.`,
+  },
+  {
+    question: "Why isn't my dog's breed in the results?",
+    answer: `The identifier chooses from the ${breedCount} breeds we have profiled. If your dog belongs to a breed we do not cover yet, you will see the closest lookalikes instead, usually with lower confidence.`,
+  },
+  {
+    question: 'Does it work for cats?',
+    answer: `Not yet. It identifies dogs only. If you upload a photo without a dog in it, it will tell you rather than guess.`,
+  },
+  {
+    question: 'Is it free?',
+    answer: `Yes, with no signup. To keep it that way there is a limit of a few photos per hour for each person.`,
+  },
+];
+
+const pageData = {
+  apiUrl: '/api/breed-identify',
+  groupLabels: BREED_GROUP_LABELS,
+  sizeLabels: SIZE_LABELS,
+  shareUrl: 'https://pawlabs.org/what-breed-is-my-dog',
+};
+const pageDataJson = JSON.stringify(pageData).replace(/</g, '\\u003c');
+---
+
+<Layout
+  title="What Breed Is My Dog? Free Photo Breed Identifier | PawLabs"
+  description={`Upload a photo and find out what breed your dog looks like. Free AI breed identifier across ${breedCount} breeds, with lookalike breeds, mix estimates and full profiles. Photos are not stored.`}
+  ogTitle="What breed is my dog? Upload a photo and find out"
+  canonicalUrl="/what-breed-is-my-dog"
+  ogType="website"
+  jsonLd={[
+    breedIdentifierJsonLd(breedCount, faqs),
+    breadcrumbJsonLd([
+      { name: 'Home', url: '/' },
+      { name: 'What breed is my dog?', url: '/what-breed-is-my-dog' },
+    ]),
+  ]}
+>
+  <Nav activePage="identify" />
+
+  <main class="bid-main noise">
+    <section class="bid-hero">
+      <div class="bid-intro">
+        <div class="bid-badge">
+          <ScanSearch class="w-4 h-4" />
+          <span>Free AI photo breed identifier</span>
+        </div>
+        <h1 class="bid-title">
+          What breed is
+          <span class="bid-title-accent">my dog?</span>
+        </h1>
+        <p class="bid-lede">
+          Upload a photo and we'll tell you which breeds your dog looks like, how confident we are,
+          and what gave it away — checked against all {breedCount} breeds we've profiled.
+        </p>
+      </div>
+
+      <!-- The tool. Its states are toggled by the script: idle → working → result | error. -->
+      <div class="bid-tool" id="bid-tool" data-state="idle">
+
+        <!-- Idle: drop zone -->
+        <div class="bid-stage bid-stage-idle">
+          <label class="bid-drop" id="bid-drop" for="bid-file">
+            <input id="bid-file" type="file" accept="image/*" class="bid-file-input" aria-label="Upload a photo of your dog" />
+            <span class="bid-drop-icon"><ImagePlus class="w-8 h-8" /></span>
+            <span class="bid-drop-title">Upload a photo of your dog</span>
+            <span class="bid-drop-sub">Tap to choose, drag it here, or paste it</span>
+            <span class="bid-cta">Choose a photo</span>
+          </label>
+          <ul class="bid-assurances">
+            <li><ShieldCheck class="w-4 h-4" /> Your photo is never stored</li>
+            <li><Timer class="w-4 h-4" /> Results in a few seconds</li>
+            <li><PawPrint class="w-4 h-4" /> {breedCount} breeds</li>
+          </ul>
+        </div>
+
+        <!-- Working: preview with a scan animation -->
+        <div class="bid-stage bid-stage-working" aria-live="polite">
+          <div class="bid-scan">
+            <img id="bid-preview" alt="Your dog" />
+            <div class="bid-scan-line" aria-hidden="true"></div>
+          </div>
+          <p class="bid-status" id="bid-status">Looking at your photo…</p>
+        </div>
+
+        <!-- Error -->
+        <div class="bid-stage bid-stage-error" role="alert">
+          <div class="bid-error-emoji" aria-hidden="true" id="bid-error-emoji">🐾</div>
+          <p class="bid-error-title" id="bid-error-title">That didn't work</p>
+          <p class="bid-error-text" id="bid-error-text"></p>
+          <button type="button" class="bid-cta bid-retry" data-bid-reset>Try another photo</button>
+        </div>
+
+        <!-- Result: rendered by the script -->
+        <div class="bid-stage bid-stage-result" id="bid-result" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Photo tips -->
+    <section class="bid-section">
+      <h2 class="bid-h2">Get the best result</h2>
+      <div class="bid-tips">
+        <div class="bid-tip">
+          <span class="bid-tip-icon"><Dog class="w-5 h-5" /></span>
+          <h3>One dog, whole body</h3>
+          <p>Head, legs and tail all in the frame. A side-on standing shot tells us the most.</p>
+        </div>
+        <div class="bid-tip">
+          <span class="bid-tip-icon"><Sun class="w-5 h-5" /></span>
+          <h3>Good light, no filters</h3>
+          <p>Coat colour and texture are big clues, and filters and dim rooms hide them.</p>
+        </div>
+        <div class="bid-tip">
+          <span class="bid-tip-icon"><Maximize class="w-5 h-5" /></span>
+          <h3>Fill the frame</h3>
+          <p>A dog in the distance is a dog we can't read. Get close enough to see the ears and muzzle.</p>
+        </div>
+        <div class="bid-tip">
+          <span class="bid-tip-icon"><Camera class="w-5 h-5" /></span>
+          <h3>Adult dogs work best</h3>
+          <p>Puppies haven't grown into their breed yet, so expect a softer, less certain answer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Honesty -->
+    <section class="bid-section">
+      <div class="bid-honest">
+        <div>
+          <h2 class="bid-h2">A photo is not a DNA test</h2>
+          <p>
+            We match what your dog <em>looks like</em>. That's genuinely useful — it tells you which breed
+            profiles to read for grooming, exercise and temperament — but appearance and ancestry are
+            different things. A Labrador mix can look like a pointer; two littermates can look like
+            different breeds. When the result says "mix", read it as "looks like a mix of", and if you
+            need your dog's genetics, a canine DNA test is the only reliable way.
+          </p>
+        </div>
+        <ul class="bid-how">
+          <li><strong>1</strong><span>Your browser shrinks the photo and strips its metadata, including location.</span></li>
+          <li><strong>2</strong><span>An AI vision model compares your dog's coat, ears, muzzle and build with the {breedCount} breeds we cover.</span></li>
+          <li><strong>3</strong><span>You get the closest breeds, what pointed to each, and a link to every profile. The photo is then discarded.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="bid-section" id="faq">
+      <h2 class="bid-h2">Questions</h2>
+      <div class="bid-faq">
+        {faqs.map((faq) => (
+          <details class="bid-faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <section class="bid-section bid-section-last">
+      <QuizPromo
+        variant="hero"
+        heading="Thinking about getting a dog, not naming one?"
+        subtitle="Our Breed Match quiz reads your home, your week and your household against every breed we've profiled, and tells you which ones actually fit."
+        source="breed-identifier"
+      />
+    </section>
+  </main>
+
+  <Footer />
+
+  <script type="application/json" id="bid-data" set:html={pageDataJson} />
+
+  <script>
+    type Card = {
+      slug: string;
+      name: string;
+      imageUrl: string | null;
+      breedGroup: string | null;
+      size: string | null;
+      weightMin: number | null;
+      weightMax: number | null;
+      lifeExpectancyMin: number | null;
+      lifeExpectancyMax: number | null;
+      shortDescription: string | null;
+      percent: number;
+      evidence: string;
+    };
+    type Result = {
+      status: 'ok' | 'no_dog' | 'multiple_dogs' | 'unclear';
+      confidence: 'high' | 'medium' | 'low';
+      likelyMixed: boolean;
+      summary: string;
+      visibleTraits: string[];
+      matches: Card[];
+    };
+
+    const DATA = JSON.parse(document.getElementById('bid-data')!.textContent || '{}') as {
+      apiUrl: string;
+      groupLabels: Record<string, string>;
+      sizeLabels: Record<string, string>;
+      shareUrl: string;
+    };
+
+    const tool = document.getElementById('bid-tool')!;
+    const fileInput = document.getElementById('bid-file') as HTMLInputElement;
+    const drop = document.getElementById('bid-drop')!;
+    const preview = document.getElementById('bid-preview') as HTMLImageElement;
+    const statusEl = document.getElementById('bid-status')!;
+    const resultEl = document.getElementById('bid-result')!;
+
+    const MAX_EDGE = 1024;
+    let busy = false;
+    let photoDataUrl = '';
+    let statusTimer: number | undefined;
+
+    const track = (event: string, params: Record<string, unknown> = {}) => {
+      (window as any).gtag?.('event', event, params);
+    };
+
+    function setState(state: 'idle' | 'working' | 'result' | 'error') {
+      tool.dataset.state = state;
+      if (state !== 'working') window.clearInterval(statusTimer);
+    }
+
+    function el<K extends keyof HTMLElementTagNameMap>(
+      tag: K,
+      className?: string,
+      text?: string,
+    ): HTMLElementTagNameMap[K] {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      // textContent only — the summary and evidence are model output and are
+      // never trusted as markup.
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function showError(title: string, text: string, emoji = '🐾') {
+      document.getElementById('bid-error-title')!.textContent = title;
+      document.getElementById('bid-error-text')!.textContent = text;
+      document.getElementById('bid-error-emoji')!.textContent = emoji;
+      setState('error');
+    }
+
+    /**
+     * Decode and shrink in the browser. Re-encoding through a canvas also drops
+     * EXIF — including GPS — so the location a phone embeds never leaves the
+     * device. createImageBitmap applies EXIF orientation, so portraits stay upright.
+     */
+    async function prepare(file: File): Promise<string> {
+      let source: ImageBitmap | HTMLImageElement;
+      try {
+        source = await createImageBitmap(file);
+      } catch {
+        source = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+          img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+          img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode')); };
+          img.src = url;
+        });
+      }
+      const w = source.width, h = source.height;
+      const scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+      if ('close' in source) source.close();
+      return canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    const STATUS_LINES = [
+      'Looking at your photo…',
+      'Checking the coat and colour…',
+      'Measuring up ears and muzzle…',
+      `Comparing against every breed…`,
+      'Weighing up the lookalikes…',
+      'Nearly there…',
+    ];
+
+    async function identify(file: File) {
+      if (busy) return;
+      if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) {
+        showError("That isn't a photo", 'Please choose a JPG, PNG or WebP image of your dog.');
+        return;
+      }
+      busy = true;
+      track('breed_id_upload');
+
+      try {
+        photoDataUrl = await prepare(file);
+      } catch {
+        busy = false;
+        track('breed_id_error', { reason: 'decode' });
+        showError(
+          "We couldn't open that photo",
+          /\.(heic|heif)$/i.test(file.name) || /hei[cf]/i.test(file.type)
+            ? 'This browser cannot read HEIC photos. Try again from your phone, or save the photo as a JPG first.'
+            : 'The file may be damaged or in a format this browser cannot read. Try a JPG or PNG.',
+        );
+        return;
+      }
+
+      preview.src = photoDataUrl;
+      let line = 0;
+      statusEl.textContent = STATUS_LINES[0];
+      setState('working');
+      statusTimer = window.setInterval(() => {
+        line = Math.min(line + 1, STATUS_LINES.length - 1);
+        statusEl.textContent = STATUS_LINES[line];
+      }, 1300);
+
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 60000);
+
+      try {
+        const res = await fetch(DATA.apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: photoDataUrl }),
+          signal: controller.signal,
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          track('breed_id_error', { reason: `http_${res.status}` });
+          showError(
+            res.status === 429 ? 'Give it a rest for a bit' : "That didn't work",
+            body.error || 'Something went wrong. Please try again in a moment.',
+            res.status === 429 ? '😴' : '🐾',
+          );
+          return;
+        }
+        render(body as Result);
+      } catch (e) {
+        track('breed_id_error', { reason: (e as Error).name === 'AbortError' ? 'timeout' : 'network' });
+        showError("That didn't work", 'The connection dropped or took too long. Please try again.');
+      } finally {
+        window.clearTimeout(timeout);
+        busy = false;
+      }
+    }
+
+    function headline(r: Result): string {
+      const [a, b] = r.matches;
+      if (r.likelyMixed && a && b) return `Looks like a ${a.name} × ${b.name} mix`;
+      if (a && a.percent >= 70) return `Most likely a ${a.name}`;
+      return `Closest match: ${a.name}`;
+    }
+
+    function confidenceCopy(r: Result): string {
+      if (r.confidence === 'high') return 'High confidence';
+      if (r.confidence === 'medium') return 'Medium confidence';
+      return 'Low confidence — treat as a rough guess';
+    }
+
+    function meta(c: Card): string {
+      const parts: string[] = [];
+      if (c.breedGroup) parts.push(`${DATA.groupLabels[c.breedGroup] ?? c.breedGroup} group`);
+      if (c.weightMin && c.weightMax) parts.push(`${c.weightMin}-${c.weightMax} lb`);
+      if (c.lifeExpectancyMin && c.lifeExpectancyMax) parts.push(`${c.lifeExpectancyMin}-${c.lifeExpectancyMax} yrs`);
+      return parts.join(' · ');
+    }
+
+    function render(r: Result) {
+      resultEl.replaceChildren();
+
+      if (r.status === 'no_dog' || r.status === 'unclear' || !r.matches.length) {
+        track('breed_id_result', { status: r.status });
+        const noDog = r.status === 'no_dog';
+        showError(
+          noDog ? "We couldn't find a dog" : "We couldn't get a clear look",
+          noDog
+            ? "There doesn't seem to be a dog in that photo. Try one where your dog is front and centre."
+            : r.summary || 'The dog is too small, blurred or hidden to judge. Try a closer, brighter photo.',
+          noDog ? '🔍' : '📷',
+        );
+        return;
+      }
+
+      const top = r.matches[0];
+      track('breed_id_result', {
+        status: r.status,
+        top_breed: top.slug,
+        top_percent: top.percent,
+        mixed: r.likelyMixed,
+        confidence: r.confidence,
+      });
+
+      // Header: photo + verdict
+      const head = el('div', 'bid-res-head');
+      const photo = el('img', 'bid-res-photo');
+      photo.src = photoDataUrl;
+      photo.alt = 'Your dog';
+      head.append(photo);
+
+      const verdict = el('div', 'bid-res-verdict');
+      verdict.append(
+        el('p', 'bid-res-kicker', 'Your dog looks like'),
+        el('h2', 'bid-res-title', headline(r)),
+        el('span', `bid-conf bid-conf-${r.confidence}`, confidenceCopy(r)),
+      );
+      if (r.summary) verdict.append(el('p', 'bid-res-summary', r.summary));
+      if (r.status === 'multiple_dogs') {
+        verdict.append(el('p', 'bid-res-note', 'We spotted more than one dog, so this describes the most prominent one.'));
+      }
+      if (r.visibleTraits.length) {
+        const chips = el('ul', 'bid-chips');
+        for (const t of r.visibleTraits) chips.append(el('li', undefined, t));
+        verdict.append(chips);
+      }
+      head.append(verdict);
+      resultEl.append(head);
+
+      // Breed matches
+      const list = el('ol', 'bid-matches');
+      r.matches.forEach((c, i) => {
+        const item = el('li', 'bid-match');
+        const link = el('a', 'bid-match-link');
+        link.href = `/breeds/${c.slug}`;
+        link.addEventListener('click', () => track('breed_id_profile_click', { breed: c.slug, rank: i + 1 }));
+
+        const thumb = el('div', 'bid-match-thumb');
+        if (c.imageUrl) {
+          const img = el('img');
+          img.src = c.imageUrl;
+          img.alt = c.name;
+          img.loading = 'lazy';
+          thumb.append(img);
+        }
+
+        const body = el('div', 'bid-match-body');
+        const row = el('div', 'bid-match-row');
+        row.append(el('span', 'bid-match-name', c.name), el('span', 'bid-match-pct', `${c.percent}%`));
+        const bar = el('div', 'bid-bar');
+        const fill = el('div', 'bid-bar-fill');
+        fill.style.setProperty('--w', `${c.percent}%`);
+        fill.style.animationDelay = `${120 + i * 110}ms`;
+        bar.append(fill);
+        body.append(row, bar);
+        if (c.evidence) body.append(el('p', 'bid-match-evidence', c.evidence));
+        const m = meta(c);
+        if (m) body.append(el('p', 'bid-match-meta', m));
+        body.append(el('span', 'bid-match-more', `Read the ${c.name} profile →`));
+
+        link.append(thumb, body);
+        item.append(link);
+        list.append(item);
+      });
+
+      const matchesWrap = el('div', 'bid-res-matches');
+      matchesWrap.append(
+        el('h3', 'bid-res-h3', r.matches.length > 1 ? 'Breeds your dog resembles' : 'Breed match'),
+        list,
+        el(
+          'p',
+          'bid-disclaimer',
+          'Percentages show how strongly the photo points to each breed. They are a guess from appearance, not a DNA result.',
+        ),
+      );
+      resultEl.append(matchesWrap);
+
+      // Actions
+      const actions = el('div', 'bid-actions');
+      const share = el('button', 'bid-cta', 'Share result');
+      share.type = 'button';
+      share.addEventListener('click', () => shareResult(r, share));
+      const save = el('button', 'bid-btn-ghost', 'Save image');
+      save.type = 'button';
+      save.addEventListener('click', () => saveImage(r));
+      const again = el('button', 'bid-btn-ghost', 'Try another photo');
+      again.type = 'button';
+      again.dataset.bidReset = '';
+      actions.append(share, save, again);
+      resultEl.append(actions);
+
+      setState('result');
+      tool.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ── Share card, drawn locally ─────────────────────────── */
+
+    function coverDraw(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, w: number, h: number) {
+      const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+      const sw = w / s, sh = h / s;
+      ctx.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, x, y, w, h);
+    }
+
+    function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size: number, weight = 800) {
+      let s = size;
+      do {
+        ctx.font = `${weight} ${s}px Outfit, system-ui, sans-serif`;
+        if (ctx.measureText(text).width <= maxWidth) break;
+        s -= 2;
+      } while (s > 24);
+      return s;
+    }
+
+    async function buildCard(r: Result): Promise<Blob> {
+      const W = 1080, H = 1350, PAD = 72;
+      const shown = r.matches.slice(0, 3);
+      // The photo takes whatever the text panel does not need, so a one- or
+      // two-breed result is not left with an empty band above the footer.
+      const PANEL_H = 190 + shown.length * 96 + 96;
+      const PHOTO_H = H - PANEL_H;
+      await Promise.all([
+        document.fonts.load('800 64px Outfit'),
+        document.fonts.load('600 32px "Plus Jakarta Sans"'),
+      ]).catch(() => {});
+
+      const img = new Image();
+      img.src = photoDataUrl;
+      await img.decode();
+
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.fillStyle = '#0A0F1A';
+      ctx.fillRect(0, 0, W, H);
+      coverDraw(ctx, img, 0, 0, W, PHOTO_H);
+
+      const fade = ctx.createLinearGradient(0, PHOTO_H - 220, 0, PHOTO_H);
+      fade.addColorStop(0, 'rgba(10,15,26,0)');
+      fade.addColorStop(1, 'rgba(10,15,26,1)');
+      ctx.fillStyle = fade;
+      ctx.fillRect(0, PHOTO_H - 220, W, 220);
+
+      ctx.fillStyle = '#62D7AA';
+      ctx.font = '700 30px "Plus Jakarta Sans", system-ui, sans-serif';
+      ctx.fillText('MY DOG LOOKS LIKE', PAD, PHOTO_H + 40);
+
+      const title = headline(r).replace(/^Most likely an? |^Closest match: |^Looks like an? /, '');
+      ctx.fillStyle = '#FFFFFF';
+      fitText(ctx, title, W - PAD * 2, 76);
+      ctx.fillText(title, PAD, PHOTO_H + 124);
+
+      let y = PHOTO_H + 190;
+      for (const c of shown) {
+        ctx.font = '600 32px "Plus Jakarta Sans", system-ui, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(c.name, PAD, y);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#93EAC7';
+        ctx.fillText(`${c.percent}%`, W - PAD, y);
+        ctx.textAlign = 'left';
+        roundRect(ctx, PAD, y + 18, W - PAD * 2, 16, 8);
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fill();
+        roundRect(ctx, PAD, y + 18, Math.max(16, ((W - PAD * 2) * c.percent) / 100), 16, 8);
+        ctx.fillStyle = '#3ABF8E';
+        ctx.fill();
+        y += 96;
+      }
+
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font = '600 28px "Plus Jakarta Sans", system-ui, sans-serif';
+      ctx.fillText('What breed is your dog? pawlabs.org/what-breed-is-my-dog', PAD, H - 56);
+
+      return new Promise((resolve, reject) =>
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob'))), 'image/jpeg', 0.9),
+      );
+    }
+
+    function shareText(r: Result) {
+      const top = r.matches[0];
+      return r.likelyMixed && r.matches[1]
+        ? `My dog looks like a ${top.name} × ${r.matches[1].name} mix. What breed is yours?`
+        : `My dog looks like a ${top.name} (${top.percent}%). What breed is yours?`;
+    }
+
+    async function shareResult(r: Result, button: HTMLButtonElement) {
+      const original = button.textContent;
+      try {
+        const blob = await buildCard(r);
+        const file = new File([blob], 'my-dog-breed.jpg', { type: 'image/jpeg' });
+        const payload = { files: [file], title: 'What breed is my dog?', text: shareText(r), url: DATA.shareUrl };
+
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share(payload);
+          track('breed_id_share', { method: 'native_image' });
+          return;
+        }
+        if (navigator.share) {
+          await navigator.share({ title: payload.title, text: payload.text, url: payload.url });
+          track('breed_id_share', { method: 'native_link' });
+          return;
+        }
+        await navigator.clipboard.writeText(`${shareText(r)} ${DATA.shareUrl}`);
+        button.textContent = 'Copied to clipboard';
+        track('breed_id_share', { method: 'clipboard' });
+        window.setTimeout(() => (button.textContent = original), 2200);
+      } catch (e) {
+        // A dismissed share sheet throws AbortError — that is not a failure.
+        if ((e as Error).name !== 'AbortError') {
+          button.textContent = "Couldn't share — try Save image";
+          window.setTimeout(() => (button.textContent = original), 2600);
+        }
+      }
+    }
+
+    async function saveImage(r: Result) {
+      const blob = await buildCard(r);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `my-dog-looks-like-a-${r.matches[0].slug}.jpg`;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 5000);
+      track('breed_id_share', { method: 'download' });
+    }
+
+    /* ── Wiring ────────────────────────────────────────────── */
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (file) identify(file);
+      fileInput.value = '';
+    });
+
+    ['dragenter', 'dragover'].forEach((type) =>
+      drop.addEventListener(type, (e) => {
+        e.preventDefault();
+        drop.classList.add('is-dragging');
+      }),
+    );
+    ['dragleave', 'drop'].forEach((type) =>
+      drop.addEventListener(type, () => drop.classList.remove('is-dragging')),
+    );
+    drop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = (e as DragEvent).dataTransfer?.files?.[0];
+      if (file) identify(file);
+    });
+
+    window.addEventListener('paste', (e) => {
+      if (tool.dataset.state === 'working') return;
+      const file = [...(e.clipboardData?.files ?? [])].find((f) => f.type.startsWith('image/'));
+      if (file) {
+        e.preventDefault();
+        identify(file);
+      }
+    });
+
+    tool.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-bid-reset]')) {
+        resultEl.replaceChildren();
+        photoDataUrl = '';
+        setState('idle');
+        fileInput.click();
+      }
+    });
+  </script>
+
+  <style is:global>
+    .bid-main { background: var(--color-surface, #F7F9F8); padding-top: 7.5rem; }
+    .bid-hero { max-width: 64rem; margin: 0 auto; padding: 1.5rem 1rem 3.5rem; }
+    .bid-intro { text-align: center; max-width: 42rem; margin: 0 auto 2.25rem; }
+    .bid-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.95rem; border-radius: 999px;
+      background: var(--color-brand-100); color: var(--color-brand-800);
+      font-size: 0.8rem; font-weight: 700; margin-bottom: 1.1rem;
+    }
+    .bid-title {
+      font-family: var(--font-display); font-weight: 800; letter-spacing: -0.03em;
+      font-size: clamp(2.5rem, 7vw, 4.4rem); line-height: 1; color: var(--color-ink); margin-bottom: 1.1rem;
+    }
+    .bid-title-accent { display: block; color: var(--color-brand-600); }
+    .bid-lede { color: var(--color-ink-muted); font-size: clamp(1rem, 2.2vw, 1.15rem); line-height: 1.6; }
+
+    .bid-tool {
+      background: #fff; border: 1px solid rgba(10, 15, 26, 0.07); border-radius: 2rem;
+      box-shadow: 0 30px 60px -30px rgba(10, 15, 26, 0.25);
+      padding: clamp(1rem, 3vw, 2rem); max-width: 52rem; margin: 0 auto;
+    }
+    .bid-stage { display: none; }
+    .bid-tool[data-state='idle'] .bid-stage-idle,
+    .bid-tool[data-state='working'] .bid-stage-working,
+    .bid-tool[data-state='error'] .bid-stage-error,
+    .bid-tool[data-state='result'] .bid-stage-result { display: block; animation: bid-in 0.35s ease both; }
+    @keyframes bid-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .bid-drop {
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.55rem; padding: clamp(2.5rem, 8vw, 4.5rem) 1.25rem; text-align: center; cursor: pointer;
+      border: 2px dashed var(--color-brand-300); border-radius: 1.5rem; background: var(--color-brand-50);
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+    .bid-drop:hover, .bid-drop.is-dragging { border-color: var(--color-brand-500); background: var(--color-brand-100); }
+    .bid-drop.is-dragging { transform: scale(1.01); }
+    .bid-drop:focus-within { outline: 3px solid var(--color-brand-400); outline-offset: 3px; }
+    .bid-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .bid-drop-icon {
+      display: grid; place-items: center; width: 4.25rem; height: 4.25rem; border-radius: 1.25rem;
+      background: #fff; color: var(--color-brand-600); box-shadow: 0 10px 24px -12px rgba(38, 153, 111, 0.5);
+      margin-bottom: 0.4rem;
+    }
+    .bid-drop-title { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; color: var(--color-ink); }
+    .bid-drop-sub { color: var(--color-ink-muted); font-size: 0.92rem; margin-bottom: 0.9rem; }
+
+    .bid-cta {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+      padding: 0.95rem 2.1rem; border: none; border-radius: 999px; cursor: pointer;
+      background: var(--color-ink); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 1rem;
+      box-shadow: 0 18px 36px -16px rgba(10, 15, 26, 0.55);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    }
+    .bid-cta:hover { transform: translateY(-2px); box-shadow: 0 24px 44px -16px rgba(10, 15, 26, 0.5); }
+    .bid-btn-ghost {
+      padding: 0.95rem 1.5rem; border-radius: 999px; cursor: pointer; background: transparent;
+      border: 1.5px solid rgba(10, 15, 26, 0.15); color: var(--color-ink);
+      font-family: var(--font-display); font-weight: 700; font-size: 1rem; transition: border-color 0.2s, background 0.2s;
+    }
+    .bid-btn-ghost:hover { border-color: var(--color-ink); background: rgba(10, 15, 26, 0.03); }
+
+    .bid-assurances {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.4rem; margin-top: 1.1rem;
+      color: var(--color-ink-muted); font-size: 0.85rem; font-weight: 600;
+    }
+    .bid-assurances li { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .bid-assurances svg { color: var(--color-brand-600); }
+
+    .bid-scan {
+      position: relative; max-width: 26rem; margin: 0.5rem auto 1.25rem; border-radius: 1.5rem; overflow: hidden;
+      box-shadow: 0 20px 40px -20px rgba(10, 15, 26, 0.4);
+    }
+    .bid-scan img { display: block; width: 100%; max-height: 26rem; object-fit: cover; }
+    .bid-scan::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(58, 191, 142, 0.08), rgba(10, 15, 26, 0.12));
+    }
+    .bid-scan-line {
+      position: absolute; left: 0; right: 0; height: 30%; z-index: 1;
+      background: linear-gradient(180deg, transparent, rgba(98, 215, 170, 0.45) 85%, #62D7AA);
+      border-bottom: 2px solid #93EAC7; animation: bid-scan 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+    }
+    @keyframes bid-scan { from { top: -30%; } to { top: 100%; } }
+    .bid-status { text-align: center; font-family: var(--font-display); font-weight: 700; color: var(--color-ink); min-height: 1.5em; }
+
+    .bid-stage-error { text-align: center; padding: 2.5rem 1rem; }
+    .bid-error-emoji { font-size: 2.75rem; margin-bottom: 0.5rem; }
+    .bid-error-title { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--color-ink); }
+    .bid-error-text { color: var(--color-ink-muted); max-width: 28rem; margin: 0.5rem auto 1.5rem; line-height: 1.6; }
+
+    .bid-res-head { display: grid; gap: 1.5rem; align-items: center; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .bid-res-head { grid-template-columns: 15rem 1fr; } }
+    .bid-res-photo { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 1.5rem; box-shadow: 0 20px 40px -22px rgba(10, 15, 26, 0.45); }
+    .bid-res-kicker { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-brand-700); }
+    .bid-res-title { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: var(--color-ink); margin: 0.3rem 0 0.7rem; }
+    .bid-conf { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .bid-conf-high { background: #E6FFF1; color: #0F7A48; }
+    .bid-conf-medium { background: #F0FBFF; color: #1A758D; }
+    .bid-conf-low { background: #FFF7E9; color: #9C6611; }
+    .bid-res-summary { margin-top: 0.9rem; color: var(--color-ink-light); line-height: 1.6; }
+    .bid-res-note { margin-top: 0.6rem; font-size: 0.88rem; color: var(--color-ink-muted); }
+    .bid-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+    .bid-chips li { padding: 0.3rem 0.7rem; border-radius: 999px; background: rgba(10, 15, 26, 0.05); font-size: 0.8rem; font-weight: 600; color: var(--color-ink-light); }
+
+    .bid-res-matches { margin-top: 2rem; }
+    .bid-res-h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--color-ink); margin-bottom: 0.9rem; }
+    .bid-matches { display: grid; gap: 0.75rem; }
+    .bid-match-link {
+      display: grid; grid-template-columns: 4.5rem 1fr; gap: 1rem; align-items: center; padding: 0.85rem;
+      border-radius: 1.25rem; border: 1px solid rgba(10, 15, 26, 0.07); color: inherit; text-decoration: none;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .bid-match-link:hover { border-color: var(--color-brand-300); box-shadow: 0 14px 30px -20px rgba(10, 15, 26, 0.35); transform: translateY(-1px); }
+    .bid-match-thumb { width: 4.5rem; height: 4.5rem; border-radius: 1rem; overflow: hidden; background: var(--color-brand-50); }
+    .bid-match-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .bid-match-row { display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
+    .bid-match-name { font-family: var(--font-display); font-weight: 800; color: var(--color-ink); font-size: 1.05rem; }
+    .bid-match-pct { font-family: var(--font-display); font-weight: 800; color: var(--color-brand-700); }
+    .bid-bar { height: 0.5rem; border-radius: 999px; background: rgba(10, 15, 26, 0.07); margin: 0.4rem 0 0.5rem; overflow: hidden; }
+    .bid-bar-fill { height: 100%; width: var(--w); border-radius: inherit; background: linear-gradient(90deg, var(--color-brand-500), var(--color-brand-400)); transform-origin: left; animation: bid-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes bid-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .bid-match-evidence { font-size: 0.88rem; color: var(--color-ink-light); }
+    .bid-match-meta { font-size: 0.78rem; color: var(--color-ink-muted); margin-top: 0.2rem; }
+    .bid-match-more { display: inline-block; margin-top: 0.35rem; font-size: 0.82rem; font-weight: 700; color: var(--color-brand-700); }
+    .bid-disclaimer { margin-top: 0.9rem; font-size: 0.8rem; color: var(--color-ink-muted); }
+
+    .bid-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.75rem; }
+    @media (max-width: 480px) { .bid-actions > * { flex: 1 1 100%; } }
+
+    .bid-section { max-width: 64rem; margin: 0 auto; padding: 2.5rem 1rem; }
+    .bid-section-last { padding-bottom: 5rem; }
+    .bid-h2 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; font-size: clamp(1.6rem, 3.5vw, 2.1rem); color: var(--color-ink); margin-bottom: 1.25rem; }
+    .bid-tips { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+    .bid-tip { background: #fff; border-radius: 1.5rem; padding: 1.35rem; border: 1px solid rgba(10, 15, 26, 0.06); }
+    .bid-tip-icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 0.8rem; background: var(--color-brand-100); color: var(--color-brand-700); margin-bottom: 0.8rem; }
+    .bid-tip h3 { font-family: var(--font-display); font-weight: 800; color: var(--color-ink); margin-bottom: 0.3rem; }
+    .bid-tip p { font-size: 0.9rem; color: var(--color-ink-muted); line-height: 1.55; }
+
+    .bid-honest { display: grid; gap: 2rem; background: var(--color-ink); color: rgba(255, 255, 255, 0.78); border-radius: 2rem; padding: clamp(1.5rem, 4vw, 3rem); }
+    @media (min-width: 860px) { .bid-honest { grid-template-columns: 1.2fr 1fr; } }
+    .bid-honest .bid-h2 { color: #fff; }
+    .bid-honest p { line-height: 1.7; }
+    .bid-how { display: grid; gap: 1rem; align-content: center; }
+    .bid-how li { display: grid; grid-template-columns: 2.25rem 1fr; gap: 0.85rem; align-items: start; }
+    .bid-how strong { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 999px; background: var(--color-brand-500); color: var(--color-ink); font-family: var(--font-display); }
+
+    .bid-faq { display: grid; gap: 0.6rem; }
+    .bid-faq-item { background: #fff; border-radius: 1.25rem; border: 1px solid rgba(10, 15, 26, 0.06); padding: 1.05rem 1.3rem; }
+    .bid-faq-item summary { cursor: pointer; font-family: var(--font-display); font-weight: 700; color: var(--color-ink); list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+    .bid-faq-item summary::-webkit-details-marker { display: none; }
+    .bid-faq-item summary::after { content: '+'; font-size: 1.3rem; line-height: 1; color: var(--color-brand-600); transition: transform 0.2s; }
+    .bid-faq-item[open] summary::after { transform: rotate(45deg); }
+    .bid-faq-item p { margin-top: 0.7rem; color: var(--color-ink-muted); line-height: 1.65; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bid-scan-line, .bid-bar-fill, .bid-tool .bid-stage { animation: none !important; }
+    }
+  </style>
+</Layout>

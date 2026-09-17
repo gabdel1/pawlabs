@@ -1,0 +1,74 @@
+---
+/**
+ * Call-to-action for the photo breed identifier.
+ *
+ * Variants:
+ *  - "banner" — full-width card for the homepage and index pages
+ *  - "inline" — compact card for breed profile sidebars
+ *
+ * Plain anchors, so every placement is also a crawlable internal link to the
+ * tool — which is the other half of why these exist.
+ */
+import { ScanSearch, ArrowRight, ShieldCheck } from 'lucide-astro';
+
+interface Props {
+  variant?: 'banner' | 'inline';
+  heading?: string;
+  subtitle?: string;
+  /** Appended to the link so we can see which placement converts. */
+  source?: string;
+  class?: string;
+}
+
+const {
+  variant = 'banner',
+  heading = 'What breed is your dog?',
+  subtitle = 'Upload a photo and see which breeds your dog looks like, what gave it away, and how sure we are. Free, and your photo is never stored.',
+  source = '',
+  class: className = '',
+} = Astro.props;
+
+const href = source ? `/what-breed-is-my-dog?from=${encodeURIComponent(source)}` : '/what-breed-is-my-dog';
+---
+
+{variant === 'banner' ? (
+  <a
+    href={href}
+    class:list={[
+      'group relative flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 rounded-3xl p-6 sm:p-9',
+      'bg-brand-50 border border-brand-200 hover:border-brand-400 transition-colors overflow-hidden',
+      className,
+    ]}
+  >
+    <span class="shrink-0 grid place-items-center w-16 h-16 rounded-2xl bg-white text-brand-600 shadow-[0_12px_28px_-14px_rgba(38,153,111,0.6)]">
+      <ScanSearch class="w-8 h-8" />
+    </span>
+    <span class="flex-1 min-w-0">
+      <span class="block font-display font-extrabold text-ink text-2xl sm:text-3xl tracking-tight mb-1.5">{heading}</span>
+      <span class="block text-ink-muted text-sm sm:text-base leading-relaxed max-w-2xl">{subtitle}</span>
+      <span class="mt-2.5 inline-flex items-center gap-1.5 text-xs font-bold text-brand-800">
+        <ShieldCheck class="w-3.5 h-3.5" /> Photos are not stored
+      </span>
+    </span>
+    <span class="shrink-0 inline-flex items-center justify-center gap-2 rounded-full bg-ink text-white font-display font-bold px-6 py-3.5 transition-transform group-hover:-translate-y-0.5">
+      Identify my dog <ArrowRight class="w-4 h-4" />
+    </span>
+  </a>
+) : (
+  <a
+    href={href}
+    class:list={[
+      'group block glass-card rounded-2xl p-5 border border-brand-200 hover:border-brand-400 transition-colors',
+      className,
+    ]}
+  >
+    <span class="flex items-center gap-2.5 mb-2">
+      <span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-100 text-brand-700"><ScanSearch class="w-[18px] h-[18px]" /></span>
+      <span class="font-display font-bold text-ink">{heading}</span>
+    </span>
+    <span class="block text-sm text-ink-muted leading-relaxed mb-3">{subtitle}</span>
+    <span class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700">
+      Upload a photo <ArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+    </span>
+  </a>
+)}

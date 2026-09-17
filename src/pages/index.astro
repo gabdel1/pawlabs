@@ -4,6 +4,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import NewsletterSignup from '../components/NewsletterSignup.astro';
 import QuizPromo from '../components/QuizPromo.astro';
+import BreedIdPromo from '../components/BreedIdPromo.astro';
 import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS } from '../lib/payload';
 import type { Media } from '../lib/payload';
 import { websiteJsonLd, organizationJsonLd } from '../lib/seo';
@@ -168,6 +169,7 @@ const methodology = [
   <section class="bg-white pt-14 sm:pt-20 pb-4 sm:pb-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <QuizPromo variant="hero" breedCount={breeds.length} source="home-hero" class="reveal" />
+      <BreedIdPromo variant="banner" source="home" class="mt-6 reveal" />
     </div>
   </section>
 

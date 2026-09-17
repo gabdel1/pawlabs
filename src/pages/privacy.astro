@@ -81,6 +81,20 @@ const toc = [
     write new ones. If you would rather your note was not kept, email us and we will remove it.
   </p>
 
+  <h3>If you use "What breed is my dog?"</h3>
+  <p>The photo identifier is built so that your photo does not stay anywhere:</p>
+  <ul>
+    <li><strong>Your photo is resized in your own browser first.</strong> Re-encoding it also strips the hidden metadata phones attach to pictures, including the location it was taken.</li>
+    <li><strong>It is sent once, to our AI provider (xAI), to be analysed.</strong> We do not save it — not to disk, not to our database, not to our logs. When the request finishes, our copy is gone.</li>
+    <li><strong>We log the outcome, not the photo or you:</strong> which breeds were suggested, how long it took and what it cost. No image and no IP address is written.</li>
+    <li><strong>Your IP address is held briefly in memory</strong> to limit how many photos one person can check in an hour, exactly as with the quiz.</li>
+    <li><strong>The shareable result image is made on your device.</strong> Sharing or saving it does not send your photo to us.</li>
+  </ul>
+  <p>
+    Please only upload photos you are happy to have processed by a third party, and avoid photos
+    that show people's faces or anything private in the background.
+  </p>
+
   <h3>If you email us</h3>
   <p>
     We keep the message and your address so we can reply and, for corrections, so we have a record of
@@ -197,8 +211,8 @@ const toc = [
     <div class="legal-row">
       <div class="legal-row-title">xAI (Grok API)</div>
       <dl>
-        <dt>Why</dt><dd>Writes your Breed Match result, and drafts breed profiles for our editors to review.</dd>
-        <dt>What</dt><dd>Your quiz answers and free-text note. Your email address is never sent.</dd>
+        <dt>Why</dt><dd>Writes your Breed Match result, identifies breeds from photos you upload, and drafts breed profiles for our editors to review.</dd>
+        <dt>What</dt><dd>Your quiz answers and free-text note, and any photo you upload to the breed identifier (resized, with its metadata removed). Your email address is never sent.</dd>
         <dt>Policy</dt><dd><a href="https://x.ai/legal/privacy-policy" rel="nofollow noopener" target="_blank">x.ai/legal/privacy-policy</a></dd>
       </dl>
     </div>
@@ -211,6 +225,7 @@ const toc = [
   <p>If UK or EU data protection law applies to you, our lawful bases are:</p>
   <ul>
     <li><strong>Consent</strong> — analytics and advertising cookies, the newsletter, and sending your quiz result by email. Nothing non-essential is stored on your device until you have agreed to it, and you can withdraw that agreement at any time from the footer link without losing access to anything.</li>
+    <li><strong>Providing a service you asked for</strong> — analysing a photo you upload to the breed identifier. You send it so we can tell you what breed your dog looks like, and that is the only thing it is used for.</li>
     <li><strong>Legitimate interests</strong> — security logging and quiz rate limiting, so the site stays up and one person cannot run the quiz a thousand times. We have balanced this against your interests and use the least identifying option available in each case: rate-limit addresses live in memory for an hour and are never written down.</li>
     <li><strong>Legal obligation</strong> — where we have to keep or produce something by law.</li>
   </ul>
@@ -228,6 +243,7 @@ const toc = [
     <li><strong>Analytics</strong> — controlled by Google's retention settings; currently 14 months for event data.</li>
     <li><strong>Emails to us</strong> — kept while the conversation is live, and afterwards where it records why a page was changed.</li>
     <li><strong>Rate-limiting IP addresses</strong> — held in memory for one hour, then gone. Never written to disk.</li>
+    <li><strong>Photos uploaded to the breed identifier</strong> — not kept at all. Each one exists only for the length of the request that analyses it.</li>
   </ul>
 
   <h2 id="your-rights">Your rights</h2>
