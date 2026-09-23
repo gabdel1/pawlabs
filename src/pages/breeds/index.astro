@@ -12,6 +12,15 @@ import type { Media } from '../../lib/payload';
 import { Search, ChevronRight, Dog, Cat, PawPrint, Star as StarIcon, LayoutGrid, List, Ruler, Weight, Clock } from 'lucide-astro';
 const breeds = await getBreeds();
 
+/**
+ * Which species we actually have profiles for.
+ *
+ * The page used to hardcode Dogs and Cats tabs and a title promising both.
+ * There are no cat profiles, so the Cats tab filtered the list down to
+ * nothing and the title advertised content that does not exist. Both now
+ * follow the data: add cat breeds and the tab and the title come back on
+ * their own.
+ */
 const petTypeSet = new Set<string>();
 const groupSet = new Set<string>();
 const sizeSet = new Set<string>();
@@ -20,6 +29,8 @@ breeds.forEach(b => {
   if (b.breedGroup) groupSet.add(b.breedGroup);
   if (b.size) sizeSet.add(b.size);
 });
+
+const petTypesPresent = [...petTypeSet].sort();
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -54,8 +65,12 @@ function traitTextColor(val: number): string {
 ---
 
 <Layout
-  title="Dog & Cat Breed Profiles — PawLabs"
-  description="Explore detailed breed profiles with trait ratings, temperament data, and expert articles for dogs and cats."
+  title={petTypesPresent.length > 1
+    ? 'Dog & Cat Breed Profiles — PawLabs'
+    : `All ${breeds.length} Dog Breeds, Rated on 14 Traits — PawLabs`}
+  description={petTypesPresent.length > 1
+    ? 'Explore detailed breed profiles with trait ratings, temperament data, and expert articles for dogs and cats.'
+    : `Every one of our ${breeds.length} dog breed profiles, each scored on the same 14 traits — temperament, grooming, energy, trainability and health. Filter by group, size and rating.`}
   canonicalUrl="/breeds"
   ogImage="/og/breeds.png"
   ogType="website"
@@ -84,9 +99,12 @@ function traitTextColor(val: number): string {
 
       <div class="mb-8 sm:mb-10 reveal reveal-delay-1 flex xl:items-end xl:justify-between flex-col xl:flex-row gap-4 sm:gap-6">
         <div>
-          <h1 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4 text-balance">Breed Profiles</h1>
+          <h1 class="display-heading display-fluid-lg text-ink mb-3 sm:mb-4 text-balance">
+            {petTypesPresent.length > 1 ? 'Breed Profiles' : 'Dog Breed Profiles'}
+          </h1>
           <p class="text-ink-muted text-base sm:text-lg max-w-2xl text-pretty font-medium">
-            In-depth profiles with trait ratings, temperament data, and expert insights for {breeds.length} breeds.
+            In-depth profiles with trait ratings, temperament data and expert insights for all
+            {' '}{breeds.length} {petTypesPresent.length > 1 ? 'breeds' : 'dog breeds'} — every one scored on the same 14 traits.
           </p>
         </div>
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
@@ -109,11 +127,18 @@ function traitTextColor(val: number): string {
       <!-- Filters -->
       <div class="breed-filter-shell reveal reveal-delay-2 mb-6">
         <div class="breed-filter-row">
-          <div class="breed-segment" role="tablist" aria-label="Filter by pet type">
-            <button class="pet-segment active" data-pet-type="all" type="button">All</button>
-            <button class="pet-segment inline-flex items-center gap-1.5" data-pet-type="dog" type="button"><Dog class="w-3.5 h-3.5" /> Dogs</button>
-            <button class="pet-segment inline-flex items-center gap-1.5" data-pet-type="cat" type="button"><Cat class="w-3.5 h-3.5" /> Cats</button>
-          </div>
+          {/* Only worth showing when there is more than one species to choose between. */}
+          {petTypesPresent.length > 1 && (
+            <div class="breed-segment" role="tablist" aria-label="Filter by pet type">
+              <button class="pet-segment active" data-pet-type="all" type="button">All</button>
+              {petTypesPresent.includes('dog') && (
+                <button class="pet-segment inline-flex items-center gap-1.5" data-pet-type="dog" type="button"><Dog class="w-3.5 h-3.5" /> Dogs</button>
+              )}
+              {petTypesPresent.includes('cat') && (
+                <button class="pet-segment inline-flex items-center gap-1.5" data-pet-type="cat" type="button"><Cat class="w-3.5 h-3.5" /> Cats</button>
+              )}
+            </div>
+          )}
 
           <select id="group-filter" class="breed-filter-select" aria-label="Filter by group">
             <option value="">All groups</option>

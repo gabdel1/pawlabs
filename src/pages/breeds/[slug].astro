@@ -1,4 +1,6 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
@@ -40,6 +42,18 @@ const { breed, featuredIn = [] } = Astro.props as { breed: Breed; featuredIn?: C
 // scores. These five are the main breed-to-breed links on the site.
 const similarBreeds = findSimilarBreeds(breed, await getBreeds(), 5);
 const imageUrl = getMediaUrl(breed.image as Media);
+
+/**
+ * Share image: a 1200x630 card, not the square photo.
+ *
+ * Facebook, LinkedIn and X render previews as a wide rectangle and crop a
+ * square hard — on a portrait of a standing dog that removes the head and the
+ * feet. The card at /og/breeds/<slug>.jpg places the whole photo beside the
+ * breed name instead. Built by scripts/generate-breed-og-cards.ts; breeds with
+ * no photo have no card and fall through to the generic one in Layout.
+ */
+const ogCard = `/og/breeds/${breed.slug}.jpg`;
+const shareImage = fs.existsSync(path.join(process.cwd(), 'public', ogCard)) ? ogCard : null;
 const groupLabel = breed.breedGroup ? BREED_GROUP_LABELS[breed.breedGroup] ?? breed.breedGroup : null;
 const sizeLabel = breed.size ? SIZE_LABELS[breed.size] ?? breed.size : null;
 const petLabel = breed.petType === 'dog' ? 'Dog' : 'Cat';
@@ -94,9 +108,9 @@ const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
   title={breedMetaTitle(breed)}
   description={breedMetaDescription(breed)}
   ogTitle={`${breed.name} — Breed Profile & Traits`}
+  ogImage={shareImage}
   canonicalUrl={`/breeds/${breed.slug}`}
   ogType="article"
-  ogImage={imageUrl}
   jsonLd={pageSchemas}
   publishedTime={breed.publishedDate || breed.createdAt}
   modifiedTime={breed.updatedAt}
