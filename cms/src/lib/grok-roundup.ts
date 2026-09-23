@@ -9,6 +9,36 @@
  * the angle. The writer explains and orders the picks; it does not invent them.
  */
 
+/**
+ * Per-article variation, so a run of roundups does not read as one template.
+ * Chosen from the topic, so regenerating an article is stable.
+ */
+const CLOSING_HEADINGS = [
+  'Narrowing it down',
+  'Making the call',
+  'Which of these is yours?',
+  'How to pick, in practice',
+  'Choosing from this shortlist',
+  'Working out which one fits',
+]
+
+const OPENING_ANGLES = [
+  'Open on the mistake people make when they shop for this, and what it costs them.',
+  'Open on the specific constraint itself — the flat, the hours, the allergy — before any breed is named.',
+  'Open by ruling out the obvious popular answer and explaining why it fails this reader.',
+  'Open with what separates a breed that works here from one that merely seems to, stated as a test.',
+  'Open with the question the reader is really asking underneath the one they typed.',
+]
+
+function pick<T>(list: T[], seed: string): T {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return list[Math.abs(h) % list.length]
+}
+
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions'
 
 export interface RoundupBreed {
@@ -46,13 +76,16 @@ HOW YOU WRITE:
 - Never mention trait codes, numeric scores, our shortlist, or that any scoring took place. Say "sheds almost nothing", never "scores 2/10 for shedding".
 
 STRUCTURE — raw HTML only, no code fences, no markdown:
-- Open with an <h2> and TWO OR THREE FULL <p> paragraphs (140+ words combined) framing the actual problem. Name the specific constraint, what usually goes wrong, and what separates a breed that works here from one that does not.
+- Open with an <h2> and TWO OR THREE FULL <p> paragraphs (140+ words combined) framing the actual problem, using the OPENING ANGLE supplied with this request. Name the specific constraint, what usually goes wrong, and what separates a breed that works here from one that does not.
 - One <h3> per breed, in rank order, formatted exactly: <h3>1. Breed Name</h3>
 - Under each breed, THREE <p> paragraphs totalling AT LEAST 120 WORDS:
     p1 — why this breed suits this reader, concretely. What daily life looks like.
     p2 — the specific care, exercise or grooming reality. Numbers where you have them: how long a walk, how often a brush, what it costs.
     p3 — the honest catch. Who should skip this one, and why.
-- Close with an <h3>How to choose between them</h3> and two <p> giving the reader a decision rule.
+- Close with a short section giving the reader a decision rule, in two <p>. Use
+  the CLOSING HEADING supplied with this request as its <h3> — it varies between
+  articles on purpose, because every roundup on this site currently ends with the
+  same words and that repetition is what makes a set of them look machine-made.
 - Do not use <ul>/<li> for the breed list itself — the headings are the structure.
 
 LENGTH IS NOT OPTIONAL. With six breeds this comes to 1000-1400 words. An article of 500 words fails the brief and is worthless to the reader — they came here to decide, and three sentences per breed cannot support a decision. Write the full length.
@@ -99,10 +132,14 @@ export async function generateRoundupWithGrok(
     ? `TOPIC: every notable breed in the ${opts.breedGroup} group, ranked for everyday family life.`
     : `TOPIC: the best dogs for ${opts.angleLabel}.`
 
+  const variationSeed = opts.breedGroup ?? opts.angleLabel
   const userPrompt = `${framing}
 
 WHO IS READING THIS:
 ${opts.intent}
+
+OPENING ANGLE: ${pick(OPENING_ANGLES, variationSeed)}
+CLOSING HEADING (use verbatim as the final <h3>): ${pick(CLOSING_HEADINGS, `${variationSeed}-close`)}
 
 SHORTLIST — rank these, and use only these. Trait values are 1-10 and are for your reasoning only; never print them.
 ${formatBreeds(opts.breeds)}

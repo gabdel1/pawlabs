@@ -11,6 +11,8 @@ import { getBreeds, getBreedBySlug, getComparisons, getMediaUrl, comparisonBreed
 import { breedJsonLd, breedFaqJsonLd } from '../../lib/seo';
 import { breedMetaTitle, breedMetaDescription, familyRoundupFor } from '../../lib/meta';
 import { findSimilarBreeds } from '../../lib/similar-breeds';
+import { isNoindexed } from '../../lib/noindex';
+import { withoutRetired } from '../../lib/retired';
 import { buildBreedFaqs } from '../../lib/breed-faq';
 import type { Breed, Comparison, Media } from '../../lib/payload';
 import { Dog, Cat, Star as StarIcon, Scale, ArrowUpRight } from 'lucide-astro';
@@ -18,13 +20,15 @@ import { Dog, Cat, Star as StarIcon, Scale, ArrowUpRight } from 'lucide-astro';
 export async function getStaticPaths() {
   // Comparisons are fetched once here rather than in the page body, which would
   // re-request them for each of the 200+ breed pages.
-  const [breeds, comparisons] = await Promise.all([getBreeds(), getComparisons()]);
+  const [breeds, allComparisons] = await Promise.all([getBreeds(), getComparisons()]);
+  const comparisons = withoutRetired(allComparisons);
 
   return breeds.map((breed) => ({
     params: { slug: breed.slug },
     props: {
       breed,
       featuredIn: comparisons
+        .filter((c) => !isNoindexed(c.slug))
         .filter((c) => comparisonBreedIds(c).includes(String(breed.id)))
         .sort((a, b) => comparisonDate(b) - comparisonDate(a)),
     },

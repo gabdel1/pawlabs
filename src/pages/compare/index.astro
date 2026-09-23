@@ -17,10 +17,14 @@ import Footer from '../../components/Footer.astro';
 import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS, CRITERION_LABELS } from '../../lib/payload';
 import type { Breed, Media } from '../../lib/payload';
 import { comparisonsListJsonLd } from '../../lib/seo';
+import { isNoindexed } from '../../lib/noindex';
+import { withoutRetired } from '../../lib/retired';
 import { Scale, ArrowUpRight, Search } from 'lucide-astro';
 
 const breeds = await getBreeds();
-const comparisons = await getComparisons();
+// The index is the curated shelf: articles held back from search are not on it.
+// They stay reachable from the breed pages they belong to.
+const comparisons = withoutRetired(await getComparisons()).filter((c) => !isNoindexed(c.slug));
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },

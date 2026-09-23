@@ -1,0 +1,293 @@
+{
+  "updated": "2026-09-23",
+  "note": "Curated retirement list. Pages redirect to a topically related roundup where one exists, otherwise stay reachable with noindex. Nothing is deleted from the CMS.",
+  "monitorOnly": [
+    "anatolian-shepherd-dog-vs-bernese-mountain-dog-comparison"
+  ],
+  "retired": [
+    {
+      "slug": "parson-russell-terrier-vs-west-highland-white-terrier-vs-airedale-terrier-comparison",
+      "title": "Parson Russell Terrier vs West Highland White Terrier vs Airedale Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "airedale-terrier",
+        "parson-russell-terrier",
+        "west-highland-white-terrier"
+      ]
+    },
+    {
+      "slug": "miniature-bull-terrier-vs-sealyham-terrier-vs-airedale-terrier-comparison",
+      "title": "Miniature Bull Terrier vs Sealyham Terrier vs Airedale Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "airedale-terrier",
+        "miniature-bull-terrier",
+        "sealyham-terrier"
+      ]
+    },
+    {
+      "slug": "glen-of-imaal-terrier-vs-skye-terrier-vs-airedale-terrier-comparison",
+      "title": "Glen of Imaal Terrier vs Skye Terrier vs Airedale Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "airedale-terrier",
+        "glen-of-imaal-terrier",
+        "skye-terrier"
+      ]
+    },
+    {
+      "slug": "american-staffordshire-terrier-vs-kerry-blue-terrier-vs-airedale-terrier-comparison",
+      "title": "American Staffordshire Terrier vs Kerry Blue Terrier vs Airedale Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "airedale-terrier",
+        "american-staffordshire-terrier",
+        "kerry-blue-terrier"
+      ]
+    },
+    {
+      "slug": "american-hairless-terrier-vs-norwich-terrier-vs-airedale-terrier-comparison",
+      "title": "American Hairless Terrier vs Norwich Terrier vs Airedale Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "airedale-terrier",
+        "american-hairless-terrier",
+        "norwich-terrier"
+      ]
+    },
+    {
+      "slug": "cesky-terrier-vs-jack-russell-terrier-vs-airedale-terrier-comparison",
+      "title": "Cesky Terrier vs Jack Russell Terrier vs Airedale Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "airedale-terrier",
+        "cesky-terrier",
+        "jack-russell-terrier"
+      ]
+    },
+    {
+      "slug": "lowchen-vs-shiba-inu-vs-american-eskimo-dog-comparison",
+      "title": "L\u00f6wchen vs Shiba Inu vs American Eskimo Dog: Which Is Right for You?",
+      "redirectTo": "/compare/best-non-sporting-breeds-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "american-eskimo-dog",
+        "lowchen",
+        "shiba-inu"
+      ]
+    },
+    {
+      "slug": "chinese-shar-pei-vs-keeshond-vs-american-eskimo-dog-comparison",
+      "title": "Chinese Shar-Pei vs Keeshond vs American Eskimo Dog: Which Is Right for You?",
+      "redirectTo": "/compare/best-non-sporting-breeds-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "american-eskimo-dog",
+        "chinese-shar-pei",
+        "keeshond"
+      ]
+    },
+    {
+      "slug": "chow-chow-vs-poodle-vs-american-eskimo-dog-comparison",
+      "title": "Chow Chow vs Poodle vs American Eskimo Dog: Which Is Right for You?",
+      "redirectTo": "/compare/best-non-sporting-breeds-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "american-eskimo-dog",
+        "chow-chow",
+        "poodle"
+      ]
+    },
+    {
+      "slug": "american-water-spaniel-vs-boykin-spaniel-comparison",
+      "title": "American Water Spaniel vs Boykin Spaniel: Which Is Right for You?",
+      "redirectTo": "/compare/sporting-breeds-ranked-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "american-water-spaniel",
+        "boykin-spaniel"
+      ]
+    },
+    {
+      "slug": "soft-coated-wheaten-terrier-vs-staffordshire-bull-terrier-comparison",
+      "title": "Soft Coated Wheaten Terrier vs Staffordshire Bull Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "all 2 breeds are in the terrier group",
+      "breeds": [
+        "soft-coated-wheaten-terrier",
+        "staffordshire-bull-terrier"
+      ]
+    },
+    {
+      "slug": "smooth-fox-terrier-vs-wire-fox-terrier-comparison",
+      "title": "Smooth Fox Terrier vs Wire Fox Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "all 2 breeds are in the terrier group",
+      "breeds": [
+        "smooth-fox-terrier",
+        "wire-fox-terrier"
+      ]
+    },
+    {
+      "slug": "neapolitan-mastiff-vs-tibetan-mastiff-comparison",
+      "title": "Neapolitan Mastiff vs Tibetan Mastiff: Which Is Right for You?",
+      "redirectTo": "/compare/working-group-breeds-family-life-ranking",
+      "why": "all 2 breeds are in the working group",
+      "breeds": [
+        "neapolitan-mastiff",
+        "tibetan-mastiff"
+      ]
+    },
+    {
+      "slug": "gordon-setter-vs-irish-red-and-white-setter-comparison",
+      "title": "Gordon Setter vs Irish Red and White Setter: Which Is Right for You?",
+      "redirectTo": "/compare/sporting-breeds-ranked-family-life",
+      "why": "all 2 breeds are in the sporting group",
+      "breeds": [
+        "gordon-setter",
+        "irish-red-and-white-setter"
+      ]
+    },
+    {
+      "slug": "dandie-dinmont-terrier-vs-manchester-terrier-comparison",
+      "title": "Dandie Dinmont Terrier vs Manchester Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "dandie-dinmont-terrier",
+        "manchester-terrier"
+      ]
+    },
+    {
+      "slug": "cavalier-king-charles-spaniel-vs-tibetan-spaniel-comparison",
+      "title": "Cavalier King Charles Spaniel vs Tibetan Spaniel: Which Is Right for You?",
+      "redirectTo": "/compare/toy-breeds-ranked-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "cavalier-king-charles-spaniel",
+        "tibetan-spaniel"
+      ]
+    },
+    {
+      "slug": "boston-terrier-vs-lakeland-terrier-comparison",
+      "title": "Boston Terrier vs Lakeland Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "boston-terrier",
+        "lakeland-terrier"
+      ]
+    },
+    {
+      "slug": "basset-hound-vs-ibizan-hound-vs-american-english-coonhound-comparison",
+      "title": "Basset Hound vs Ibizan Hound vs American English Coonhound: Which Is Right for You?",
+      "redirectTo": "/compare/best-hound-breeds-for-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "american-english-coonhound",
+        "basset-hound",
+        "ibizan-hound"
+      ]
+    },
+    {
+      "slug": "afghan-hound-vs-plott-hound-comparison",
+      "title": "Afghan Hound vs Plott Hound: Which Is Right for You?",
+      "redirectTo": "/compare/best-hound-breeds-for-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "afghan-hound",
+        "plott-hound"
+      ]
+    },
+    {
+      "slug": "rat-terrier-vs-scottish-terrier-comparison",
+      "title": "Rat Terrier vs Scottish Terrier: Which Is Right for You?",
+      "redirectTo": "/compare/terrier-breeds-ranked-for-family-life",
+      "why": "all 2 breeds are in the terrier group",
+      "breeds": [
+        "rat-terrier",
+        "scottish-terrier"
+      ]
+    },
+    {
+      "slug": "clumber-spaniel-vs-irish-water-spaniel-comparison",
+      "title": "Clumber Spaniel vs Irish Water Spaniel: Which Is Right for You?",
+      "redirectTo": "/compare/sporting-breeds-ranked-family-life",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "clumber-spaniel",
+        "irish-water-spaniel"
+      ]
+    },
+    {
+      "slug": "brittany-spaniel-vs-sussex-spaniel-comparison",
+      "title": "Brittany Spaniel vs Sussex Spaniel: Which Is Right for You?",
+      "redirectTo": "/compare/sporting-breeds-ranked-family-life",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "brittany-spaniel",
+        "sussex-spaniel"
+      ]
+    },
+    {
+      "slug": "belgian-sheepdog-vs-bergamasco-sheepdog-vs-australian-cattle-dog-comparison",
+      "title": "Belgian Sheepdog vs Bergamasco Sheepdog vs Australian Cattle Dog: Which Is Right for You?",
+      "redirectTo": "/compare/herding-breeds-ranked-for-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "australian-cattle-dog",
+        "belgian-sheepdog",
+        "bergamasco-sheepdog"
+      ]
+    },
+    {
+      "slug": "border-collie-vs-collie-vs-australian-cattle-dog-comparison",
+      "title": "Border Collie vs Collie vs Australian Cattle Dog: Which Is Right for You?",
+      "redirectTo": "/compare/herding-breeds-ranked-for-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "australian-cattle-dog",
+        "border-collie",
+        "collie"
+      ]
+    },
+    {
+      "slug": "biewer-terrier-vs-toy-fox-terrier-vs-affenpinscher-comparison",
+      "title": "Biewer Terrier vs Toy Fox Terrier vs Affenpinscher: Which Toy Breed Fits Your Life?",
+      "redirectTo": "/compare/toy-breeds-ranked-family-life",
+      "why": "2 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "affenpinscher",
+        "biewer-terrier",
+        "toy-fox-terrier"
+      ]
+    },
+    {
+      "slug": "mastiff-vs-tibetan-mastiff-vs-akita-comparison",
+      "title": "Mastiff vs Tibetan Mastiff vs Akita: Which Is Right for You?",
+      "redirectTo": "/compare/working-group-breeds-family-life-ranking",
+      "why": "1 shared breeds, 1 shared group(s)",
+      "breeds": [
+        "akita",
+        "mastiff",
+        "tibetan-mastiff"
+      ]
+    },
+    {
+      "slug": "cavalier-king-charles-spaniel-vs-english-toy-spaniel-comparison",
+      "title": "Cavalier King Charles Spaniel vs English Toy Spaniel: Which Is Right for You?",
+      "redirectTo": "/compare/toy-breeds-ranked-family-life",
+      "why": "hand-picked: closest ranking for these breeds",
+      "breeds": [
+        "cavalier-king-charles-spaniel",
+        "english-toy-spaniel"
+      ]
+    }
+  ]
+}

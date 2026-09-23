@@ -25,11 +25,21 @@ export interface StyleDef {
   maxBreeds: number
 }
 
+/**
+ * Weights shifted decisively towards roundups in September 2026.
+ *
+ * Head-to-heads are the easiest article to generate and the hardest to justify:
+ * "best dogs for apartments" is a query thousands of people type, while most
+ * specific pairings are searched by nobody. The old 30/15 split on pairings
+ * filled the calendar with combinations. Three-ways are nearly gone — they were
+ * the shape that produced the filler-breed pattern, where the same third dog
+ * was bolted onto six different articles.
+ */
 export const STYLES: StyleDef[] = [
-  { style: 'best-for', label: 'Best breed for…', weight: 40, minBreeds: 5, maxBreeds: 8 },
-  { style: 'head-to-head', label: 'Head to head', weight: 30, minBreeds: 2, maxBreeds: 2 },
-  { style: 'three-way', label: 'Three-way', weight: 15, minBreeds: 3, maxBreeds: 3 },
-  { style: 'group-roundup', label: 'Group roundup', weight: 15, minBreeds: 5, maxBreeds: 8 },
+  { style: 'best-for', label: 'Best breed for…', weight: 60, minBreeds: 5, maxBreeds: 8 },
+  { style: 'group-roundup', label: 'Group roundup', weight: 20, minBreeds: 5, maxBreeds: 8 },
+  { style: 'head-to-head', label: 'Head to head', weight: 17, minBreeds: 2, maxBreeds: 2 },
+  { style: 'three-way', label: 'Three-way', weight: 3, minBreeds: 3, maxBreeds: 3 },
 ]
 
 export interface TraitTarget {

@@ -3,6 +3,8 @@
  * Called by the /api/ai/breed-compare route.
  */
 
+import { BANNED_PHRASES, shapeFor, titleHintFor } from './comparison-shapes'
+
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions'
 
 export interface BreedForComparison {
@@ -51,16 +53,21 @@ YOUR WRITING PERSONALITY:
 - Have opinions. "If you're gone 9 hours a day, the Siberian Husky is not for you. The Golden Retriever will survive, but the Husky will destroy your house."
 - Compare breeds head-to-head in concrete scenarios: apartment living, busy families, senior owners, first-time dog owners, etc.
 - Use specific, vivid language. Instead of "high energy," say "needs 2+ hours of running per day or you'll find chewed furniture."
-- NEVER use cliché filler: "game-changer," "perfect companion," "loving nature," "make a great addition."
-- NEVER start sentences with "In terms of" or "When it comes to."
+- NEVER use any phrase on the BANNED PHRASES list supplied with the request.
+  Those are the exact strings that made every earlier article on this site look
+  machine-made.
 - DO describe real situations: training a Chow Chow vs a Lab, walking a Husky in winter, grooming a Poodle — in the second person ("you will find…"), never as something you personally did.
 
 STRUCTURE REQUIREMENTS:
 - Write a rich, detailed article in HTML (no \`\`\`html wrapper — raw HTML only)
 - Use <h2>, <h3>, <p>, <ul>, <li>, <strong> tags
-- Include a section "How They Stack Up Day-to-Day" with <h2>
-- Include a section "The Lifestyle Match" — who each breed suits best
-- Include an "Our Bottom Line" blurb before the verdict (inside content, not verdict field)
+- Follow the ARTICLE PLAN supplied with each request. It changes from article to
+  article by design: two editors writing the same comparison would not reach for
+  the same headings in the same order, and neither should you.
+- Write your own headings from that plan. Do NOT copy the plan's wording as
+  headings, and do NOT fall back to a standard set of section titles.
+- Vary sentence openings and paragraph shape. Some sections suit prose, some a
+  short list, some a single blunt paragraph.
 - Minimum 1200 words in content
 
 VERDICT REQUIREMENTS:
@@ -70,6 +77,10 @@ VERDICT REQUIREMENTS:
 - End with a strong recommendation or honest "it depends" with clear conditions`
 
 function buildPrompt(breeds: BreedForComparison[], criteria: string[], context?: string): string {
+  // Structure varies per article, chosen deterministically from the breeds.
+  const slugs = breeds.map((b) => b.slug)
+  const shape = shapeFor(slugs)
+  const titleHint = titleHintFor(shape, breeds.map((b) => b.name), slugs)
   const breedDescriptions = breeds.map(b => {
     const traits = b.traits || {}
     return `
@@ -84,6 +95,17 @@ BREED: ${b.name}
 `.trim()
   }).join('\n\n')
 
+  const planBlock = [
+    `ARTICLE PLAN (shape: ${shape.key})`,
+    `Opening: ${shape.opening}`,
+    'Cover, in this order, under headings you write yourself:',
+    ...shape.plan.map((step, i) => `  ${i + 1}. ${step}`),
+    `Closing: ${shape.closing}`,
+    '',
+    'BANNED PHRASES — do not use any of these, in headings or body:',
+    ...BANNED_PHRASES.map((phrase) => `  - "${phrase}"`),
+  ].join('\n')
+
   const criteriaList = criteria.join(', ')
   const contextNote = context ? `\nFOCUS / CONTEXT FROM EDITOR: ${context}\n` : ''
 
@@ -92,12 +114,14 @@ BREED: ${b.name}
 ${breedDescriptions}
 
 KEY COMPARISON CRITERIA to highlight: ${criteriaList}
+
+${planBlock}
 ${contextNote}
 Breed names being compared: ${breeds.map(b => b.name).join(' vs ')}
 
 Return ONLY valid JSON matching this exact structure:
 {
-  "title": "string — headline like '[Breed A] vs [Breed B]: Which Is Right for You?'",
+  "title": "string — headline. Use '${titleHint}' unless you can write a better one in the same spirit. Never use 'Which Is Right for You?' — it is on every older article here.",
   "slug": "string — URL-safe, e.g. 'golden-retriever-vs-labrador-comparison'",
   "summary": "string — 1-2 sentence SEO meta description (no HTML)",
   "content": "string — full HTML article, minimum 1200 words",

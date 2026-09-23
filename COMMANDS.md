@@ -323,13 +323,53 @@ cd /srv/pet && npm run build
 
 ---
 
-## Daily Comparison Automation
+## Comparison Automation
 
-One comparison article a day, published and live without anyone touching it.
+Two comparison articles a week, published and live without anyone touching it.
 
-`pawlabs-daily-comparison.timer` fires at **04:17** (plus up to 10 minutes of jitter),
-runs `scripts/daily-comparison.sh`, which asks the CMS to pick the best remaining breed
-pair, writes and publishes the article, then rebuilds the static site.
+`pawlabs-daily-comparison.timer` fires **Tuesday and Saturday at 04:17** (plus up to
+10 minutes of jitter), runs `scripts/daily-comparison.sh`, which asks the CMS for the
+best remaining subject, writes and publishes the article, then rebuilds the static site.
+The unit keeps its original name; only the schedule changed.
+
+### What it will and will not write
+
+An ads review in September 2026 found the output read as machine-generated: six
+near-identical "X vs Y vs Airedale Terrier" articles, and a tail of pairings between
+breeds nobody searches for. Three guards now exist, and they are the reason the queue
+is much shorter than it used to be:
+
+| Guard | Where | Effect |
+|---|---|---|
+| Demand floor | `cms/src/lib/search-demand.ts` | Both breeds in a pairing must score 45+ in `data/search-demand.json`. Roundups are judged on their lifestyle angle instead. |
+| Filler cap | `MAX_PAIRING_APPEARANCES` in `cms/src/lib/content-planner.ts` | No breed may appear in more than **2** pairing articles, which is what stopped one dog being bolted onto six of them. |
+| Structure variation | `cms/src/lib/comparison-shapes.ts` | Each article gets one of six genuinely different plans and its own headings. The old shared skeleton is a banned-phrase list. |
+
+`data/search-demand.json` currently holds a **seed** list, not measured data. Replace it
+with the real thing whenever Search Console has enough history:
+
+```bash
+# export Search Console queries to CSV, then
+cd /srv/pet/cms && npx tsx src/scripts/import-search-demand.ts ~/queries.csv
+```
+
+### Retired articles
+
+`data/retired-comparisons.json` lists articles withdrawn as combinatorial or
+negligible-demand. They are **not deleted** — the CMS documents remain published, the
+site simply stops building a page, and nginx 301s each URL to the ranking covering the
+same breeds. To change the list, edit that file and then:
+
+```bash
+npx tsx scripts/generate-comparison-redirects.ts
+sudo cp deploy/nginx-comparison-redirects.conf \
+  /etc/nginx/conf.d/zz-pawlabs-comparison-redirects.conf
+sudo nginx -t && sudo systemctl reload nginx
+npm run build
+```
+
+The `zz-` prefix matters: conf.d loads alphabetically and the media redirects file must
+set `map_hash_bucket_size` first, since nginx rejects a duplicate declaration.
 
 | Command | Description |
 |---|---|

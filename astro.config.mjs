@@ -1,6 +1,23 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import fs from 'node:fs';
+
+/**
+ * Comparison slugs held back from search, written by scripts/compute-noindex.ts
+ * during prebuild. Read here so the sitemap agrees with the noindex tag the
+ * page itself emits — submitting a noindexed URL is a contradiction Google
+ * reports as an error.
+ */
+const noindexedComparisons = new Set(
+  (() => {
+    try {
+      return JSON.parse(fs.readFileSync('data/noindex-comparisons.json', 'utf-8')).slugs ?? [];
+    } catch {
+      return [];
+    }
+  })(),
+);
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
@@ -18,7 +35,9 @@ export default defineConfig({
         // Everything *under* /embed is machinery — the widget itself carries
         // noindex and must not compete with real pages. /embed (the generator)
         // stays in: it is a normal indexable landing page.
-        !/\/embed\/.+/.test(page),
+        !/\/embed\/.+/.test(page) &&
+        // Low-demand comparisons carry noindex; keep them out of the sitemap too.
+        ![...noindexedComparisons].some((slug) => page.includes(`/compare/${slug}`)),
       /**
        * Strip trailing slashes so sitemap URLs match the canonical tags the
        * pages actually emit (Layout.astro builds those without one).

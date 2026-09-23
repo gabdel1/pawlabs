@@ -20,6 +20,7 @@ import {
   type ArticleStyle,
 } from './content-styles'
 import { pairKey, rankPairs, type PairBreed } from './comparison-pairs'
+import { demandFor, demandForSet, eligibleForPairing, MIN_PAIRING_DEMAND } from './search-demand'
 
 export interface PlannedItem {
   workingTitle: string
@@ -32,6 +33,19 @@ export interface PlannedItem {
   reason: string
   scheduledFor: string
 }
+
+/**
+ * How many pairing articles (head-to-head or three-way) one breed may appear in
+ * across the whole plan.
+ *
+ * Without a cap the ranking keeps choosing the same well-connected dog: the
+ * Airedale Terrier ended up as the third breed in six separate articles, and
+ * the American Eskimo Dog in three. Each article was defensible alone; together
+ * they are a visible generation pattern, and the clearest possible signal of
+ * scaled content. Two is enough for a breed to be covered without the set
+ * looking machine-made.
+ */
+export const MAX_PAIRING_APPEARANCES = 2
 
 export interface PlanInput {
   breeds: PairBreed[]
@@ -175,20 +189,28 @@ export function buildPlan(input: PlanInput): PlannedItem[] {
       }
 
       // head-to-head and three-way both come from the pair ranking.
-      const ranked = rankPairs(input.breeds, compared, appearances, 40)
+      const atCap = (id: string) => (appearances.get(String(id)) ?? 0) >= MAX_PAIRING_APPEARANCES
+      const eligible = input.breeds.filter((b) => !atCap(b.id))
+      const ranked = rankPairs(eligible, compared, appearances, 40)
       if (ranked.length === 0) continue
       const best = ranked[0]
 
       if (styleDef.style === 'three-way') {
-        // Find a third breed that pairs well with both and is not yet used with either.
-        const third = input.breeds.find(
-          (c) =>
-            c.id !== best.a.id &&
-            c.id !== best.b.id &&
-            c.breedGroup === best.a.breedGroup &&
-            !compared.has(pairKey(c.id, best.a.id)) &&
-            !compared.has(pairKey(c.id, best.b.id)),
-        )
+        // Find a third breed that pairs well with both and is not yet used with
+        // either. Best-searched candidate first: a three-way is a harder page to
+        // rank than a head-to-head, so it needs more demand behind it, not less.
+        const third = input.breeds
+          .filter(
+            (c) =>
+              c.id !== best.a.id &&
+              c.id !== best.b.id &&
+              c.breedGroup === best.a.breedGroup &&
+              !compared.has(pairKey(c.id, best.a.id)) &&
+              !compared.has(pairKey(c.id, best.b.id)),
+          )
+          .filter((c) => !atCap(c.id) && eligibleForPairing(c.slug))
+          .sort((x, y) => demandFor(y.slug) - demandFor(x.slug))
+          .find((c) => demandForSet([best.a.slug, best.b.slug, c.slug]) >= MIN_PAIRING_DEMAND)
         if (third) {
           const ids = [best.a.id, best.b.id, third.id]
           noteUsed(ids)

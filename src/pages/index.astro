@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro';
 import NewsletterSignup from '../components/NewsletterSignup.astro';
 import QuizPromo from '../components/QuizPromo.astro';
 import BreedIdPromo from '../components/BreedIdPromo.astro';
+import { withoutRetired } from '../lib/retired';
 import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS } from '../lib/payload';
 import type { Media } from '../lib/payload';
 import { websiteJsonLd, organizationJsonLd } from '../lib/seo';
@@ -14,7 +15,7 @@ import {
 } from 'lucide-astro';
 
 const breeds = await getBreeds();
-const comparisons = await getComparisons();
+const comparisons = withoutRetired(await getComparisons());
 const featuredBreeds = breeds.filter(b => b.featured);
 
 /**

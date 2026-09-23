@@ -8,12 +8,17 @@
  *
  * So we score every pair that has not been written yet on four things:
  *
+ *   0. Demand      — does anyone search for either breed? A pairing of two
+ *                    breeds nobody looks up cannot earn traffic however well
+ *                    it is written, so those are refused outright.
  *   1. Relevance   — would someone realistically choose between these two?
  *   2. Decisiveness — do they differ enough for the article to reach a verdict?
  *   3. Popularity  — featured breeds first.
  *   4. Coverage    — breeds not yet in any comparison get a nudge, so the
  *                    section spreads out instead of orbiting the same ten dogs.
  */
+
+import { demandFor, demandForSet, eligibleForPairing, MIN_PAIRING_DEMAND } from './search-demand'
 
 export interface PairBreed {
   id: string
@@ -102,8 +107,25 @@ function scorePair(
   // Cross-species comparisons are a different article entirely.
   if (a.petType && b.petType && a.petType !== b.petType) return null
 
+  // Demand floor. A hard refusal, not a penalty: no amount of trait spread
+  // makes a pairing worth writing if nobody is weighing up these two dogs.
+  // Both breeds must clear the bar individually — allowing one popular breed
+  // to carry an obscure one is what produced six near-identical
+  // "X vs Y vs Airedale Terrier" articles.
+  if (!eligibleForPairing(a.slug) || !eligibleForPairing(b.slug)) return null
+  const demand = demandForSet([a.slug, b.slug])
+  if (demand < MIN_PAIRING_DEMAND) return null
+
   const why: string[] = []
   let score = 0
+
+  // Demand dominates the ranking, so the well-searched pairings get written
+  // first and the marginal ones sit at the back of the queue where a later
+  // Search Console import can promote or drop them.
+  score += demand / 5
+  const known = [a, b].filter((x) => demandFor(x.slug) >= 45).map((x) => x.name)
+  if (known.length === 2) why.push('both breeds draw real search interest')
+  else if (known.length === 1) why.push(`${known[0]} draws real search interest`)
 
   const token = sharedFamilyToken(a, b)
   if (token) {

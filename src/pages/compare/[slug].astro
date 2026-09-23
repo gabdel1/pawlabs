@@ -11,12 +11,16 @@ import { getComparisons, getMediaUrl, comparisonBreedIds, comparisonDate } from 
 import type { Breed, Comparison, Media } from '../../lib/payload';
 import { comparisonJsonLd, comparisonFaqJsonLd } from '../../lib/seo';
 import { comparisonMetaTitle, comparisonDescription } from '../../lib/meta';
+import { isNoindexed } from '../../lib/noindex';
+import { withoutRetired } from '../../lib/retired';
 import { buildComparisonFaqs } from '../../lib/comparison-faq';
 import { EDITORIAL_TEAM } from '../../lib/site';
 import { Scale, ArrowUpRight, Calendar } from 'lucide-astro';
 
 export async function getStaticPaths() {
-  const comparisons = await getComparisons();
+  // Retired articles get no page at all; nginx redirects their URLs to the
+  // ranking that covers the same breeds. See src/lib/retired.ts.
+  const comparisons = withoutRetired(await getComparisons());
 
   return comparisons.map((comparison) => {
     const ownBreeds = new Set(comparisonBreedIds(comparison));
@@ -62,6 +66,10 @@ const bylineAuthor =
 const faqs = buildComparisonFaqs(comparison, linkedBreeds);
 const faqJsonLd = comparisonFaqJsonLd(faqs, comparison.slug);
 
+// Articles about pairings nobody searches for stay reachable but are kept out
+// of search and off the index page. See scripts/compute-noindex.ts.
+const noindex = isNoindexed(comparison.slug);
+
 const publishedDate = comparison.publishedDate || comparison.createdAt;
 const formattedDate = publishedDate
   ? new Date(publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -79,6 +87,7 @@ const breadcrumbs = [
   description={comparisonDescription(comparison, linkedBreeds)}
   ogTitle={comparison.title}
   canonicalUrl={`/compare/${comparison.slug}`}
+  noindex={noindex}
   ogType="article"
   ogImage={imageUrl}
   jsonLd={faqJsonLd
