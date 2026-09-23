@@ -1,0 +1,25 @@
+{
+  "slug": "yorkshire-terrier",
+  "breed": "Yorkshire Terrier",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Very little, continuous",
+    "hypoallergenic": "Often suggested, not guaranteed",
+    "barks": "Frequently at every noise"
+  },
+  "answers": {
+    "children": "Yorkshire Terriers are only moderately good with children because their tiny 4-7 lb build makes them fragile and easily overwhelmed by rough play. The feisty terrier spirit that once hunted rats in English mills leads them to stand their ground rather than yield, so they do best with gentle older children who respect their small size and confident personality. (PawLabs child-friendly score: 5/10)",
+    "other-pets": "Yorkshire Terriers can get along with other pets when introduced carefully, yet their original role catching vermin in Yorkshire mills gives them a noticeable prey drive towards smaller animals. The breed’s confident and feisty nature sometimes creates tension with larger dogs, though their affectionate side helps them bond with familiar household companions if space allows calm interaction.",
+    "exercise": "Yorkshire Terriers need 30 to 45 minutes of exercise daily split into short walks and indoor play. Without it their moderate energy turns into zoomies around the living room or destructive chewing of slippers, reflecting the tenacious terrier build that once chased rats through tight mill spaces. Puzzle toys suit their intelligent mind and keep the silky-coated dynamo settled.",
+    "shedding": "Yorkshire Terriers shed very little because they have a single long silky coat rather than a double coat. The hair continues to grow like human hair and tangles easily, especially behind the ears and under the legs, so daily brushing prevents mats from forming and keeps the flowing coat from trapping the few loose strands that do come out. (PawLabs shedding score: 2/10)",
+    "hypoallergenic": "No breed is truly hypoallergenic yet Yorkshire Terriers are often suggested for allergy sufferers because their long silky single coat sheds very little and produces minimal dander. The hair grows continuously like human hair and requires regular grooming to stop tangles, which can still spread protein that triggers reactions in sensitive people despite the low shedding level of this tiny English breed.",
+    "training": "Yorkshire Terriers are moderately easy to train because their intelligence of 7 lets them learn commands quickly, yet the stubborn independent streak from their vermin-hunting past makes them question requests without constant treats. Housebreaking proves especially hard for this small feisty companion that prefers to do things its own confident way.",
+    "lifespan": "Yorkshire Terriers live 11-15 years. Their small 4-7 lb build and adaptable nature support a relatively long life, though the fragile frame from their terrier ancestry and moderate health robustness mean careful handling is needed to avoid injury that could shorten their time as loyal velcro companions.",
+    "size": "Yorkshire Terriers reach 4-7 lb and stand 7-8 in tall as adults. The tiny yet sturdy build from their 19th-century Yorkshire working roots makes them feel surprisingly solid when they lean in for cuddles, while their long silky coat adds visual volume that belies how light and portable they remain in small living spaces.",
+    "barking": "Yorkshire Terriers bark a lot because their alert terrier heritage from English mills and mines makes them react to every sound. The feisty confident personality drives them to announce the mailman, a leaf at the window or a vacuum cleaner with persistent yapping that can fill a house despite their 4-7 lb size.",
+    "apartment": "Yorkshire Terriers can live in an apartment because their high adaptability of 8 and small 4-7 lb size let them settle indoors with short daily activity. Their long silky coat needs grooming and their tendency to bark at noises must be managed, yet the affectionate loyal nature makes them content in compact homes without needing a garden.",
+    "first-time": "Yorkshire Terriers are not the easiest first dog because their stubborn independent streak and high grooming demands of 8 test patience and consistency. The fragile small build combined with feisty barking and housebreaking challenges require experience that helps a novice manage this confident tiny dynamo from England’s industrial past."
+  }
+}

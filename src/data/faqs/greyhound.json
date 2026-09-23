@@ -1,0 +1,25 @@
+{
+  "slug": "greyhound",
+  "breed": "Greyhound",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Lightly, year-round",
+    "hypoallergenic": "No — short smooth coat",
+    "barks": "Rarely and very little"
+  },
+  "answers": {
+    "children": "Greyhounds are moderately good with children. Their large but lean build and gentle temperament mean they tolerate calm interactions well, yet their independent nature and history as coursing hunters can make them aloof around boisterous play, preferring quiet companionship over rough handling.",
+    "other-pets": "Greyhounds do not reliably get along with other pets. Their high prey drive, originally developed for coursing hares and gazelles by sight, often triggers intense chasing of small animals, though they can coexist peacefully with cats or dogs raised alongside them from puppyhood.",
+    "exercise": "Greyhounds need 20 to 30 minutes of walking twice daily plus one or two weekly sprints. Bred for short bursts of exceptional speed rather than endurance, they become restless without opportunities to stretch their long legs in a secure area, though they settle calmly indoors afterward.",
+    "shedding": "Yes — Greyhounds shed lightly year-round. Their short smooth single coat produces minimal loose hair that rarely accumulates on furniture, making the low-maintenance coat a practical match for their lean athletic build developed for ancient coursing in the Middle East. (PawLabs shedding score: 3/10)",
+    "hypoallergenic": "No breed is hypoallergenic and the Greyhound is not one commonly suggested for allergy sufferers. The short smooth coat still releases dander and light amounts of hair despite its low grooming needs, reflecting the breed's ancient origins as elegant sight hunters rather than a designed low-allergen companion.",
+    "training": "Greyhounds are not easy to train. Their independent streak and original purpose of coursing game by sight without human direction reduce biddability, so they respond best to patient methods that respect their sensitive, quiet nature instead of expecting eager compliance.",
+    "lifespan": "Greyhounds live 10 to 13 years. Their lean athletic build, developed over thousands of years for speed in ancient Egypt and the Middle East, supports reasonable health robustness, allowing many retired racers to enjoy calm indoor years when given appropriate quiet companionship.",
+    "size": "Greyhounds reach 60 to 70 lb and stand 27 to 30 in tall. The elegant long-legged proportions create a lean, sculpted presence that feels surprisingly lightweight for the height, suiting their calm indoor demeanor while reflecting their history as unmatched sprinters in coursing and racing.",
+    "barking": "Greyhounds do not bark much. Bred for silent pursuit in coursing and racing, their quiet temperament means they rarely vocalise even around strangers, offering a reserved indoor presence that aligns with their preference for gentle, independent companionship over alert duties.",
+    "apartment": "Yes — Greyhounds can live in an apartment. Their calm indoor demeanor and low energy once exercised allow them to lounge contentedly for hours, with minimal barking and a short smooth coat that adds to their suitability provided daily walks and secure sprint space are arranged.",
+    "first-time": "Greyhounds are not ideal as a first dog. Their high prey drive and independent nature demand experienced handling to manage recall and safe exercise, while their sensitive, reserved temperament requires understanding of the breed's need for quiet companionship rather than constant interaction."
+  }
+}

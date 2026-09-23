@@ -1,0 +1,25 @@
+{
+  "slug": "canaan-dog",
+  "breed": "Canaan Dog",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, with seasons",
+    "hypoallergenic": "No — medium double coat",
+    "barks": "Moderately at strangers"
+  },
+  "answers": {
+    "children": "Canaan Dogs are moderately good with children. Their alert and independent nature combined with strong protective instincts means they tolerate familiar children but remain wary around rough play or strangers, and their herding background can lead them to circle or nudge small kids during excitement.",
+    "other-pets": "Canaan Dogs can get along with other pets when raised together. Their independent temperament and history as desert guardians of livestock give them moderate sociability, though same-sex tension and wariness can appear with unfamiliar dogs while their prey drive remains low indoors.",
+    "exercise": "Canaan Dogs need at least one to two hours of exercise daily. Bred for herding and guarding in harsh Middle Eastern deserts, they require hikes, runs or agility work that engages their sharp instincts, otherwise they dig, pace or become restless from unused endurance.",
+    "shedding": "Yes — Canaan Dogs shed moderately year-round with heavier seasonal blows. Their medium double coat traps sand and debris from their desert origins and distributes loose undercoat through the house, requiring regular removal to prevent mats in the longer guard hairs.",
+    "hypoallergenic": "No breed is hypoallergenic, and the Canaan Dog is not one commonly suggested for allergy sufferers. Its medium double coat releases dander and sheds hair that clings to furniture, so the breed’s resilience in arid environments does not reduce allergens in the home.",
+    "training": "Canaan Dogs are moderately easy to train. Their high intelligence allows quick learning yet strong independence and wariness of strangers demand firm, consistent handling, as they were originally bred to think and act without constant human direction in desert survival conditions.",
+    "lifespan": "Canaan Dogs live 12-15 years. Their resilient build and history as adaptable desert survivors from the Middle East support health robustness, with the breed’s ancient roots and strong protective instincts contributing to overall vitality when given space to exercise their alert minds and bodies.",
+    "size": "Canaan Dogs reach 35-55 lb and stand 19-24 in at the shoulder. Their medium, agile build feels compact yet sturdy in the house, reflecting proportions honed for endurance across harsh Israeli terrain where they guarded livestock without excess bulk slowing their independent movement.",
+    "barking": "Canaan Dogs bark a moderate amount. Alert by nature and originally bred to guard livestock and Bedouin camps in the Middle East, they vocalise mainly at strangers or unusual sounds, using their sharp instincts to warn rather than bark incessantly.",
+    "apartment": "Canaan Dogs can live in an apartment with difficulty. Their independent temperament and high energy from desert herding work make settling indoors challenging without long daily exercise, and their moderate barking at perceived threats can disturb neighbours in close quarters.",
+    "first-time": "Canaan Dogs are not a good first dog. Their wariness of strangers, aloofness and requirement for firm consistent training challenge novices, as the breed’s independent nature and protective instincts shaped by ancient Middle Eastern survival demand experienced handling to earn trust."
+  }
+}

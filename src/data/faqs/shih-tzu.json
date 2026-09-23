@@ -1,0 +1,25 @@
+{
+  "slug": "shih-tzu",
+  "breed": "Shih Tzu",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Lightly, year-round",
+    "hypoallergenic": "Commonly suggested",
+    "barks": "Moderately at noises"
+  },
+  "answers": {
+    "children": "Yes — Shih Tzus are good with children when the children are gentle, thanks to their small size, affectionate nature and playful streak that matches well with calm indoor play; their compact build means rough handling can injure them, while their outgoing temperament helps them warm to respectful youngsters. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Yes — Shih Tzus generally get along with other pets because of their outgoing and affectionate personality combined with low prey drive from their history as pure companions rather than hunters; they enjoy the company of familiar cats and dogs once introduced, though same-sex tension can appear with another dominant small dog.",
+    "exercise": "Shih Tzus need 20 to 30 minutes of exercise daily in the form of short walks and indoor play such as hallway fetch or gentle tug; when this is not met they become restless and prone to stubborn refusal of activity, while their brachycephalic build and low energy level mean they tire quickly and must avoid heat.",
+    "shedding": "Yes — Shih Tzus shed lightly year-round; their long silky single-layer coat traps loose hair so that it mats behind the ears and under the legs rather than falling freely onto floors, requiring daily attention to prevent tangles that follow from the flowing texture bred for their regal appearance.",
+    "hypoallergenic": "No breed is truly hypoallergenic, yet Shih Tzus are often suggested for allergy sufferers because their long silky coat sheds lightly and holds dander close to the skin instead of releasing it into the air; the high grooming demands of that coat still require regular bathing to manage allergens effectively.",
+    "training": "No — Shih Tzus are not easy to train because of their pronounced stubbornness that makes them ignore commands despite their intelligence; bred solely for companionship in Chinese imperial palaces they lack the biddability of working breeds, so owners must use patient, positive methods to overcome their independent streak.",
+    "lifespan": "Shih Tzus live 10-18 years. Their small size and adaptable nature support longer lives, yet the breed's health robustness is moderate because the brachycephalic head shape from their ancient Tibetan and Chinese royal breeding programmes can affect breathing and overall vitality during daily activities like short walks.",
+    "size": "Shih Tzus reach 9-16 lb and stand 9-10.5 in tall. Their compact, sturdy build feels like a warm lapful of flowing silk when they cuddle, with enough substance to move confidently around small homes yet light enough that even a child can lift them without strain.",
+    "barking": "Shih Tzus bark moderately. Their outgoing temperament leads them to issue sharp barks at strangers or unusual noises such as a delivery at the door, reflecting their role as alert palace companions in imperial China rather than silent lapdogs, though they settle quickly once the stimulus passes.",
+    "apartment": "Yes — Shih Tzus can live in an apartment because their low energy level lets them settle indoors after brief hallway play, their adaptable nature suits small living spaces, and their moderate barking rarely disturbs neighbours; the main demand is managing the long silky coat that needs frequent grooming regardless of home size.",
+    "first-time": "No — Shih Tzus are not an ideal first dog because their high grooming demands and stubbornness during training require consistent daily effort that novices often underestimate; the long silky coat mats quickly while their playful yet independent personality tests patience, making experienced handling of their regal quirks more practical."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "slug": "dachshund",
+  "breed": "Dachshund",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, year-round",
+    "hypoallergenic": "No",
+    "barks": "Frequently at alerts"
+  },
+  "answers": {
+    "children": "Dachshunds can be moderately good with children when raised together, though their small build and stubborn nature mean they may not tolerate rough play. Their courageous hound heritage gives them a bold attitude that sometimes leads to snapping if they feel overwhelmed, and their elongated bodies make them vulnerable during boisterous games. Owners must manage interactions to protect the dog's back while channelling its playful side. (PawLabs child-friendly score: 6/10)",
+    "other-pets": "Dachshunds do not always get along with other pets because their history hunting badgers and small game creates a strong prey drive toward smaller animals. They can be territorial with same-sex dogs and overly protective around the home, though they often form a strong bond with family cats if introduced carefully. Their tenacious personality may lead to chasing or standoffs.",
+    "exercise": "Dachshunds need 30 to 60 minutes of daily exercise split into walks and play. Without it their stubborn streak surfaces as destructive digging or excessive vocalising rooted in their badger-hunting origins. Short-legged yet energetic, they suit sniffing exploration and gentle games rather than jumping or steep stairs that strain their long backs.",
+    "shedding": "Yes — Dachshunds shed moderately year-round with no heavy seasonal coat blow. Their short smooth single coat releases fine hairs that cling to furniture and clothing, while the low-to-the-ground build collects outdoor debris that then scatters indoors. Daily wiping keeps the sleek texture tidy but cannot eliminate the steady loose hair from this tenacious hound.",
+    "hypoallergenic": "No breed is truly hypoallergenic, and the Dachshund is not one of those commonly suggested for allergy sufferers. Its short smooth coat still produces dander and releases moderate amounts of hair that can trigger reactions despite the minimal grooming needs. The breed's spunky personality and low-slung build do nothing to reduce allergen spread through the home.",
+    "training": "Dachshunds are not easy to train because their stubborn independent streak, inherited from hunting badgers without constant human direction, makes them resistant to repetitive commands. Their intelligence allows quick learning when motivated, yet the courageous temperament often leads to selective obedience focused on family bonding rather than pleasing the handler.",
+    "lifespan": "Dachshunds live 12-16 years. Their small size and spunky hound build contribute to this range, but the elongated body bred for digging into badger dens leaves them prone to back issues that can shorten active years if not managed. The fearless determined nature keeps many mentally sharp into old age, while the strong family bond encourages attentive care that supports reaching the upper end of the span.",
+    "size": "Adult Dachshunds weigh 16-32 lb and stand 8-9 in tall. Their long low-slung bodies with powerful front paws, originally built for underground work flushing badgers and foxes, feel surprisingly solid despite the comical proportions. Living with them means navigating a bold personality in a compact frame that demands careful lifting to protect the spine.",
+    "barking": "Dachshunds bark frequently because their loud voice was developed to alert hunters while pursuing prey underground. The tenacious hound still sounds off at strangers, squirrels, or any perceived intrusion, reflecting its protective instincts and playful yet opinionated temperament. This vocal nature can become excessive without enough mental stimulation from scent work or puzzle toys.",
+    "apartment": "Dachshunds can live in an apartment if given daily walks and mental games to satisfy their hunting drive. Their small size and ability to settle indoors suit limited space, yet the barking score of 7 and stubborn energy require consistent routines to prevent boredom-led noise or digging. The strong family bond helps them adapt when exercise and affection are balanced.",
+    "first-time": "Dachshunds are not an ideal first dog because their stubborn independence and vocal protectiveness demand patient consistent handling that novices may find frustrating. The courageous nature in such a small package leads to selective listening and back-care vigilance, while the need to channel tenacious hunting instincts through training and activity tests inexperienced owners."
+  }
+}

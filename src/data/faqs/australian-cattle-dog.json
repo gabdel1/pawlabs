@@ -1,0 +1,25 @@
+{
+  "slug": "australian-cattle-dog",
+  "breed": "Australian Cattle Dog",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, with seasonal blows",
+    "hypoallergenic": "No — short double coat",
+    "barks": "Moderately, when alert"
+  },
+  "answers": {
+    "children": "Australian Cattle Dogs can be good with children but need careful management because of their herding instinct. The breed's compact muscular build and boundless energy lead it to nip at heels to move small children along, while its protective temperament makes it watchful yet sometimes overly intense around play. Early training channels the independent mind that was developed for driving cattle across the Australian outback. (PawLabs child-friendly score: 6/10)",
+    "other-pets": "Australian Cattle Dogs often struggle with other pets due to their strong herding drive. Bred from Dingo crosses to handle cattle in harsh terrain, the breed's alert and protective nature can trigger nipping at heels or chasing, and same-sex tension sometimes arises from its independent streak. Careful introductions help the energetic dog coexist when its intelligence is directed into appropriate tasks.",
+    "exercise": "Australian Cattle Dogs need at least two hours of hard exercise daily. Without it the tireless worker bred for long-distance cattle herding in the outback becomes destructive, shredding objects or inventing its own projects. Runs, agility work, puzzle toys and actual livestock herding suit its unmatched stamina and sharp problem-solving skills.",
+    "shedding": "Yes — Australian Cattle Dogs shed moderately year-round with heavier seasonal blows. The short double coat, developed for resilience in rugged Australian conditions, releases undercoat that spreads through the house and sticks to furniture. Weekly brushing removes loose hair and keeps the compact muscular body looking tidy.",
+    "hypoallergenic": "No breed is hypoallergenic, and the Australian Cattle Dog is not one of those commonly suggested for allergy sufferers. Its short double coat, bred for toughness in the outback, still releases dander and loose hair that can trigger reactions despite the low grooming needs.",
+    "training": "Australian Cattle Dogs are not always easy to train because of their stubborn and independent-minded nature. Exceptional intelligence and problem-solving skills allow them to learn commands quickly, yet the breed often decides it knows best when herding cattle over vast distances without constant direction. Consistent work that respects its energetic drive yields the best results.",
+    "lifespan": "Australian Cattle Dogs live 12-16 years. The compact muscular build and resilience gained from Dingo ancestry in the harsh Australian outback support its health robustness, letting the tireless worker maintain stamina and alertness well into its later years when given the activity its energetic temperament demands. Its history of covering long distances in punishing climates contributes to overall toughness.",
+    "size": "Australian Cattle Dogs reach 35-50 lb and stand 17-20 in at the shoulder. The compact, muscular build developed for nipping cattle heels without injury feels solid and agile in the home, allowing the alert dog to move quickly through tight spaces while its protective presence remains substantial without being overwhelming.",
+    "barking": "Australian Cattle Dogs bark moderately, mainly when alert to movement or unfamiliar sounds. Bred as protective workers to guard cattle in remote Australian terrain, the breed stays watchful and uses its voice to signal rather than filling the day with noise, though its energetic mind can prompt barking if understimulated.",
+    "apartment": "Australian Cattle Dogs do not suit apartment living well. High energy from its cattle-herding background leads to restlessness indoors, the alert and protective temperament keeps it reactive to hallway noises, and without space for intense daily activity the independent dog often turns to destructive behaviour.",
+    "first-time": "Australian Cattle Dogs are not a good choice for first-time owners because of their high energy and independent nature. The sharp mind and unmatched stamina bred for herding cattle across rugged outback demand experienced handling to prevent stubbornness and destructive outlets, while its protective streak and herding instincts require consistent leadership that novices may find challenging to provide."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "slug": "pug",
+  "breed": "Pug",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, year-round",
+    "hypoallergenic": "No",
+    "barks": "Infrequently"
+  },
+  "answers": {
+    "children": "Pugs are good with children thanks to their affectionate and playful nature paired with small size that limits any risk of knocking over toddlers. Their history as royal lap companions in ancient China produced dogs that enjoy close contact and adapt readily to family routines, though their stubborn streak can surface if play becomes too rough. The moderate energy level supports short interactive sessions rather than constant chasing. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Pugs get along well with other pets because their original role as companions of Chinese royalty selected for sociability rather than prey drive or guarding instinct. Their affectionate temperament leads them to seek company from cats and dogs alike, while the playful side produces gentle tumbling games instead of tension. Stubbornness appears mainly around food rather than hierarchy.",
+    "exercise": "Pugs need 20 to 30 minutes of gentle daily exercise split into two short walks plus indoor play. When this is not met they become bored and mischievous, often unrolling toilet paper or stealing crumbs. Their flat face and low energy level mean they suit slow trots around the block or brief rope-tug sessions rather than runs or hikes.",
+    "shedding": "Yes — Pugs shed moderately year-round. The short smooth single coat releases fine hair that clings to furniture and clothing, with slightly heavier loss during seasonal coat changes. Their compact build means the volume of loose hair is noticeable in small homes despite the coat length.",
+    "hypoallergenic": "No breed is hypoallergenic and the Pug is not one of those commonly suggested for allergy sufferers. Its short smooth coat still produces dander and releases moderate amounts of hair that can trigger reactions, while the wrinkled skin traps additional particles that owners must clean regularly.",
+    "training": "Pugs are not easy to train because their stubborn temperament often leads them to plant their paws and ignore commands once they lose interest. Bred solely as companions rather than working dogs, they lack the biddability that comes from tasks requiring human direction, so owners must rely on short positive sessions that match the breed’s moderate intelligence.",
+    "lifespan": "Pugs live 13-15 years. Their small build and history as pampered lap dogs of Chinese emperors support a relatively long life for the toy group, although the flat face and low health-robustness score indicate that respiratory quirks form part of daily life with the breed.",
+    "size": "Pugs reach 14-18 lb and stand 10-13 in tall. The compact, solidly built frame feels like a warm, snoring lap warmer rather than a fragile toy, with enough substance that the dog occupies a good portion of a sofa cushion while remaining portable for travel.",
+    "barking": "Pugs do not bark a lot. Their original role as quiet royal companions in China and later European courts favoured a calm demeanour, so they mainly produce snorts, grunts and the occasional alert rather than frequent vocalising. The moderate barking score reflects this restrained habit.",
+    "apartment": "Pugs can live in an apartment because their low energy level, adaptable nature and small size let them settle indoors with minimal space. They thrive on human company in compact homes, although their snoring and occasional stubborn demands for attention become part of the shared living arrangement.",
+    "first-time": "Pugs are not an ideal first dog because their stubborn streak makes training and consistent boundaries difficult for novices. The combination of high affection demands, respiratory sounds caused by the flat face and low health robustness requires owners who can manage the breed’s specific quirks without becoming overwhelmed."
+  }
+}

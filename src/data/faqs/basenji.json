@@ -1,0 +1,25 @@
+{
+  "slug": "basenji",
+  "breed": "Basenji",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Lightly, year-round",
+    "hypoallergenic": "No — short smooth coat",
+    "barks": "Rarely, yodels instead"
+  },
+  "answers": {
+    "children": "Basenjis are moderately good with children because their medium size and independent nature mean they tolerate play on their own terms rather than seeking constant interaction. Bred as hunters in Central African forests, they possess a cat-like demeanor and can become aloof if overwhelmed by rough energy or noise. Owners must provide supervision during active play so the dog’s self-sufficient personality does not lead to avoidance or accidental nips.",
+    "other-pets": "Basenjis do not always get along with other pets because their high prey drive, developed for hunting small game, leads them to chase or view smaller animals as quarry. They can show tension with same-sex dogs due to their aloof and independent temperament. Living with one requires secure management and careful introductions to prevent the silent hunter from acting on its primitive instincts.",
+    "exercise": "Basenjis need 60 to 90 minutes of exercise daily, combining brisk walks with off-leash running in secure areas and mental puzzles that match their intelligent problem-solving ability. Without this outlet their forest-hunting energy turns inward, resulting in destructive chewing or climbing that can damage furniture and doors. The breed’s cat-like curiosity demands varied activity to keep its independent mind occupied.",
+    "shedding": "Yes — Basenjis shed lightly year-round with no heavy seasonal blow because their short, smooth single coat lacks the dense undercoat of many hounds. The fine texture means loose hairs are minimal and easy to wipe away from furniture or clothing. Living with this African breed therefore requires only occasional brushing rather than intensive grooming sessions.",
+    "hypoallergenic": "No breed is truly hypoallergenic, yet the Basenji’s short smooth coat is sometimes suggested for allergy sufferers because it produces relatively little dander compared with longer-haired dogs. The single coat still sheds lightly and requires regular wiping to control allergens in the home. People with sensitivities should still spend time around the breed before deciding.",
+    "training": "Basenjis are not easy to train because their stubborn independence, inherited from centuries of self-sufficient hunting in Central African tribes, makes them question commands rather than obey them. Highly intelligent problem-solvers, they quickly learn how to open doors or reach counters but rarely perform for praise alone. Consistent, creative methods are needed or the aloof hunter will simply disengage.",
+    "lifespan": "Basenjis live 13-14 years, a range supported by their naturally robust build and the primitive health that comes from evolving through tribal selection rather than extreme conformation. Their medium weight and athletic proportions from forest hunting help maintain condition into later life. The breed’s self-reliant background contributes to a hardy constitution that benefits from an active lifestyle.",
+    "size": "Adult Basenjis weigh 22-24 lb and stand 16-17 in at the shoulder, giving a compact, lightly built frame that feels more like a cat than a typical hound in the house. Their elegant proportions and tightly curled tail suit an independent lifestyle where they perch on furniture to observe. This medium size allows them to navigate small spaces easily while still possessing the speed and agility of their African hunting ancestors.",
+    "barking": "Basenjis do not bark because they were selectively bred by Central African tribes as silent hunters that would not alert prey in dense forest. Instead they produce an eerie yodel when excited or alarmed, a unique vocalisation that still remains quiet overall. The barkless trait makes them suitable for owners who value a peaceful indoor environment without constant noise.",
+    "apartment": "Basenjis can live in an apartment provided their high energy and intelligent curiosity receive daily mental and physical outlets to prevent boredom-driven destruction. Their quiet, rarely barking nature and short smooth coat suit indoor life, yet the independent hunter needs secure exercise options such as puzzle toys or lure work. Without stimulation the aloof dog may climb or chew in silence.",
+    "first-time": "Basenjis are not a good first dog because their stubborn independence and low trainability demand an owner who can negotiate with a clever, self-sufficient hunter without expecting eager compliance. The breed’s cat-like aloofness and high prey drive require experienced handling to channel its intelligence productively. Novices may struggle with the silent problem-solver’s refusal to follow conventional rules."
+  }
+}

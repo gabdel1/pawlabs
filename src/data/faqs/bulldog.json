@@ -1,0 +1,25 @@
+{
+  "slug": "bulldog",
+  "breed": "Bulldog",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, year-round",
+    "hypoallergenic": "No — sheds dander",
+    "barks": "Rarely, mostly quiet"
+  },
+  "answers": {
+    "children": "Bulldogs are good with children thanks to their gentle and affectionate nature combined with a stocky medium build that tolerates play without being overwhelmed. Their low energy means they prefer calm interaction over roughhousing, and their stubborn streak can lead them to simply walk away from overenthusiastic toddlers rather than snap. The breed's history as a companion rather than a herder supports this tolerant approach around small people. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Bulldogs generally get along with other pets because of their affectionate and gentle temperament once past the puppy stage. Their original bull-baiting background gives little prey drive, so cats and smaller animals are usually ignored rather than chased. Same-sex tension can appear if both dogs are equally stubborn about resources, yet most live peacefully with established household companions.",
+    "exercise": "Bulldogs need 20-30 minutes of daily exercise, typically a slow walk or short indoor play session. When this is not met they become lethargic and overweight due to their low energy and stocky build. Short tug-of-war games suit them far better than runs or hikes, as their heavy frame and pushed-in nose cause rapid overheating.",
+    "shedding": "Yes — Bulldogs shed moderately year-round with no strong seasonal spikes. Their short smooth single coat releases hair that sticks to furniture and clothing, requiring regular sweeping. The breed's loose wrinkled skin traps some dead hair, so light daily brushing prevents buildup on the stocky body.",
+    "hypoallergenic": "No breed is truly hypoallergenic, and Bulldogs are not among those commonly suggested for allergy sufferers. Their short smooth coat still produces dander and releases moderate amounts of hair that can trigger reactions. The heavy build and constant shedding from English stock make them unsuitable for most people with sensitivities.",
+    "training": "Bulldogs are not easy to train because of their stubborn temperament and independent attitude that resists commands. What they were bred to do as companions does not require following human direction closely, so they often respond with a blank stare instead of compliance. Their moderate intelligence is undermined by low motivation, demanding patient repetition from owners.",
+    "lifespan": "Bulldogs live 8-10 years. Their heavy muscular build and exaggerated features from selective breeding for companionship rather than function contribute to reduced robustness. The English origin stock selected for a stocky frame has produced health challenges that affect longevity in the breed.",
+    "size": "Bulldogs reach 40-50 lb and stand 14-15 in at the shoulder as adults. Their wide, muscular build feels surprisingly solid and low to the ground when they lean against legs or refuse to move from the couch. The compact proportions make them manageable indoors yet substantial enough to notice when one decides to occupy a lap.",
+    "barking": "Bulldogs do not bark a lot. They remain mostly quiet, producing more snoring and grunting than alarm calls, which fits their role as a companion rather than guardian. The low barking level stems from their gentle disposition and lack of strong territorial drive once removed from their bull-baiting past.",
+    "apartment": "Bulldogs can live in an apartment because their low exercise needs and quiet nature let them settle indoors without demanding large spaces. The breed's stubborn but affectionate temperament means they are content to nap near owners rather than patrol or run. Their minimal vocalisation avoids disturbing neighbours.",
+    "first-time": "Bulldogs are not a good first dog because their stubborn streak and serious health issues demand experience and patience from owners. The low trainability combined with the need to manage a heavy build that overheats easily creates demands that novices often underestimate. Their affectionate loyalty rewards committed handlers but overwhelms beginners."
+  }
+}

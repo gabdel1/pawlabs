@@ -1,0 +1,25 @@
+{
+  "slug": "portuguese-water-dog",
+  "breed": "Portuguese Water Dog",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Very little, year-round",
+    "hypoallergenic": "Often suggested",
+    "barks": "Moderately, when alert"
+  },
+  "answers": {
+    "children": "Yes — Portuguese Water Dogs are good with children when their high energy is channelled through play and exercise. Their spirited nature and intelligence make them eager playmates, though their medium build and boundless enthusiasm can lead to accidental knocks during rough games with toddlers. The breed's loyal temperament drives strong family bonds, and their original work assisting fishermen built stamina that suits active households with older kids. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Yes — Portuguese Water Dogs generally get along with other pets when properly introduced. Their intelligent and loyal temperament supports sociability, yet the high energy and working drive from their history assisting fishermen can create boisterous interactions that need supervision with smaller animals. They lack a strong prey drive but their independent streak may lead to same-sex tension if not socialised early.",
+    "exercise": "Portuguese Water Dogs need one to two hours of vigorous daily exercise. Without this their high energy leads to destructive behaviour such as chewing furniture or digging. Their exceptional swimming ability and love for water activities mean swims, water retrieval games and agility work suit them best, matching the stamina built from centuries assisting fishermen in the Atlantic.",
+    "shedding": "No — Portuguese Water Dogs shed very little year-round. Their medium curly coat lacks the undercoat of many working breeds, so loose hair stays trapped in the tight curls rather than spreading through the house. The texture requires regular grooming to prevent matting but results in a relatively clean living environment for an active, water-loving breed.",
+    "hypoallergenic": "No breed is truly hypoallergenic, yet the Portuguese Water Dog is commonly suggested for allergy sufferers because its medium curly coat sheds minimally and traps dander. The coat's dense curls, developed to protect against cold Atlantic waters, demand frequent grooming that removes loose hair before it spreads.",
+    "training": "Yes — Portuguese Water Dogs are easy to train. Their intelligence, high trainability and strong work ethic make them highly responsive, with the drive originally used for retrieving nets and guarding boats translating into eagerness to work with handlers. The loyal temperament supports quick learning, though their energetic independence requires consistent mental challenges to prevent boredom.",
+    "lifespan": "Portuguese Water Dogs live 11-13 years. Their medium size, muscular build developed for rugged work in harsh wet conditions and overall robustness support this range, while their history as versatile working partners to Portuguese fishermen shows the stamina that contributes to typical longevity in the breed.",
+    "size": "Portuguese Water Dogs reach 35-60 lb and stand 17-23 in tall. Their compact yet sturdy proportions, with webbed feet and a powerful frame built for swimming and retrieving in Atlantic waters, make them feel substantial without being overwhelming in the home, offering strength that matches their energetic and loyal temperament.",
+    "barking": "Portuguese Water Dogs bark moderately. Their alert nature, honed from guarding boats and delivering messages between ships in Portugal, leads them to vocalise at strangers or unusual activity rather than barking constantly, with the intelligent temperament allowing them to settle once the perceived task is complete.",
+    "apartment": "No — Portuguese Water Dogs do not suit apartment living well. Their high energy and need for purposeful activity such as swimming or water retrieval quickly lead to restlessness indoors, and the loyal yet spirited temperament makes them prone to pacing or destructive behaviour without daily access to space that matches their working heritage.",
+    "first-time": "No — Portuguese Water Dogs are not ideal as a first dog. Their demanding grooming needs, high energy that causes destructive behaviour without enough exercise and strong work drive from assisting fishermen require an experienced owner who can provide consistent training and outlets for their intelligence and loyalty."
+  }
+}

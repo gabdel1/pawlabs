@@ -1,0 +1,25 @@
+{
+  "slug": "puli",
+  "breed": "Puli",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Some answers edited by hand.",
+  "quick": {
+    "sheds": "Little, corded",
+    "hypoallergenic": "Sometimes suggested",
+    "barks": "Moderately, alerts"
+  },
+  "answers": {
+    "children": "Pulis can be good with children when their energy is channelled. Their medium size, loyalty and protective instincts suit family play, but the herding background makes them prone to circling and nipping at heels during rough games. Owners must provide structured activity so the boundless drive does not overwhelm small children. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Pulis get along with other pets when introduced carefully. Their herding instincts drive them to organise rather than chase, yet same-sex tension and protective loyalty can spark conflict with unfamiliar dogs. The energetic temperament requires supervision until bonds form inside the home.",
+    "exercise": "Pulis need two hours of vigorous daily exercise. Their Hungarian herding background demands both physical runs and mental tasks such as agility or puzzle toys, otherwise the high energy leads to destructive chewing and pacing. A tired Puli remains content indoors once the needs are met.",
+    "shedding": "Pulis shed little. The long curly coat cords into natural dreadlocks that trap dead hair inside the cords rather than releasing it around the house, yet the texture still produces some dust and debris that owners must manage during maintenance.",
+    "hypoallergenic": "No breed is truly hypoallergenic, but the Puli is sometimes suggested for allergy sufferers because its corded coat holds dander rather than scattering it. The long curly texture still requires intensive grooming that can stir up allergens during cord care.",
+    "training": "Pulis train easily for handlers who have done it before. They were bred to move livestock across the Hungarian plains with no one telling them how, so problem-solving comes naturally and so does deciding your plan is worse than theirs. Repetition bores them quickly; short varied sessions work far better.",
+    "lifespan": "Pulis live 10-15 years, a long span even for a medium breed. The compact 25-35 lb frame carries little weight for the joints to manage, and the corded coat hides condition, so a hands-on check every few weeks matters more than a visual one for spotting changes early.",
+    "size": "Pulis reach 25-35 lb and stand 16-17 in at the shoulder. The compact, agile proportions created for darting among Hungarian sheep flocks make them feel lighter than their weight suggests, yet strong enough to push livestock without being underfoot indoors.",
+    "barking": "Pulis bark a fair amount. A herding dog that worked at distance from its shepherd needed a voice, and the modern Puli still uses one — sharp bursts at strangers, arrivals and anything out of place, then quiet once satisfied. Close neighbours will notice before you do.",
+    "apartment": "Pulis can manage an apartment, but only with real effort. The obstacle is not size at 25-35 lb — it is a working herder's need for a job, and a readiness to bark at everything passing the door. Without hours of outdoor work each day, both problems get worse indoors.",
+    "first-time": "Pulis are not a good first dog. The corded coat alone is a commitment most people underestimate, needing regular separation by hand rather than brushing. Add herding instinct strong enough to redirect onto children or cars, and a novice is managing two demanding jobs at once."
+  }
+}

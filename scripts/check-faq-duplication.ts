@@ -94,10 +94,9 @@ console.log(`Looking for sentences of ${MIN_WORDS}+ words appearing on more than
 
 if (!repeated.length) {
   console.log('  none — no repeated boilerplate found\n');
-  process.exit(0);
 }
 
-console.log(`  ${repeated.length} repeated sentence(s):\n`);
+if (repeated.length) console.log(`  ${repeated.length} repeated sentence(s):\n`);
 for (const [sentence, slugs] of repeated.slice(0, verbose ? repeated.length : 25)) {
   console.log(`  ${String(slugs.length).padStart(3)} pages  "${sentence.slice(0, 104)}${sentence.length > 104 ? '…' : ''}"`);
   if (verbose) console.log(`            ${slugs.slice(0, 8).join(', ')}${slugs.length > 8 ? ', …' : ''}`);
@@ -122,17 +121,28 @@ for (const [sentence, slugs] of amongWritten.slice(0, 15)) {
 }
 
 // ── Answer-quality checks on the written files ──────────────────────
+/**
+ * Match the breed name allowing for plurals: answers say "Huskies" where the
+ * record says "Husky", and "Setters" where it says "Setter". Comparing against
+ * the bare last word reports those as missing the breed name when they are not.
+ */
+function breedStem(name: string): RegExp {
+  const last = name.split(' ').pop()!;
+  const stem = last.replace(/(ies|es|s)$/i, '').replace(/y$/i, '');
+  return new RegExp(stem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+}
+
 const dataDir = path.resolve(process.cwd(), 'src/data/faqs');
 const files = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'));
 const answerProblems: string[] = [];
 
 for (const file of files) {
   const data = JSON.parse(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
-  const lastWord = String(data.breed).split(' ').pop()!.replace(/s$/, '');
+  const stem = breedStem(String(data.breed));
 
   for (const [key, answer] of Object.entries(data.answers as Record<string, string>)) {
     const first = answer.split(/(?<=[.!?])\s/)[0] ?? answer;
-    if (!new RegExp(lastWord, 'i').test(first)) {
+    if (!stem.test(first)) {
       answerProblems.push(`${data.slug}/${key}: first sentence does not name the breed`);
     }
     if (/^(at|with|scoring|rated|scored)\s/i.test(first.trim())) {

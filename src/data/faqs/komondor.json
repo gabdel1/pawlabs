@@ -1,0 +1,25 @@
+{
+  "slug": "komondor",
+  "breed": "Komondor",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Little, cords trap hair",
+    "hypoallergenic": "No — corded coat",
+    "barks": "Moderately, at strangers"
+  },
+  "answers": {
+    "children": "Komondors can be good with children when raised together, thanks to their gentle nature with family despite their large 80-130 lb build and protective instincts. Their history as livestock guardians gives them tolerance for toddlers tugging at their corded coat, though their independent streak means they assess situations calmly rather than reacting with high energy. The breed's loyalty shows in patient guarding of their human flock. (PawLabs child-friendly score: 6/10)",
+    "other-pets": "Komondors do not always get along with other pets because their protective instincts and wariness of other dogs can lead to tension. Bred as independent livestock guardians in Hungary, they view strangers including unfamiliar animals as potential threats rather than companions. Their loyalty focuses tightly on their own family flock, limiting sociability with household cats or additional dogs.",
+    "exercise": "Komondors need around an hour of exercise daily, split between a long walk and free roaming in a secure yard to satisfy their steady vigilance. Without this they may become restless sentinels, patrolling indoors instead of settling. Their Hungarian livestock guardian background suits deliberate pacing and property watching far more than agility work or intense running.",
+    "shedding": "Komondors shed little because their long curly coat forms dense cords that trap hair within the distinctive mop-like structure. This corded texture from centuries of Hungarian plains work prevents much loose fur around the house, though the cords themselves demand attention to avoid matting at the base. (PawLabs shedding score: 2/10)",
+    "hypoallergenic": "No breed is truly hypoallergenic, and the Komondor is not commonly suggested for allergy sufferers despite its low shedding. The long curly coat that cords into a heavy white mop still produces dander and requires intensive grooming that can spread allergens during maintenance.",
+    "training": "Komondors are not easy to train due to their strong independence and history of making decisions alone while guarding livestock on the Hungarian plains. This working heritage makes them intelligent thinkers who may ignore commands if they judge a situation differently, though their protective loyalty can motivate cooperation with trusted family members.",
+    "lifespan": "Komondors live 10-12 years. Their large rugged build developed for harsh weather and predator protection on the Hungarian plains supports reasonable robustness, yet their substantial size and corded coat place typical demands on joint health and skin care throughout that span.",
+    "size": "Adult Komondors stand 25-31 inches tall and weigh 80-130 lb, presenting as a substantial, muscular guardian that feels imposing indoors. The powerful build from their Hungarian livestock sentinel role gives them a deliberate, heavy-footed presence that commands space and respect within a home.",
+    "barking": "Komondors bark a moderate amount, mainly issuing deep resonant alerts when strangers approach their territory. Their centuries-old role as independent livestock guardians in Hungary bred them to sound the alarm only when truly needed rather than yapping at every sound, suiting their watchful and protective temperament.",
+    "apartment": "Komondors do not suit apartment living because their protective instincts and deep barking when wary of strangers disturb neighbours. The breed's need for vigilant patrolling and an hour of daily activity fits poorly in compact indoor spaces, where their large corded presence and independent nature struggle to settle quietly.",
+    "first-time": "Komondors are not a good first dog because their independent decision-making and intense guarding instincts demand an experienced handler who can manage wariness of strangers. The specific demands of socialising their protective Hungarian heritage and channeling their loyal but aloof temperament prove challenging for novices."
+  }
+}

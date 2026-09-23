@@ -1,0 +1,25 @@
+{
+  "slug": "basset-hound",
+  "breed": "Basset Hound",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, year-round",
+    "hypoallergenic": "No",
+    "barks": "Moderately, when scenting"
+  },
+  "answers": {
+    "children": "Basset Hounds are good with children thanks to their gentle and affectionate nature paired with a calm demeanor that tolerates toddlers using them as pillows. Their low energy and heavy build mean they prefer quiet interaction over rowdy play, while their stubborn streak can surface if a child tries to move them from a chosen spot. The French hunting background produced a patient tracker rather than a bouncy herder, suiting steady family life. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Basset Hounds usually get along with other pets because of their calm and friendly demeanor with family, showing little aggression toward household animals. Their exceptional sense of smell can trigger following a scent trail even indoors, yet the low-energy hound build keeps conflicts minimal. Stubbornness appears more in ignoring calls than in same-sex tension or prey disputes.",
+    "exercise": "Basset Hounds need 30 to 60 minutes of daily exercise split into leisurely walks that let them follow scents at their own pace. Their short legs and heavy build limit speed, so they simply plant themselves when tired, and unmet activity leads to weight gain given their love of food and low energy level. Scent games suit the tracking heritage far better than runs.",
+    "shedding": "Yes — Basset Hounds shed moderately with short smooth coats that release hair onto furniture and clothing year-round. The single-layer texture lacks feathering or undercoat density, so loose hairs cling less than in longer-coated hounds yet still accumulate noticeably around the low-slung body during the gentle daily movement of this French tracking breed.",
+    "hypoallergenic": "No breed is truly hypoallergenic, and Basset Hounds are not among those suggested for allergy sufferers because their short smooth coat still produces moderate shedding that spreads dander. The low-maintenance texture typical of the ground-hugging French hound offers no special barrier against proteins that trigger reactions.",
+    "training": "Basset Hounds are not easy to train because their stubbornness makes them ignore commands the moment a scent distracts the exceptional nose second only to the Bloodhound. Independence from their original role tracking small game without constant human direction further reduces biddability, so owners must work around the gentle yet food-motivated will.",
+    "lifespan": "Basset Hounds live 10 to 12 years. Their low energy and heavy build contribute to a tendency toward obesity that can affect stamina over time, while the calm and affectionate temperament supports steady daily routines that help maintain condition. The short smooth coat requires little grooming effort that might otherwise add stress, and the French tracking heritage favours endurance rather than explosive athleticism.",
+    "size": "Basset Hounds reach 40-65 lb and stand 11-15 in at the shoulder. The low-slung heavy build with substantial bone and loose skin creates a solid lapdog presence that feels like a 50-pound sack of potatoes when they flop across a person, while the short legs keep them ground-hugging during scent work yet still substantial enough to anchor a leash when stubbornness sets in.",
+    "barking": "Basset Hounds bark moderately, mainly using a deep baying howl when they catch an interesting scent or are left alone too long. The French hunting background developed vocal tracking communication rather than constant alarm barking, so the gentle and affectionate hound stays quiet during calm family hours but lets out soulful sounds that echo through the house when the nose rules.",
+    "apartment": "Basset Hounds can live in an apartment because their low energy and calm demeanor let them settle indoors for long naps with minimal pacing. The moderate barking stays tied to scents or solitude rather than every knock, and their short smooth coat leaves little mess, though the stubbornness and love of food require owners to enforce the short daily walks that prevent weight gain.",
+    "first-time": "Basset Hounds are not an ideal first dog because their stubbornness can make training a challenge for novices who underestimate how completely the exceptional nose overrides commands. The low-energy French hound needs consistent handling around food motivation and the tendency to plant in place, so first-time owners must learn to manage the affectionate yet independent will without frustration."
+  }
+}

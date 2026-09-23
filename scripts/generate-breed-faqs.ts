@@ -133,7 +133,7 @@ HARD RULES
    GOOD: "Yes — Gordon Setters shed moderately year-round, with heavier seasonal sheds; their long feathering tangles and traps loose hair."
    BAD:  "At 6/10 for shedding, the Gordon Setter sheds a moderate amount."
 2. The rest of the answer must be SPECIFIC TO THIS BREED — its coat, its build, what it was bred to do, what owners of this breed report. Anything you write must be supported by the supplied profile, history, temperament words, strengths, weaknesses or trait scores. Invent nothing: no health conditions, no statistics, no history that is not given.
-3. 40-80 words per answer. Count them. An answer under 40 words is too thin — add another concrete detail drawn from the profile (coat, build, what it was bred to do, a named strength or weakness) rather than padding with filler.
+3. AIM FOR 55-70 WORDS per answer. The hard limits are 40 and 80, and answers keep coming back at 36-39, which fails. Three full sentences is about right: the direct answer, a concrete breed-specific detail, then a consequence for the person living with the dog. If an answer feels finished at 38 words, it is missing the third sentence.
 4. A score may appear ONLY as supporting detail at the end of a sentence, in exactly this format: "(PawLabs shedding score: 6/10)". Use it in at most two of the eleven answers. Any other mention of a number out of ten is forbidden — do not write "rates 5/10", "their moderate 5/10 score", or similar. Never write a trait code.
 5. NO GENERIC CAVEATS. These sentences are banned outright because they used to appear on every page:
    - anything saying low shedding is not the same as hypoallergenic
@@ -222,16 +222,26 @@ const BANNED = [
 /** A score outside the one approved format. */
 const LOOSE_SCORE = /(?<!PawLabs [a-z- ]{3,30}score: )\b\d{1,2}\/10\b/;
 
+/**
+ * Match the breed name allowing for plurals: answers say "Huskies" where the
+ * record says "Husky", and "Setters" where it says "Setter". Comparing against
+ * the bare last word reports those as missing the breed name when they are not.
+ */
+function breedStem(name: string): RegExp {
+  const last = name.split(' ').pop()!;
+  const stem = last.replace(/(ies|es|s)$/i, '').replace(/y$/i, '');
+  return new RegExp(stem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+}
+
 function validate(breed: Breed, generated: Generated): string[] {
   const problems: string[] = [];
-  // Match on the distinctive last word, so "Setters" still matches "Gordon Setter".
-  const lastWord = breed.name.split(' ').pop()!.replace(/s$/, '');
+  const stem = breedStem(breed.name);
 
   for (const key of FAQ_KEYS) {
     const answer = generated.answers[key];
     const first = answer.split(/(?<=[.!?])\s/)[0] ?? answer;
 
-    if (!new RegExp(lastWord, 'i').test(first)) problems.push(`${key}: first sentence does not name the breed`);
+    if (!stem.test(first)) problems.push(`${key}: first sentence does not name the breed`);
     if (/^(at|with|scoring|rated|scored)\b/i.test(first.trim())) problems.push(`${key}: opens with a score`);
 
     const words = wordCount(answer);

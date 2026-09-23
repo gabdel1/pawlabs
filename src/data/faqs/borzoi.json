@@ -1,0 +1,25 @@
+{
+  "slug": "borzoi",
+  "breed": "Borzoi",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, with seasonal peaks",
+    "hypoallergenic": "No — long silky coat",
+    "barks": "Rarely, remains quiet"
+  },
+  "answers": {
+    "children": "Borzois are moderately good with children due to their gentle nature but their large size and aloof temperament require careful management. The breed's graceful build and independent streak mean they tolerate play without much enthusiasm yet can be startled by rough handling; their history as coursing hounds for wolves and hare leaves them with low tolerance for chaotic energy around small children. (PawLabs child-friendly score: 6/10)",
+    "other-pets": "Borzois often struggle to get along with other pets because of their high prey drive. Bred originally in Russia for coursing wolves and hare, these sighthounds view smaller animals as quarry and may chase them relentlessly; same-sex tension can appear with other large dogs while their aloof temperament limits sociable play.",
+    "exercise": "Borzois need 20-30 minutes of high-intensity running daily. Short bursts of sprinting in a secure fenced area suit their exceptional speed and agility as a breed developed for chasing prey across Russian steppes; when this is not met they grow restless, pace indoors and may chew, as calm lounging is their default only after proper exertion.",
+    "shedding": "Yes — Borzois shed moderately year-round with heavier seasonal sheds. Their long silky coat with feathering tangles easily and spreads fine hair across furniture and clothing; the elegant flowing texture demands regular attention to prevent mats in their undercoat, a direct result of the build refined for aristocratic Russian wolf hunting.",
+    "hypoallergenic": "No breed is hypoallergenic, and Borzois are not commonly suggested for allergy sufferers. Their long silky coat releases dander and loose hair that clings to surfaces; the feathering and flowing texture trap particles rather than minimise them, matching their history as a graceful yet substantial Russian sighthound.",
+    "training": "Borzois are not easy to train because of their independent nature and sensitivity to harsh methods. Bred for coursing without constant human direction, they show low biddability and can ignore commands when distracted by prey; their intelligence shines in problem-solving yet the aloof temperament makes them stubbornly selective about cooperation.",
+    "lifespan": "Borzois live 9-14 years. Their large yet graceful build and exceptional speed place demands on joints and heart that influence longevity; the elegant proportions developed for Russian wolf coursing support a relatively athletic frame but the independent sighthound physiology can lead to variable robustness across individuals. (PawLabs health robustness score: 5/10)",
+    "size": "Borzois reach 60-105 lb and stand 26-32 in at the shoulder. Their long-legged, narrow build feels surprisingly light on the leash despite the weight, allowing effortless indoor movement; the substantial yet elegant frame bred for coursing over snowy steppes means they take up visual space while remaining calm and graceful in the home.",
+    "barking": "Borzois do not bark much. Their aloof and independent temperament leads to quiet observation rather than vocal alerts; originally bred in Russia to course wolves and hare, they rely on speed and focus instead of noise, remaining serene indoors unless genuinely stirred.",
+    "apartment": "Borzois can live in an apartment if given access to sprinting space elsewhere. Their graceful and calm indoor manner suits smaller homes where they lounge elegantly for hours; however the high exercise needs and prey drive mean secure outdoor running is essential or they become restless, outweighing any floor-area limitations.",
+    "first-time": "Borzois are not a good first dog because of their independent nature and high prey drive. Sensitive to harsh training, they demand an owner who understands sighthound instincts rather than expecting eager compliance; the combination of aloof temperament and need for specialised exercise makes them challenging for novices despite their gentle soul."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "slug": "boston-terrier",
+  "breed": "Boston Terrier",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, year-round",
+    "hypoallergenic": "No — short smooth coat",
+    "barks": "Infrequently, alert only"
+  },
+  "answers": {
+    "children": "Yes — Boston Terriers are good with children because their small 12-25 lb build, lively energy and affectionate nature let them match a toddler’s playfulness with gentle nudges rather than overpowering force. Their friendly temperament helps them tolerate enthusiastic handling while their compact frame reduces the risk of accidental knocks during indoor games. The breed’s original shift from fighting stock to companion has left them patient with family chaos. (PawLabs child-friendly score: 8/10)",
+    "other-pets": "Yes — Boston Terriers generally get along with other pets thanks to their friendly and sociable nature that extends to new faces and animals alike. Their lively personality encourages playful interaction without strong prey drive, though same-sex tension can occasionally appear if both dogs are equally stubborn. The short smooth coat and pint-sized build make shared spaces easy to navigate indoors.",
+    "exercise": "Boston Terriers need 20-30 minutes of exercise twice daily in the form of gentle walks or indoor tug and ball games. When this level is not met their lively energy turns into destructive zoomies around the living room and they become restless. Their short snout means they tire quickly and overheat in warm weather so activity stays light and shaded.",
+    "shedding": "Yes — Boston Terriers shed moderately year-round with no heavy seasonal blow. Their short smooth single coat produces fine hairs that cling to furniture and clothing yet are easy to remove with a quick wipe. The tuxedo markings and compact build mean the shedding stays manageable inside small homes without the tangling seen in longer-coated breeds.",
+    "hypoallergenic": "No breed is truly hypoallergenic yet the Boston Terrier’s short smooth coat is sometimes suggested for mild allergy sufferers because it releases less dander than heavy double coats. The fine hair still sheds steadily so regular wiping and vacuuming remain necessary. Their American origin as a companion rather than a working breed has kept the coat short and low-maintenance.",
+    "training": "Boston Terriers are moderately easy to train because their intelligence responds well to short positive sessions yet their stubborn streak inherited from bulldog ancestry can make them resist repetitive commands. The lively temperament that once produced fighting dogs now shows as independent thinking during obedience work so owners must stay consistent and use food rewards.",
+    "lifespan": "Boston Terriers live 11-13 years. Their health robustness is affected by the short snout that leads to respiratory issues and by their small 12-25 lb frame which can amplify overheating during activity. The compact build and tuxedo coat offer no protection against temperature swings so careful management of exercise and environment supports their longevity as a companion breed originally developed in the United States.",
+    "size": "Boston Terriers reach 12-25 lb and stand 15-17 in tall at the shoulder. Their compact muscular build feels sturdy yet portable allowing them to curl comfortably on a lap or navigate tight apartment corners without taking up much space. The short smooth coat emphasises their dapper proportions so they appear larger than their weight suggests when they strut with lively confidence.",
+    "barking": "Boston Terriers do not bark a lot and tend to stay quiet indoors. They may give a single gruff alert if something feels off but their original development as a companion rather than a guard has left them without constant vocalising. The lively yet affectionate temperament means they prefer to communicate with expressive faces and body wiggles instead of noise so barking stays low in most living situations.",
+    "apartment": "Yes — Boston Terriers can live in an apartment because their adaptable nature and small 12-25 lb size let them settle calmly indoors once daily walks and play are provided. Their moderate energy and low barking suit close neighbours while the short smooth coat reduces tracked-in dirt. The breed’s history as an urban American companion supports their comfort in limited floor space provided mental stimulation prevents boredom.",
+    "first-time": "Yes — Boston Terriers can be a good first dog for novices who accept their stubborn streak during training and their need for patience with respiratory quirks caused by the short snout. Their high affection and intelligence reward consistent routines while the lively yet friendly temperament makes daily life entertaining. The compact build and short coat lower the grooming demand so first owners mainly manage their moderate exercise and adaptability to various living situations."
+  }
+}

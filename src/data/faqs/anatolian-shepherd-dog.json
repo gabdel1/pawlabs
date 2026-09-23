@@ -1,0 +1,25 @@
+{
+  "slug": "anatolian-shepherd-dog",
+  "breed": "Anatolian Shepherd Dog",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Heavily, seasonal",
+    "hypoallergenic": "No — short double coat",
+    "barks": "Moderately, as warnings"
+  },
+  "answers": {
+    "children": "Anatolian Shepherd Dogs are moderately good with children when raised with them. Their protective instincts lead them to treat youngsters as part of their flock to guard, but the massive build and independent nature mean they can accidentally knock over small children during movement. The breed's hardy frame and deep loyalty support calm watchfulness rather than boisterous play. (PawLabs child-friendly score: 5/10)",
+    "other-pets": "Anatolian Shepherd Dogs do not always get along with other pets. Their livestock guardian background fosters wariness of other dogs and a strong protective drive that can create tension, especially with unfamiliar animals, while the independent temperament limits casual sociability around cats or smaller creatures.",
+    "exercise": "Anatolian Shepherd Dogs need two to three miles of purposeful daily walking or roaming. Bred to patrol vast territories as livestock guardians, they become restless without space and a job, so long purposeful patrols on large fenced land suit their strong hardy build better than high-intensity games.",
+    "shedding": "Yes — Anatolian Shepherd Dogs shed heavily with a short double coat that drops undercoat seasonally and year-round. The dense texture traps hair around the home, requiring regular vacuuming, while the straightforward coat on their large frame means grooming remains moderate despite the volume of loose fur. (PawLabs shedding score: 7/10)",
+    "hypoallergenic": "No breed is hypoallergenic and Anatolian Shepherd Dogs are not among those suggested for allergy sufferers. Their short double coat produces noticeable dander and seasonal shedding that spreads through living spaces, making them unsuitable for people sensitive to dog allergens despite the lack of long feathering.",
+    "training": "Anatolian Shepherd Dogs are not easy to train. Their stubborn independent nature and history as livestock guardians who worked without constant human direction make them resistant to casual commands, requiring experienced handling that respects their intelligence and protective instincts rather than seeking eager biddability.",
+    "lifespan": "Anatolian Shepherd Dogs live 11-13 years. Their strong and hardy build from thousands of years guarding livestock in Turkey's rugged highlands supports this range, with the large size and working heritage contributing to a robust constitution that benefits from purpose and space to maintain natural resilience.",
+    "size": "Anatolian Shepherd Dogs reach 80-150 lb and stand 27-29 in tall as adults. The substantial Molosser-derived frame feels imposing indoors and demands careful navigation around furniture, while their powerful build from ancient Turkish guardian work makes them a physical presence that suits rural properties over confined homes.",
+    "barking": "Anatolian Shepherd Dogs bark moderately as deep booming warnings rather than constant noise. Bred for thousands of years to guard livestock against predators in remote Turkish highlands, they alert to strangers, threats or intrusions with purposeful barks that reflect their protective instincts and independent assessment of danger.",
+    "apartment": "Anatolian Shepherd Dogs cannot thrive in an apartment. Their need for significant space to patrol, combined with the independent guardian temperament and booming bark when on alert, clashes with close quarters, while the large hardy build and livestock protection history leave them unsuited to limited indoor settling.",
+    "first-time": "Anatolian Shepherd Dogs are not a good first dog. Their stubborn resistance to casual training, wariness of strangers and other dogs, plus the demand for significant space and a clear purpose drawn from their livestock guardian role make them challenging for novices unfamiliar with independent working breeds."
+  }
+}

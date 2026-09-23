@@ -1,0 +1,25 @@
+{
+  "slug": "scottish-terrier",
+  "breed": "Scottish Terrier",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Lightly, year-round",
+    "hypoallergenic": "No — wiry double coat",
+    "barks": "Low tendency for a terrier"
+  },
+  "answers": {
+    "children": "Scottish Terriers can be good with children when raised together but their small 10-11 inch frame and low tolerance for rough play often lead to snappiness. Their independent and determined nature, originally developed for vermin hunting in Scotland's rugged Highlands, makes them less tolerant of teasing or boisterous handling than many other small breeds. The wiry medium double coat and compact build suit a watchful rather than playful role around kids. (PawLabs child-friendly score: 6/10)",
+    "other-pets": "Scottish Terriers often struggle with other pets because of their strong prey drive bred for hunting rats and foxes in Scottish burrows. Their confident and stubborn temperament can spark tension especially with same-sex dogs or small animals they view as quarry. The fearless protective streak that makes them bold watchdogs works against easy sociability in multi-pet homes.",
+    "exercise": "Scottish Terriers need 30 to 45 minutes of daily exercise split into brisk walks and yard time. Without it their determined independent spirit can turn to excessive digging as they act out their vermin-hunting instincts. Their short-legged stocky build suits moderate activity rather than long runs and they remain content with sniffing out imaginary prey in a secure space.",
+    "shedding": "Scottish Terriers shed lightly year-round thanks to their medium double coat with a wiry weather-resistant outer layer. The dense undercoat and harsh texture trap minimal hair around the home though the bushy eyebrows and beard require regular attention. Their compact 18-22 lb frame and original Highland hunting role shaped a practical coat that does not create heavy seasonal blow.",
+    "hypoallergenic": "No breed is truly hypoallergenic yet the Scottish Terrier is sometimes suggested for allergy sufferers because its wiry medium double coat sheds only lightly. The harsh outer layer and dense undercoat typical of Scotland's vermin hunters still produce dander so reactions vary widely. Their low shedding level stems from the practical coat developed for cold damp terrain.",
+    "training": "Scottish Terriers are not easy to train because their stubborn independent streak and determined nature bred for solo vermin hunting make them resistant to commands. The confident temperament leads them to ignore cues when it suits them and their low biddability demands patient consistent work rather than quick results. Their intelligence helps but only on their own terms.",
+    "lifespan": "Scottish Terriers live 12-15 years. Their compact sturdy build developed for navigating harsh Scottish terrain and burrows supports reasonable health robustness though the independent spirit and stubbornness can complicate veterinary care. The medium double coat and small 18-22 lb size align with a typical terrier lifespan without exaggeration.",
+    "size": "Scottish Terriers reach 18-22 lb and stand 10-11 in tall at the shoulder. Their short-legged stocky proportions and substantial bone give a solid feel despite the small size making them fearless protectors. The compact frame once used for digging into Highland fox burrows translates to a sturdy presence that fits neatly into daily life without needing much space.",
+    "barking": "Scottish Terriers have a low barking tendency for a terrier and stay mostly quiet. Their alert yet independent nature means they bark sharply only when something seems genuinely amiss rather than at every sound. Bred as determined vermin hunters in Scotland they rely more on action than voice which keeps household noise levels modest. (PawLabs barking score: 4/10)",
+    "apartment": "Scottish Terriers can live in an apartment because their low barking tendency and moderate energy let them settle indoors calmly. The independent temperament and 18-22 lb compact build suit smaller homes as long as daily walks replace hunting instincts and a secure yard option prevents digging. Their watchful protective side provides alert company without constant noise.",
+    "first-time": "Scottish Terriers are not a good first dog because their stubborn resistance to training and strong independent streak demand experienced handling. The determined confident nature shaped by centuries of solo vermin hunting in Scotland means novices may struggle to set boundaries or curb digging and chasing. Their loyal but self-directed personality rewards only those who understand terrier character."
+  }
+}

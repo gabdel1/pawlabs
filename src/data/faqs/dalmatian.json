@@ -1,0 +1,25 @@
+{
+  "slug": "dalmatian",
+  "breed": "Dalmatian",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately to heavily",
+    "hypoallergenic": "No",
+    "barks": "Moderately, alerts only"
+  },
+  "answers": {
+    "children": "Dalmatians are moderately good with children thanks to their energetic and playful nature that matches active kids. Their athletic build and high endurance let them keep up with rough play, but their independent streak can make them aloof if interactions feel one-sided. The breed's carriage-dog history supports their protective attitude around family, though their size requires supervision during boisterous games. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Dalmatians can get along with other pets when raised together but their independent temperament may lead to standoffishness with unfamiliar animals. Their history as carriage dogs focused on endurance rather than herding or hunting gives them moderate prey drive, and same-sex tension can appear if not socialised. Owners find their intelligence helps them learn household boundaries with resident dogs or cats.",
+    "exercise": "Dalmatians need at least one to two hours of vigorous daily exercise such as long runs or hikes. Bred as carriage dogs to trot for miles beside horses, their boundless stamina and energy level of nine out of ten mean boredom quickly leads to destructive chewing or escape attempts. A fenced yard helps but intense mental stimulation alongside physical activity is essential to prevent restlessness.",
+    "shedding": "Yes — Dalmatians shed moderately to heavily year-round with short smooth coats that scatter white hairs across furniture and clothing. Their single-layer coat lacks feathering or undercoat density so loose hair appears constantly on dark surfaces, requiring regular vacuuming. The striking spotted pattern makes shed hair especially noticeable in the home.",
+    "hypoallergenic": "No breed is truly hypoallergenic and the Dalmatian is not one commonly suggested for allergy sufferers. Their short smooth coat still produces dander and sheds visibly, so people sensitive to dog proteins usually react. The breed's carriage-dog heritage shaped a practical coat for endurance rather than reduced shedding.",
+    "training": "Dalmatians are not the easiest to train because their intelligence pairs with stubborn independence that makes them question commands. Bred to work alongside carriages with little direction they can be aloof during sessions, though positive methods tap their high intelligence. Consistent routines help counter their tendency to refuse tasks they find uninteresting.",
+    "lifespan": "Dalmatians live 11-13 years. Their medium size and athletic build support decent longevity but health robustness of five out of ten reflects the breed's known vulnerabilities that can affect overall lifespan. The transition from working carriage dog to companion has not erased the physical demands of their original role.",
+    "size": "Adult Dalmatians weigh 45-70 lb and stand 19-24 in at the shoulder. Their lean athletic build and striking spotted coat give an impression of power without bulk, making them substantial enough to knock over small children during enthusiastic greetings yet manageable indoors for most owners.",
+    "barking": "Dalmatians bark moderately and mainly when acting as household watchdogs. Their protective carriage-dog heritage prompts alerts at passing strangers or unusual noises, but they are not considered excessively vocal. The breed's independent nature means unnecessary barking is rare once they decide a situation is safe.",
+    "apartment": "Dalmatians do not suit apartment living well because their high energy and need for hard daily exercise lead to restlessness indoors. Although their short coat is easy to keep clean, the breed's stamina and tendency toward destructive behaviour when under-stimulated make settling in small spaces difficult without multiple long outings each day.",
+    "first-time": "Dalmatians are not a good first dog because their stubborn independence and high exercise demands test novice owners. The breed's intelligence can turn into wilfulness during training while their aloof or stubborn moments require experienced handling to prevent behavioural issues. Their carriage-dog background means they thrive only with active lifestyles and firm routines."
+  }
+}

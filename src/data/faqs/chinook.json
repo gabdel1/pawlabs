@@ -1,0 +1,25 @@
+{
+  "slug": "chinook",
+  "breed": "Chinook",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, year-round",
+    "hypoallergenic": "No — double coat",
+    "barks": "Rarely, only when needed"
+  },
+  "answers": {
+    "children": "Chinooks are good with children when socialised early. Their calm and gentle temperament combines with a powerful build from sled-pulling ancestry to let them patiently nudge toddlers from danger rather than overwhelm them with energy. The breed’s affectionate nature leads them to lie near family members instead of demanding constant attention, making them steady around kids who respect their space. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Chinooks usually get along with other pets. Bred in New Hampshire as working sled dogs, they show sociable calm around familiar animals yet can appear reserved toward unfamiliar ones because of their history of focused teamwork rather than pack hunting. Their gentle heart supports peaceful coexistence once introductions are managed, though same-sex tension may appear if resources feel limited.",
+    "exercise": "Chinooks need at least one to two hours of vigorous daily exercise. Bred for hauling heavy loads across long distances in harsh conditions, they become restless and destructive when under-exercised, often digging or pacing at dawn. Hiking, running, skijoring or structured sled work suit their exceptional endurance and turn their boundless energy into purposeful calm at home.",
+    "shedding": "Yes — Chinooks shed moderately. Their medium double coat produces noticeable loose hair year-round that clings to furniture and clothing, with heavier shedding during seasonal changes typical of breeds developed for New Hampshire winters. The dense undercoat and coarser outer layer require regular removal of dead hair to keep the home tidy.",
+    "hypoallergenic": "No breed is hypoallergenic, and Chinooks are not among those commonly suggested for allergy sufferers. Their medium double coat releases dander and loose hair that can trigger reactions despite the calm, hardworking nature that otherwise makes them appealing. Daily grooming helps reduce loose hair but cannot eliminate allergens from this American sled breed.",
+    "training": "Chinooks are moderately easy to train. Their intelligence and biddability from sled-pulling ancestry let them focus on tasks once they see purpose, yet their calm independence can make them reserved if commands lack clear direction or reward. Early training that channels their exceptional endurance into structured work produces reliable partners rather than bored backyard excavators.",
+    "lifespan": "Chinooks live 12-15 years. Their robust build from crossing Greenland Husky, Canadian Eskimo Dog and St. Bernard stock supports steady health when given work that matches their hardworking temperament, while the breed’s rare status and revival from a tiny population mean careful breeding helps maintain this range.",
+    "size": "Chinooks stand 21-27 inches tall and weigh 55-90 lb as adults. Their powerful, substantial frame built for endurance lets them feel like a calm, solid presence indoors while still fitting into most large vehicles or homes; the breed’s gentle heart means this size translates to a steady couch companion rather than an overwhelming force once exercised.",
+    "barking": "Chinooks do not bark much. Developed as purposeful sled dogs in New Hampshire, they stay quiet and only vocalise when something is genuinely wrong, reflecting the calm focus that lets them ignore distractions until work begins. This low tendency makes them unobtrusive at home despite their large working build and high energy.",
+    "apartment": "Chinooks can live in an apartment only with exceptional commitment to exercise. Their calm indoor settling and minimal barking suit smaller spaces, yet the breed’s exceptional endurance and need for purposeful activity mean insufficient outlets lead to destructive restlessness that damages floors or furniture regardless of square footage.",
+    "first-time": "Chinooks are not ideal as a first dog. Their requirement for structured daily work that matches their sled-pulling history and exceptional endurance demands an owner who can prevent boredom-induced digging or pacing; without that experienced guidance the calm, affectionate temperament can shift into frustration that challenges novices."
+  }
+}

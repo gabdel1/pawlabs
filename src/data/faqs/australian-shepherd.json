@@ -1,0 +1,25 @@
+{
+  "slug": "australian-shepherd",
+  "breed": "Australian Shepherd",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately to heavily",
+    "hypoallergenic": "No — double coat",
+    "barks": "Moderately, often alert"
+  },
+  "answers": {
+    "children": "Australian Shepherds are moderately good with children thanks to their loyal and protective nature, yet their herding instincts often drive them to nip at heels or try to control kids' movements as they would livestock on a ranch. Their medium build and boundless energy suit active play but can overwhelm smaller children if the herding urge surfaces unchecked. Owners must channel that work ethic into structured games to prevent bossy behaviour around the family. (PawLabs child-friendly score: 7/10)",
+    "other-pets": "Australian Shepherds get along moderately well with other pets when raised together, but their strong herding instincts can cause them to chase or nip at smaller animals and display bossy behaviour toward cats or fellow dogs. Bred for managing flocks and cattle, they view movement as a cue to organise, which strains sociability with household pets. Their protective loyalty extends mainly to family rather than extending to four-legged companions without clear boundaries.",
+    "exercise": "Australian Shepherds need two hours of vigorous daily exercise such as hiking, agility work or extended fetch sessions that mirror their ranch herding stamina. When under-exercised their high energy leads to destructive chewing or frantic digging as they invent jobs around the house. Their intelligent minds stay engaged only when physical activity pairs with purposeful tasks drawn from their Basque and American West livestock heritage.",
+    "shedding": "Yes — Australian Shepherds shed moderately to heavily year-round with heavier seasonal blows; their medium double coat drops undercoat in clumps that cling to furniture and clothing. The dense texture requires regular removal to stop mats forming in the ruff and behind the ears where the protective outer layer traps loose hair. Their coat evolved for rugged terrain so it is neither silky nor sparse.",
+    "hypoallergenic": "No breed is truly hypoallergenic and the Australian Shepherd is not one commonly suggested for allergy sufferers. Its medium double coat produces dander and releases substantial loose hair during seasonal sheds, both of which circulate allergens indoors. The breed's workmanlike coat texture was refined for endurance on Australian and American ranches rather than for minimal shedding.",
+    "training": "Australian Shepherds are easy to train because their exceptional intelligence and eagerness for complex tasks make them highly biddable once they respect their handler. Bred to work closely with shepherds across rugged terrain, they read subtle cues quickly and thrive on learning new jobs, yet their protective drive can make them pushy if training feels like play rather than purposeful partnership.",
+    "lifespan": "Australian Shepherds live 12-15 years. Their medium build and history of hardy development in Basque and American ranch work support a robust frame that holds up to sustained activity across that span, though their high energy and relentless work ethic require consistent outlets to maintain condition without early wear.",
+    "size": "Australian Shepherds reach 40-65 lb and stand 18-23 in at the shoulder. Their compact, muscular proportions give a substantial yet agile feel in the house, allowing them to curl up neatly while still conveying the sturdy presence developed for driving cattle and sheep across open Western terrain.",
+    "barking": "Australian Shepherds bark a moderate amount, often to alert the family or to express opinions while attempting to direct activity around them. Their protective temperament and herding background make them vocal when they spot strangers or when their work drive is frustrated, turning barking into a tool for managing perceived disorder in the household.",
+    "apartment": "Australian Shepherds do not suit apartment living because their high energy and need for purposeful work make them restless indoors, leading to destructive behaviour when mental and physical outlets are limited. Their intelligent minds and protective instincts also fuel frequent barking that disturbs neighbours, while their boundless drive refuses to settle without ranch-style activity.",
+    "first-time": "Australian Shepherds are not a good first dog because their high energy and relentless work ethic demand daily mental and physical challenges that overwhelm most novices, often resulting in destructive habits or bossy herding of children and pets. Their exceptional intelligence rewards only experienced handlers who can supply the complex tasks this breed was developed to perform on American ranches."
+  }
+}

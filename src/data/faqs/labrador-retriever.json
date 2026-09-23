@@ -1,0 +1,25 @@
+{
+  "slug": "labrador-retriever",
+  "breed": "Labrador Retriever",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately to heavily",
+    "hypoallergenic": "No — short double coat",
+    "barks": "Rarely, poor watchdog"
+  },
+  "answers": {
+    "children": "Yes — Labrador Retrievers are gentle with children and other pets thanks to their patient nature and strong build that rarely overwhelms toddlers. Their outgoing temperament makes them eager playmates, though their high energy requires supervision during roughhousing to prevent accidental knocks. The breed’s history retrieving waterfowl has left them with a soft mouth and tolerant disposition around small family members. (PawLabs child-friendly score: 9/10)",
+    "other-pets": "Yes — Labrador Retrievers get along well with other pets because of their friendly and sociable temperament. Their gentle nature extends to living harmoniously with cats and dogs alike, showing little prey drive after generations bred to retrieve game without harming it. Outgoing Labs often initiate play rather than tension, especially when raised together.",
+    "exercise": "Labrador Retrievers need 60 to 90 minutes of vigorous daily exercise such as running, swimming or intense fetch sessions. Bred in Newfoundland to haul nets and retrieve through icy waters, they retain tireless stamina so insufficient activity leads to destructiveness or incessant whining as their high energy finds other outlets. Water work particularly suits their webbed paws and water-repellent coat.",
+    "shedding": "Yes — Labrador Retrievers shed moderately to heavily with a short double coat that releases undercoat seasonally and year-round. The dense, water-repellent outer layer traps loose hair around the house, especially during coat blows, requiring regular vacuuming. Their build as strong working retrievers means the coat stays practical rather than heavy feathering that mats.",
+    "hypoallergenic": "No breed is hypoallergenic and Labrador Retrievers are not among those commonly suggested for allergy sufferers. Their short double coat sheds noticeable amounts of hair and dander that spreads through living spaces, consistent with their original Newfoundland role in harsh wet conditions where a water-repellent undercoat was essential rather than low-shedding.",
+    "training": "Yes — Labrador Retrievers are easy to train due to their exceptional intelligence, high trainability and strong desire to please. Originally developed to retrieve waterfowl under direction, they respond quickly to commands without the independence seen in breeds that worked alone. Their outgoing temperament makes sessions engaging, though consistent leadership prevents them exploiting their playful mischief.",
+    "lifespan": "Labrador Retrievers live 10-12 years. Their sturdy large build from Newfoundland fishing origins supports active years, yet the profile notes only moderate health robustness so weight management remains important given their known weakness for obesity when portions are not controlled.",
+    "size": "Labrador Retrievers reach 55-80 lb and stand 21-24 in tall as adults. Their strong, substantial frame built for hauling nets and pulling boats in icy Canadian waters feels solid yet agile indoors, with enough presence to fill a room while remaining manageable for most families.",
+    "barking": "No — Labrador Retrievers do not bark much because their friendly outgoing nature makes them poor watchdogs. Bred to retrieve waterfowl rather than guard, they stay quiet unless truly excited, though their high energy can sometimes produce vocal whining when exercise needs go unmet.",
+    "apartment": "No — Labrador Retrievers do not suit apartment living well because their high energy and need for 60-90 minutes of vigorous daily activity lead to restlessness indoors. Their intelligent and outgoing temperament means they struggle to settle without space to move, often turning to destructive chewing when under-exercised.",
+    "first-time": "No — Labrador Retrievers are not ideal first dogs because their high energy can lead to destructiveness without structured exercise and their intelligence demands consistent training to curb mischief. The breed’s versatility and eagerness to please reward experienced handling that channels their retrieving heritage into positive outlets rather than chaos."
+  }
+}

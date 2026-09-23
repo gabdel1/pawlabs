@@ -1,0 +1,25 @@
+{
+  "slug": "irish-terrier",
+  "breed": "Irish Terrier",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Little, non-seasonal",
+    "hypoallergenic": "Sometimes suggested",
+    "barks": "Moderately at alerts"
+  },
+  "answers": {
+    "children": "Irish Terriers can be good with children when raised together. Their bold and energetic nature suits active play but their independent streak and vermin-hunting background mean they may react sharply to rough handling or sudden movements from toddlers. The medium build and boundless energy allow them to keep up with older children during games. (PawLabs child-friendly score: 6/10)",
+    "other-pets": "Irish Terriers do not always get along with other pets. Bred for vermin hunting their strong prey drive leads them to chase small animals while same-sex tension can arise from their bold and stubborn temperament. Loyal to family they tolerate familiar pets if introduced carefully but independence often overrides sociability.",
+    "exercise": "Irish Terriers need at least one hour of vigorous exercise daily. Without it their boundless energy turns into digging up gardens or chewing shoes as the energetic farm-dog heritage demands brisk walks runs fetch or hikes that match their stamina and keep the fiery spirit satisfied.",
+    "shedding": "Irish Terriers shed little. The medium wire coat lacks a dense undercoat so loose hair is minimal and does not spread heavily through the house though regular hand-stripping removes dead wire texture that can otherwise build up around the furnishings they share with their loyal owners.",
+    "hypoallergenic": "No breed is hypoallergenic yet the Irish Terrier coat is sometimes suggested for allergy sufferers. Medium wire texture produces minimal shedding compared with softer coats but the breed still releases dander and requires grooming that can stir up particles in the home.",
+    "training": "Irish Terriers are not easy to train. Intelligence lets them learn commands quickly yet stubborn independence from their vermin-hunting past makes them question directives so owners must use consistent firm methods that respect the bold loyal temperament without expecting instant biddability.",
+    "lifespan": "Irish Terriers live 13-15 years. The medium-sized build and history as a tough versatile farm dog contribute to solid health robustness that supports this range while their energetic lifestyle and fearless protective nature encourage owners to maintain activity levels that help sustain vitality across the years.",
+    "size": "Irish Terriers reach 25-27 lb and stand 18-20 in at the shoulder. The compact muscular proportions give a sturdy feel in the home where the medium weight allows them to curl up on laps or race around furniture without the bulk of larger breeds yet still convey the bold presence of a fearless terrier.",
+    "barking": "Irish Terriers bark moderately. Their alert and protective instincts rooted in guarding livestock and hunting vermin on Irish farms prompt barking at strangers or unusual sounds while the energetic bold temperament can turn into excited vocalising during play or when the independent spirit decides something merits attention.",
+    "apartment": "Irish Terriers can live in an apartment. Their adaptable nature helps them settle indoors after sufficient exercise but the high energy and tendency to bark at noises from their farm-dog background require daily runs and mental tasks to prevent restlessness in smaller spaces.",
+    "first-time": "Irish Terriers are not ideal as a first dog. The stubborn independent streak combined with high energy and bold protective instincts from their vermin-hunting heritage demands experienced handling that can challenge novices who may struggle to channel the fiery spirit and loyalty without firm consistent leadership."
+  }
+}
