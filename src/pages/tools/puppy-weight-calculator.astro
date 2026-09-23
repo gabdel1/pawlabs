@@ -1,0 +1,227 @@
+---
+import ToolPage from '../../components/ToolPage.astro';
+import { toolBySlug } from '../../lib/tools/registry';
+import { GROWTH_CLASSES } from '../../lib/tools/puppy-weight';
+
+const tool = toolBySlug('puppy-weight-calculator')!;
+
+const description =
+  'Predict how big your puppy will get from its weight today. Uses growth curves by size class, shows a realistic range rather than a single number, and says how much to trust it at your puppy’s age.';
+
+const faqs = [
+  {
+    question: 'How accurate is a puppy weight calculator?',
+    answer:
+      'Accurate enough to buy a crate, not accurate enough to argue with. For a purebred puppy past four months the estimate is usually within about 10%. Under twelve weeks it is rough — at that age a puppy is only a fifth to a third of its adult weight, so a small error now multiplies. For mixed breeds of unknown parentage it is a guess, though usually a better one than eyeballing it.',
+  },
+  {
+    question: 'When do puppies stop growing?',
+    answer:
+      'It depends almost entirely on size. Toy breeds are finished around nine or ten months. Small and medium breeds are essentially done by a year. Large breeds keep filling out until about eighteen months, and giant breeds can take two years — they stop growing taller well before they stop putting on mass across the chest and shoulders.',
+  },
+  {
+    question: 'Can I tell adult size from paw size?',
+    answer:
+      'Not reliably. Big paws on a young puppy do suggest more growth to come, and it is a real signal in the sense that large-breed puppies grow into their feet — but it is qualitative. Weight against age, compared with a growth curve for the right size class, is far more informative.',
+  },
+  {
+    question: 'My puppy is above the estimate. Is that a problem?',
+    answer:
+      'Not on its own — individual dogs vary and the estimate is a mid-point. What matters more is body condition: you should be able to feel your puppy’s ribs easily under a thin layer, and see a waist from above. Overfeeding a large-breed puppy to grow faster is actively harmful and raises the risk of developmental joint disease. Ask your vet if you are unsure.',
+  },
+  {
+    question: 'What if I do not know the breed?',
+    answer:
+      'Pick the size class that matches what you expect the adult dog to be, based on the parents if you have seen them. If you have no idea, our <a href="/what-breed-is-my-dog">photo breed identifier</a> will suggest which breeds your puppy resembles, and each breed profile lists its adult weight range.',
+  },
+];
+---
+
+<ToolPage tool={tool} description={description} faqs={faqs}>
+  <div slot="tool" class="tool-card-shell">
+    <div class="tool-fields">
+      <div class="tool-field">
+        <label for="pup-weight">Current weight</label>
+        <div class="tool-input-group">
+          <input class="tool-input" type="number" id="pup-weight" min="0.5" max="200" step="0.1" value="20" inputmode="decimal" />
+          <span class="tool-unit" id="pup-weight-unit">lb</span>
+        </div>
+        <span class="tool-hint">
+          <label style="font-weight:600"><input type="checkbox" id="pup-kg" /> use kilograms</label>
+        </span>
+      </div>
+
+      <div class="tool-field">
+        <label for="pup-age">Current age</label>
+        <div class="tool-input-group">
+          <input class="tool-input" type="number" id="pup-age" min="4" max="96" step="1" value="16" inputmode="numeric" />
+          <span class="tool-unit">weeks</span>
+        </div>
+        <span class="tool-hint" id="pup-age-months">That is about 3.7 months.</span>
+      </div>
+    </div>
+
+    <div class="tool-field" style="margin-top:1rem">
+      <span class="tool-legend" id="pup-class-legend">Expected adult size</span>
+      <div class="tool-segments" role="radiogroup" aria-labelledby="pup-class-legend">
+        {GROWTH_CLASSES.map((c, i) => (
+          <label class="tool-segment">
+            <input type="radio" name="growth" value={c.key} checked={i === 3} />
+            <span>{c.label}<small>{c.adultRange[0]}–{c.adultRange[1]} lb</small></span>
+          </label>
+        ))}
+      </div>
+      <span class="tool-hint" id="pup-class-note">{GROWTH_CLASSES[3].description}</span>
+    </div>
+
+    <div class="tool-result" id="pup-result" aria-live="polite">
+      <p class="tool-sub">Estimated adult weight</p>
+      <p class="tool-big" id="pup-adult">70 lb</p>
+      <p class="tool-headline" id="pup-range">Likely between 57 and 83 lb</p>
+      <p class="tool-sub" id="pup-confidence"></p>
+
+      <dl class="tool-stats">
+        <div class="tool-stat"><dt>Already grown</dt><dd id="pup-percent">50%</dd><small>of adult weight</small></div>
+        <div class="tool-stat"><dt>Still growing for</dt><dd id="pup-remaining">56</dd><small>more weeks</small></div>
+        <div class="tool-stat"><dt>Left to gain</dt><dd id="pup-togain">35 lb</dd><small>from today</small></div>
+      </dl>
+
+      <h3 class="tool-h3">What the rest of the growth looks like</h3>
+      <div class="tool-bars" id="pup-bars"></div>
+    </div>
+  </div>
+
+  <section class="tool-body tool-prose">
+    <h2 class="tool-h2">How the estimate works</h2>
+    <p>
+      Puppies reach a fairly consistent proportion of their adult weight at a given age — and that
+      proportion depends on how big they will eventually be. A toy breed is half-grown at twelve
+      weeks. A Great Dane at twelve weeks is under a third of its adult weight, because it has
+      another year and a half of growing to do.
+    </p>
+    <p>
+      So the calculation is a division: your puppy's weight today, divided by the fraction of adult
+      weight typical for that age and size class. The range shown either side of it widens for
+      younger puppies, because that is where the uncertainty genuinely is.
+    </p>
+
+    <h2 class="tool-h2">Rough milestones by size class</h2>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead>
+          <tr><th>Size class</th><th>12 weeks</th><th>6 months</th><th>Finished growing</th></tr>
+        </thead>
+        <tbody>
+          {GROWTH_CLASSES.map((c) => {
+            const at = (w: number) => {
+              const pt = c.curve.find(([week]) => week >= w) ?? c.curve[c.curve.length - 1];
+              return `${Math.round(pt[1] * 100)}%`;
+            };
+            return (
+              <tr>
+                <td><strong>{c.label}</strong><br /><small>{c.description}</small></td>
+                <td>{at(12)} of adult weight</td>
+                <td>{at(26)}</td>
+                <td>about {Math.round(c.matureWeeks / 4.345)} months</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="tool-h2">What matters more than the number</h2>
+    <p>
+      <strong>Body condition beats weight.</strong> A puppy that is growing well has ribs you can
+      feel easily under a thin layer of cover, and a visible waist when you look down at it. That is
+      true whatever the scale says.
+    </p>
+    <p>
+      <strong>Faster is not better, especially for large breeds.</strong> Pushing growth with extra
+      food raises the risk of developmental joint problems in big dogs. Large-breed puppy foods are
+      formulated with controlled calcium and energy for exactly this reason.
+    </p>
+    <p>
+      <strong>Growth is not smooth.</strong> Puppies grow in bursts, often alongside a few days of
+      extra sleeping and eating. A flat fortnight followed by a jump is normal.
+    </p>
+  </section>
+
+  <script>
+    import { predictAdultWeight, growthClass, GROWTH_CLASSES, type GrowthClass } from '../../lib/tools/puppy-weight';
+
+    const el = (id: string) => document.getElementById(id)!;
+    const weightInput = el('pup-weight') as HTMLInputElement;
+    const ageInput = el('pup-age') as HTMLInputElement;
+    const kgToggle = el('pup-kg') as HTMLInputElement;
+
+    const LB_PER_KG = 2.20462;
+
+    function selectedClass(): GrowthClass {
+      const checked = document.querySelector<HTMLInputElement>('input[name="growth"]:checked');
+      return (checked?.value ?? 'large') as GrowthClass;
+    }
+
+    function update() {
+      const useKg = kgToggle.checked;
+      const unit = useKg ? 'kg' : 'lb';
+      el('pup-weight-unit').textContent = unit;
+
+      const entered = Number(weightInput.value);
+      const weeks = Number(ageInput.value);
+      if (!Number.isFinite(entered) || !Number.isFinite(weeks) || entered <= 0) return;
+
+      const lb = useKg ? entered * LB_PER_KG : entered;
+      const cls = selectedClass();
+      const result = predictAdultWeight(lb, weeks, cls);
+      const show = (value: number) => (useKg ? value / LB_PER_KG : value);
+      const fmt = (value: number) => `${Math.round(show(value) * 10) / 10} ${unit}`;
+
+      el('pup-age-months').textContent = `That is about ${(weeks / 4.345).toFixed(1)} months.`;
+      el('pup-class-note').textContent = growthClass(cls).description;
+
+      el('pup-adult').textContent = fmt(result.adultLb);
+      el('pup-range').textContent = `Likely between ${Math.round(show(result.rangeLb[0]))} and ${Math.round(show(result.rangeLb[1]))} ${unit}`;
+      el('pup-confidence').textContent = result.confidenceNote;
+      el('pup-percent').textContent = `${result.percentGrown}%`;
+      el('pup-remaining').textContent = String(result.weeksRemaining);
+      el('pup-togain').textContent = fmt(Math.max(0, result.adultLb - lb));
+
+      // Projection bars, so the reader sees the shape of what is left.
+      const bars = el('pup-bars');
+      bars.replaceChildren();
+      const max = result.adultLb;
+      for (const point of result.projection.slice(0, 8)) {
+        const row = document.createElement('div');
+        row.className = 'tool-bar-row';
+        const label = document.createElement('span');
+        label.textContent = point.weeks >= 52 ? `${(point.weeks / 4.345 / 12).toFixed(1)} yr` : `${Math.round(point.weeks / 4.345)} mo`;
+        const track = document.createElement('div');
+        track.className = 'tool-bar-track';
+        const fill = document.createElement('div');
+        fill.className = 'tool-bar-fill';
+        fill.style.width = `${Math.min(100, (point.lb / max) * 100)}%`;
+        track.append(fill);
+        const value = document.createElement('b');
+        value.textContent = fmt(point.lb);
+        row.append(label, track, value);
+        bars.append(row);
+      }
+    }
+
+    // Toggling the unit converts what is already typed. Without this, a 35 lb
+    // puppy silently becomes a 35 kg one the moment the box is ticked.
+    kgToggle.addEventListener('change', () => {
+      const current = Number(weightInput.value);
+      if (Number.isFinite(current) && current > 0) {
+        weightInput.value = String(
+          Math.round((kgToggle.checked ? current / LB_PER_KG : current * LB_PER_KG) * 10) / 10,
+        );
+      }
+    });
+
+    [weightInput, ageInput, kgToggle].forEach((i) => i.addEventListener('input', update));
+    document.querySelectorAll('input[name="growth"]').forEach((r) => r.addEventListener('change', update));
+    update();
+  </script>
+</ToolPage>

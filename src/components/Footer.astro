@@ -10,6 +10,7 @@
  */
 import Logo from './Logo.astro';
 import { CONTACT_EMAIL } from '../lib/site';
+import { TOOLS } from '../lib/tools/registry';
 import { Mail } from 'lucide-astro';
 
 interface Props {
@@ -29,10 +30,15 @@ const columns = [
     links: [
       { href: '/quiz', label: 'Breed Match Quiz' },
       { href: '/what-breed-is-my-dog', label: 'What Breed Is My Dog?' },
+      { href: '/tools', label: 'All Calculators' },
       { href: '/breeds', label: 'All Breeds' },
       { href: '/compare', label: 'Compare Breeds' },
       { href: '/embed', label: 'Embed our compare tool' },
     ],
+  },
+  {
+    title: 'Calculators',
+    links: TOOLS.map((t) => ({ href: `/tools/${t.slug}`, label: t.shortName })),
   },
   {
     title: 'About',
@@ -83,7 +89,7 @@ const columns = [
       </div>
 
       <!-- Link columns -->
-      <div class="md:col-span-7 lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
+      <div class="md:col-span-7 lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8">
         {columns.map((col) => (
           <nav aria-label={col.title}>
             <h2 class="font-display font-bold text-white text-xs uppercase tracking-widest mb-3.5">

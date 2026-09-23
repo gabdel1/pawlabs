@@ -1,0 +1,119 @@
+---
+/**
+ * Shared shell for the calculator pages.
+ *
+ * Every tool gets the same frame — badge, headline, lede, the tool itself, then
+ * the explanatory writing beneath it — so the set reads as one product rather
+ * than five separate experiments. The calculator sits above the fold because
+ * that is what the visitor came for; the writing underneath is what makes the
+ * page worth ranking.
+ *
+ * `medical` switches on the veterinary disclaimer. Any tool touching health,
+ * dosage or pregnancy sets it.
+ */
+import Layout from '../layouts/Layout.astro';
+import Nav from './Nav.astro';
+import Footer from './Footer.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import { TOOLS, type ToolDef } from '../lib/tools/registry';
+import { breadcrumbJsonLd, toolJsonLd } from '../lib/seo';
+import '../styles/tools.css';
+import { ArrowRight, Stethoscope } from 'lucide-astro';
+
+interface Props {
+  tool: ToolDef;
+  /** Page <title>; defaults to the tool's own. */
+  metaTitle?: string;
+  description: string;
+  faqs: { question: string; answer: string }[];
+}
+
+const { tool, metaTitle, description, faqs } = Astro.props;
+
+const related = TOOLS.filter((t) => t.slug !== tool.slug).slice(0, 4);
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Tools', href: '/tools' },
+  { label: tool.shortName },
+];
+---
+
+<Layout
+  title={metaTitle ?? `${tool.title} | PawLabs`}
+  description={description}
+  ogTitle={tool.title}
+  canonicalUrl={`/tools/${tool.slug}`}
+  jsonLd={[
+    toolJsonLd(tool, description, faqs),
+    breadcrumbJsonLd([
+      { name: 'Home', url: '/' },
+      { name: 'Tools', url: '/tools' },
+      { name: tool.shortName, url: `/tools/${tool.slug}` },
+    ]),
+  ]}
+>
+  <Nav activePage="tools" />
+
+  <div class="pt-32 sm:pt-36">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <main class="tool-main noise">
+    <section class="tool-hero">
+      <div class="tool-intro">
+        <span class="tool-badge" style={`--badge: ${tool.accent}`}>{tool.emoji} {tool.badge}</span>
+        <h1 class="tool-title">{tool.h1}</h1>
+        <p class="tool-lede">{tool.lede}</p>
+      </div>
+
+      <!-- The calculator itself -->
+      <slot name="tool" />
+
+      {tool.medical && (
+        <p class="tool-medical">
+          <Stethoscope class="w-4 h-4" />
+          <span>
+            <strong>This is general information, not veterinary advice.</strong> It cannot examine your
+            dog, and it does not know their history. For anything that concerns you, speak to a vet.
+          </span>
+        </p>
+      )}
+    </section>
+
+    <!-- Everything the page says beyond the calculator -->
+    <div class="tool-body">
+      <slot />
+    </div>
+
+    {faqs.length > 0 && (
+      <section class="tool-section" id="faq">
+        <h2 class="tool-h2">Common questions</h2>
+        <div class="tool-faq">
+          {faqs.map((faq) => (
+            <details class="tool-faq-item">
+              <summary>{faq.question}</summary>
+              <p set:html={faq.answer} />
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section class="tool-section">
+      <h2 class="tool-h2">More tools</h2>
+      <div class="tool-grid">
+        {related.map((t) => (
+          <a href={`/tools/${t.slug}`} class="tool-card" style={`--accent: ${t.accent}`}>
+            <span class="tool-card-emoji">{t.emoji}</span>
+            <span class="tool-card-name">{t.shortName}</span>
+            <span class="tool-card-blurb">{t.cardBlurb}</span>
+            <span class="tool-card-go">Open <ArrowRight class="w-3.5 h-3.5" /></span>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

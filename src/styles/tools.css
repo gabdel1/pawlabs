@@ -1,0 +1,455 @@
+/**
+ * Shared styling for the calculator pages and the tools hub.
+ *
+ * Global rather than scoped, because every tool builds its results in the
+ * browser and Astro's scoped styles never reach markup created at runtime.
+ * Class names are prefixed `tool-` to keep that global surface obvious.
+ */
+
+.tool-main {
+  background: var(--color-surface, #f7f9f8);
+  padding-bottom: 4rem;
+}
+
+.tool-hero {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 0;
+}
+
+.tool-intro {
+  text-align: center;
+  max-width: 44rem;
+  margin: 0 auto 2rem;
+}
+
+.tool-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--badge, #26996f) 12%, white);
+  color: var(--badge, #26996f);
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.tool-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-size: clamp(2rem, 5.5vw, 3.3rem);
+  line-height: 1.05;
+  color: var(--color-ink);
+  margin-bottom: 0.9rem;
+  text-wrap: balance;
+}
+
+.tool-lede {
+  color: var(--color-ink-muted);
+  font-size: clamp(0.98rem, 2vw, 1.1rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+/* ── The calculator card ─────────────────────────────── */
+
+.tool-card-shell {
+  background: #fff;
+  border: 1px solid rgba(10, 15, 26, 0.07);
+  border-radius: 1.75rem;
+  box-shadow: 0 30px 60px -30px rgba(10, 15, 26, 0.25);
+  padding: clamp(1.1rem, 3vw, 2rem);
+}
+
+.tool-fields {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.tool-field > label,
+.tool-legend {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: 0.01em;
+}
+
+.tool-hint {
+  font-size: 0.76rem;
+  color: var(--color-ink-muted);
+  line-height: 1.45;
+}
+
+.tool-input,
+.tool-select {
+  width: 100%;
+  border: 1.5px solid rgba(10, 15, 26, 0.15);
+  border-radius: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: #fff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.tool-input:focus,
+.tool-select:focus {
+  outline: none;
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 4px rgba(58, 191, 142, 0.16);
+}
+
+.tool-input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.tool-input-group .tool-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.tool-unit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  border: 1.5px solid rgba(10, 15, 26, 0.15);
+  border-left: none;
+  border-radius: 0 0.9rem 0.9rem 0;
+  background: rgba(10, 15, 26, 0.03);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+/* Segmented control, for size bands and similar short choices. */
+.tool-segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tool-segment {
+  flex: 1 1 auto;
+  position: relative;
+}
+
+.tool-segment input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tool-segment span {
+  display: block;
+  text-align: center;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.8rem;
+  border: 1.5px solid rgba(10, 15, 26, 0.12);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-ink-light);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.tool-segment small {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.tool-segment input:checked + span {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+}
+
+.tool-segment input:focus-visible + span {
+  outline: 3px solid var(--color-brand-400);
+  outline-offset: 2px;
+}
+
+/* ── Results ─────────────────────────────────────────── */
+
+.tool-result {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(10, 15, 26, 0.08);
+  animation: tool-in 0.3s ease both;
+}
+
+@keyframes tool-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.tool-headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+}
+
+.tool-big {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 9vw, 4.2rem);
+  line-height: 1;
+  color: var(--color-brand-700);
+  letter-spacing: -0.04em;
+}
+
+.tool-sub {
+  color: var(--color-ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+
+.tool-stats {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  margin-top: 1.25rem;
+}
+
+.tool-stat {
+  background: rgba(10, 15, 26, 0.03);
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+}
+
+.tool-stat dt {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
+  margin-bottom: 0.25rem;
+}
+
+.tool-stat dd {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--color-ink);
+}
+
+.tool-stat small {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  margin-top: 0.15rem;
+}
+
+/* Risk levels, shared by the toxicity tool and any future warning states. */
+.tool-alert {
+  border-radius: 1.25rem;
+  padding: 1.1rem 1.25rem;
+  border: 1.5px solid;
+  margin-bottom: 1rem;
+}
+
+.tool-alert-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.tool-alert p { font-size: 0.92rem; line-height: 1.6; }
+
+.tool-alert-monitor { background: #f0fbff; border-color: #9fd8e8; color: #12556a; }
+.tool-alert-concerning { background: #fff7e9; border-color: #f0cf95; color: #7a4f08; }
+.tool-alert-serious { background: #fff1e8; border-color: #f2b48a; color: #8a3a11; }
+.tool-alert-critical { background: #fff0f0; border-color: #e79a9a; color: #8c2020; }
+
+.tool-emergency {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.tool-emergency a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 1rem;
+  border-radius: 0.9rem;
+  background: var(--color-ink);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.18s ease;
+}
+
+.tool-emergency a:hover { transform: translateY(-1px); }
+.tool-emergency strong { font-family: var(--font-display); font-size: 1.05rem; }
+.tool-emergency small { opacity: 0.7; font-weight: 600; font-size: 0.74rem; }
+
+/* Simple bar chart, used by the growth and age tools. */
+.tool-bars { display: grid; gap: 0.45rem; margin-top: 1rem; }
+.tool-bar-row { display: grid; grid-template-columns: 4.5rem 1fr 3.5rem; gap: 0.6rem; align-items: center; font-size: 0.82rem; }
+.tool-bar-track { height: 0.55rem; border-radius: 999px; background: rgba(10, 15, 26, 0.07); overflow: hidden; }
+.tool-bar-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--color-brand-600), var(--color-brand-400)); }
+.tool-bar-row b { font-family: var(--font-display); text-align: right; }
+
+/* Timeline, used by the pregnancy tool. */
+.tool-timeline { display: grid; gap: 0.5rem; margin-top: 1.25rem; }
+.tool-milestone {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(10, 15, 26, 0.07);
+  background: #fff;
+}
+.tool-milestone.is-past { opacity: 0.55; }
+.tool-milestone.is-vet { border-color: var(--color-brand-300); background: var(--color-brand-50); }
+.tool-milestone-day { font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; color: var(--color-brand-700); }
+.tool-milestone-day small { display: block; font-family: var(--font-sans); font-weight: 600; font-size: 0.72rem; color: var(--color-ink-muted); }
+.tool-milestone h4 { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; color: var(--color-ink); margin-bottom: 0.15rem; }
+.tool-milestone p { font-size: 0.85rem; color: var(--color-ink-muted); line-height: 1.55; }
+.tool-vet-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--color-brand-600);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+/* ── Page furniture ──────────────────────────────────── */
+
+.tool-medical {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  max-width: 44rem;
+  margin: 1.25rem auto 0;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: rgba(10, 15, 26, 0.04);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--color-ink-light);
+}
+
+.tool-medical svg { flex-shrink: 0; margin-top: 0.15rem; color: var(--color-ink-muted); }
+
+.tool-body, .tool-section {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 0;
+}
+
+.tool-h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.4rem, 3.2vw, 1.9rem);
+  color: var(--color-ink);
+  margin-bottom: 1rem;
+}
+
+.tool-h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-ink);
+  margin: 1.4rem 0 0.5rem;
+}
+
+.tool-prose p { color: var(--color-ink-light); line-height: 1.7; margin-bottom: 0.9rem; }
+.tool-prose ul { margin: 0 0 1rem 1.1rem; }
+.tool-prose li { color: var(--color-ink-light); line-height: 1.65; margin-bottom: 0.4rem; list-style: disc; }
+.tool-prose strong { color: var(--color-ink); }
+.tool-prose a { color: var(--color-brand-700); text-decoration: underline; text-underline-offset: 2px; }
+
+.tool-table-wrap { overflow-x: auto; margin: 1rem 0; }
+.tool-table { width: 100%; border-collapse: collapse; min-width: 30rem; }
+.tool-table th, .tool-table td { padding: 0.65rem 0.8rem; text-align: left; font-size: 0.88rem; border-bottom: 1px solid rgba(10, 15, 26, 0.07); }
+.tool-table th { font-family: var(--font-display); font-weight: 800; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-muted); background: rgba(10, 15, 26, 0.02); }
+.tool-table td { color: var(--color-ink-light); }
+.tool-table tbody tr:hover { background: rgba(10, 15, 26, 0.02); }
+
+.tool-faq { display: grid; gap: 0.55rem; }
+.tool-faq-item { background: #fff; border-radius: 1.1rem; border: 1px solid rgba(10, 15, 26, 0.06); padding: 1rem 1.2rem; }
+.tool-faq-item summary { cursor: pointer; font-family: var(--font-display); font-weight: 700; color: var(--color-ink); list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.tool-faq-item summary::-webkit-details-marker { display: none; }
+.tool-faq-item summary::after { content: '+'; font-size: 1.25rem; line-height: 1; color: var(--color-brand-600); transition: transform 0.2s; }
+.tool-faq-item[open] summary::after { transform: rotate(45deg); }
+.tool-faq-item p { margin-top: 0.65rem; color: var(--color-ink-muted); line-height: 1.65; font-size: 0.92rem; }
+
+/* ── Tool cards, on the hub and the "more tools" strips ── */
+
+.tool-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.25rem;
+  border-radius: 1.4rem;
+  background: #fff;
+  border: 1px solid rgba(10, 15, 26, 0.07);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent, #26996f) 45%, white);
+  box-shadow: 0 18px 36px -24px rgba(10, 15, 26, 0.4);
+}
+
+.tool-card-emoji { font-size: 1.6rem; line-height: 1; margin-bottom: 0.35rem; }
+.tool-card-name { font-family: var(--font-display); font-weight: 800; color: var(--color-ink); font-size: 1.02rem; }
+.tool-card-blurb { font-size: 0.85rem; color: var(--color-ink-muted); line-height: 1.5; flex: 1; }
+.tool-card-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--accent, var(--color-brand-700));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-result, .tool-card, .tool-emergency a { animation: none !important; transition: none !important; }
+}

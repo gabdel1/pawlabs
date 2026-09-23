@@ -362,6 +362,52 @@ export function breedIdentifierJsonLd(
   });
 }
 
+/**
+ * JSON-LD for a calculator page: the tool as a WebApplication, plus its FAQ.
+ *
+ * Calculators are software, not articles, so WebApplication is the honest type
+ * — and it carries the "free, no signup" fact that makes a result worth
+ * clicking on.
+ */
+export function toolJsonLd(
+  tool: { slug: string; title: string; shortName: string },
+  description: string,
+  faqs: { question: string; answer: string }[],
+): string {
+  const url = `${SITE_URL}/tools/${tool.slug}`;
+  const graph: Record<string, any>[] = [
+    {
+      '@type': 'WebApplication',
+      '@id': `${url}#app`,
+      name: tool.title,
+      alternateName: tool.shortName,
+      url,
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      description,
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      publisher: organizationNode(),
+    },
+  ];
+
+  if (faqs.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        // The visible answers carry light markup; the schema wants plain text.
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer.replace(/<[^>]+>/g, '') },
+      })),
+    });
+  }
+
+  return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+}
+
 /** Generate JSON-LD for a breadcrumb trail */
 export function breadcrumbJsonLd(items: { name: string; url: string }[]): string {
   return JSON.stringify({

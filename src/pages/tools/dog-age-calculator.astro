@@ -1,0 +1,178 @@
+---
+import ToolPage from '../../components/ToolPage.astro';
+import { toolBySlug } from '../../lib/tools/registry';
+import { SIZE_BANDS, ageTable } from '../../lib/tools/dog-age';
+
+const tool = toolBySlug('dog-age-calculator')!;
+
+const description =
+  'Convert your dog’s age into human years using the size-adjusted method vets use, not the "multiply by seven" myth. Includes life stage, a full year-by-year table and what each stage means.';
+
+const faqs = [
+  {
+    question: 'Is one dog year really seven human years?',
+    answer:
+      'No, and it is wrong in both directions. A one-year-old dog is not seven — it is closer to fifteen, since it has reached full size and sexual maturity, which a seven-year-old child plainly has not. After that the rule overstates things for small dogs and understates them for giant breeds. The seven-year rule appears to have been a rough marketing simplification rather than anything from veterinary science.',
+  },
+  {
+    question: 'Why does size change the answer?',
+    answer:
+      'Large dogs age faster after puberty. A Great Dane is considered geriatric around six or seven; a Chihuahua of the same age is barely middle-aged. The reason is still debated — faster growth appears to carry a cost in cell damage and cancer risk — but the pattern itself is consistent, which is why veterinary age charts are split by size.',
+  },
+  {
+    question: 'How is the first year calculated?',
+    answer:
+      'The first year counts for roughly 15 human years and the second for about 9 more, so a two-year-old dog is around 24. After that each dog year adds between 4 and 6.5 human years depending on size. That front-loading reflects how fast dogs mature: a nine-month-old dog can reproduce.',
+  },
+  {
+    question: 'What about the logarithmic formula I have seen?',
+    answer:
+      'A 2020 study compared DNA methylation in Labrador Retrievers and humans and produced the formula <strong>human age = 16 × ln(dog age) + 31</strong>. It is a genuinely interesting result and tracks well in early life, but it was derived from one breed, so it does not account for size. The size-adjusted chart above is the more practical tool for most owners.',
+  },
+  {
+    question: 'When is my dog a senior?',
+    answer:
+      'It depends on size rather than a fixed number. Giant breeds are usually considered senior from about five or six, large breeds from seven, medium from eight or nine, and small breeds from ten or eleven. Most vets recommend moving to twice-yearly check-ups at that point, because problems that develop between annual visits are easier to treat when caught early.',
+  },
+];
+
+// Rendered server-side so the page has a real table even before any interaction.
+const defaultTable = ageTable('medium');
+---
+
+<ToolPage tool={tool} description={description} faqs={faqs}>
+  <div slot="tool" class="tool-card-shell">
+    <div class="tool-fields">
+      <div class="tool-field">
+        <label for="age-years">How old is your dog?</label>
+        <div class="tool-input-group">
+          <input class="tool-input" type="number" id="age-years" min="0" max="30" step="0.1" value="3" inputmode="decimal" />
+          <span class="tool-unit">years</span>
+        </div>
+        <span class="tool-hint">Decimals are fine — 0.5 is six months.</span>
+      </div>
+
+      <div class="tool-field">
+        <span class="tool-legend" id="size-legend">Adult size</span>
+        <div class="tool-segments" role="radiogroup" aria-labelledby="size-legend">
+          {SIZE_BANDS.map((band, i) => (
+            <label class="tool-segment">
+              <input type="radio" name="size" value={band.key} checked={i === 1} />
+              <span>{band.label}<small>{band.weightRange}</small></span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-result" id="age-result" aria-live="polite">
+      <p class="tool-sub">In human years, your dog is about</p>
+      <p class="tool-big" id="age-human">39</p>
+      <p class="tool-headline" id="age-stage">Adult</p>
+      <p class="tool-sub" id="age-note"></p>
+
+      <dl class="tool-stats">
+        <div class="tool-stat"><dt>Life stage</dt><dd id="age-stage-short">Adult</dd></div>
+        <div class="tool-stat"><dt>Typical lifespan</dt><dd id="age-lifespan">10–14</dd><small>years for this size</small></div>
+        <div class="tool-stat"><dt>Roughly</dt><dd id="age-progress">30%</dd><small>through a typical life</small></div>
+      </dl>
+    </div>
+  </div>
+
+  <section class="tool-body tool-prose">
+    <h2 class="tool-h2">Why the seven-year rule persists, and why it is wrong</h2>
+    <p>
+      The arithmetic is easy, which is most of the appeal. It is also the reason people are surprised
+      when a two-year-old dog is already fully grown, fully mature and done with adolescence, or when
+      a seven-year-old Newfoundland is described by a vet as a senior.
+    </p>
+    <p>
+      Dogs front-load their ageing. A puppy reaches sexual maturity in under a year — something a
+      human takes thirteen or fourteen years to do — and reaches full physical size within one to two
+      years. After that the rate slows and then diverges by size, which is the part a single
+      multiplier can never capture.
+    </p>
+
+    <h2 class="tool-h2">Dog years to human years, by size</h2>
+    <div class="tool-table-wrap">
+      <table class="tool-table" id="age-table">
+        <thead>
+          <tr>
+            <th>Dog's age</th>
+            {SIZE_BANDS.map((b) => <th>{b.label}<br /><small style="font-weight:600;text-transform:none;letter-spacing:0">{b.weightRange}</small></th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {defaultTable.map((row, i) => (
+            <tr>
+              <td><strong>{row.dogYears} {row.dogYears === 1 ? 'year' : 'years'}</strong></td>
+              {SIZE_BANDS.map((b) => <td>{ageTable(b.key)[i].humanYears}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="tool-hint">
+      Figures are rounded. Individual dogs vary, and a well-kept dog of any size tends to sit at the
+      younger end of its band.
+    </p>
+
+    <h2 class="tool-h2">What changes at each stage</h2>
+    <h3 class="tool-h3">Puppy, under a year</h3>
+    <p>
+      Vaccinations, the socialisation window, and growth you can see week to week. Large-breed puppies
+      should be kept lean and off repetitive hard exercise — growing joints are vulnerable, and there
+      is good evidence that keeping large-breed puppies slim reduces later joint disease.
+    </p>
+    <h3 class="tool-h3">Adolescent, one to two</h3>
+    <p>
+      The stage that surprises people. The dog looks adult and behaves like a teenager: recall
+      regresses, training seems to evaporate, and confidence wobbles. Most dogs surrendered to
+      shelters are in this band. It passes.
+    </p>
+    <h3 class="tool-h3">Adult</h3>
+    <p>
+      The long, easy stretch. Weight is the thing to watch: dogs kept at a lean body condition live
+      meaningfully longer than their overweight littermates, and it is the single most controllable
+      factor an owner has.
+    </p>
+    <h3 class="tool-h3">Mature and senior</h3>
+    <p>
+      Grey muzzle, slower to rise, less keen on long walks. Twice-yearly check-ups become the usual
+      advice because a year is a long time at this stage. Changes in drinking, appetite, weight or
+      sleeping are worth mentioning to a vet rather than filing under "getting old".
+    </p>
+  </section>
+
+  <script>
+    import { dogAgeToHuman, bandFor, type SizeKey } from '../../lib/tools/dog-age';
+
+    const ageInput = document.getElementById('age-years') as HTMLInputElement;
+    const el = (id: string) => document.getElementById(id)!;
+
+    function selectedSize(): SizeKey {
+      const checked = document.querySelector<HTMLInputElement>('input[name="size"]:checked');
+      return (checked?.value ?? 'medium') as SizeKey;
+    }
+
+    function update() {
+      const years = Number(ageInput.value);
+      if (!Number.isFinite(years) || years < 0) return;
+
+      const size = selectedSize();
+      const band = bandFor(size);
+      const result = dogAgeToHuman(years, size);
+
+      el('age-human').textContent = String(result.humanYears);
+      el('age-stage').textContent = `${result.stageLabel} — about ${result.humanYears} in human terms`;
+      el('age-note').textContent = result.stageNote;
+      el('age-stage-short').textContent = result.stageLabel;
+      el('age-lifespan').textContent = `${band.typicalLifespan[0]}–${band.typicalLifespan[1]}`;
+      el('age-progress').textContent = `${Math.round(result.lifeProgress * 100)}%`;
+    }
+
+    ageInput.addEventListener('input', update);
+    document.querySelectorAll('input[name="size"]').forEach((r) => r.addEventListener('change', update));
+    update();
+  </script>
+</ToolPage>

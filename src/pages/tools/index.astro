@@ -1,0 +1,119 @@
+---
+/**
+ * /tools — the hub.
+ *
+ * Exists for two reasons: it is a landing page for "dog calculator" searches,
+ * and it is the internal link hub that makes the individual tools discoverable
+ * to both readers and crawlers.
+ */
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import QuizPromo from '../../components/QuizPromo.astro';
+import { TOOLS } from '../../lib/tools/registry';
+import { breadcrumbJsonLd, SITE_URL } from '../../lib/seo';
+import '../../styles/tools.css';
+import { ArrowRight, Wrench, ShieldCheck, Zap } from 'lucide-astro';
+
+const breadcrumbs = [{ label: 'Home', href: '/' }, { label: 'Tools' }];
+
+const description =
+  'Free dog calculators: age in human years by size, puppy adult weight, daily food and calories, chocolate and grape toxicity, and pregnancy due dates. No signup, nothing stored, instant answers.';
+
+const itemList = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Dog Calculators & Tools',
+  url: `${SITE_URL}/tools`,
+  description,
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: TOOLS.length,
+    itemListElement: TOOLS.map((t, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/tools/${t.slug}`,
+      name: t.title,
+    })),
+  },
+});
+---
+
+<Layout
+  title="Free Dog Calculators & Tools | PawLabs"
+  description={description}
+  ogTitle="Free dog calculators — age, weight, food, toxicity, pregnancy"
+  canonicalUrl="/tools"
+  jsonLd={[itemList, breadcrumbJsonLd([{ name: 'Home', url: '/' }, { name: 'Tools', url: '/tools' }])]}
+>
+  <Nav activePage="tools" />
+
+  <div class="pt-32 sm:pt-36">
+    <Breadcrumbs items={breadcrumbs} />
+  </div>
+
+  <main class="tool-main noise">
+    <section class="tool-hero">
+      <div class="tool-intro">
+        <span class="tool-badge"><Wrench class="w-4 h-4" /> Free tools</span>
+        <h1 class="tool-title">Dog calculators that do the arithmetic properly</h1>
+        <p class="tool-lede">
+          Five things owners actually need to work out, done with the formulas vets use rather than
+          the rules of thumb that get repeated online. Free, instant, and nothing is stored.
+        </p>
+      </div>
+
+      <div class="tool-grid" style="max-width:56rem;margin:0 auto">
+        {TOOLS.map((t) => (
+          <a href={`/tools/${t.slug}`} class="tool-card" style={`--accent: ${t.accent}`}>
+            <span class="tool-card-emoji">{t.emoji}</span>
+            <span class="tool-card-name">{t.shortName}</span>
+            <span class="tool-card-blurb">{t.cardBlurb}</span>
+            <span class="tool-card-go">Open <ArrowRight class="w-3.5 h-3.5" /></span>
+          </a>
+        ))}
+      </div>
+
+      <ul class="tool-medical" style="list-style:none;gap:1.5rem;justify-content:center;flex-wrap:wrap;background:transparent">
+        <li style="display:flex;gap:0.4rem;align-items:center"><Zap class="w-4 h-4" /> Instant, no signup</li>
+        <li style="display:flex;gap:0.4rem;align-items:center"><ShieldCheck class="w-4 h-4" /> Nothing you enter is stored</li>
+        <li style="display:flex;gap:0.4rem;align-items:center">🧮 Shows the formula, not just the answer</li>
+      </ul>
+    </section>
+
+    <section class="tool-section tool-prose">
+      <h2 class="tool-h2">Why these five</h2>
+      <p>
+        They are the questions that come up over and over, and the ones where the commonly repeated
+        answer is wrong often enough to matter. One dog year is not seven human years. The feeding
+        guide on the bag is written for a dog that does not exist. And "how much chocolate is too
+        much" has a real answer that depends on three numbers most people have to hand.
+      </p>
+      <p>
+        Each tool shows its working. Where the honest answer is "there is no reliable number" — which
+        is the case for grapes — it says that instead of inventing one.
+      </p>
+
+      <h2 class="tool-h2">Start from your dog's breed</h2>
+      <p>
+        Several of these want a size or an expected adult weight. Every
+        <a href="/breeds">breed profile</a> lists the weight range, lifespan and trait scores for that
+        breed, and if you are not sure what you have, the
+        <a href="/what-breed-is-my-dog">photo identifier</a> will tell you what your dog most
+        resembles.
+      </p>
+    </section>
+
+    <section class="tool-section">
+      <QuizPromo
+        variant="hero"
+        heading="Still choosing a dog rather than measuring one?"
+        subtitle="The Breed Match quiz reads your home, your week and your household against every breed we have profiled, and tells you which ones actually fit."
+        source="tools-hub"
+      />
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

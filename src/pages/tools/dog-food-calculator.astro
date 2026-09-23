@@ -1,0 +1,220 @@
+---
+import ToolPage from '../../components/ToolPage.astro';
+import { toolBySlug } from '../../lib/tools/registry';
+import { PROFILES, BODY_CONDITION } from '../../lib/tools/calories';
+
+const tool = toolBySlug('dog-food-calculator')!;
+
+const description =
+  'Work out how much to feed your dog in calories, cups and meals a day. Uses the resting energy requirement formula vets use, adjusted for age, neuter status and activity — then converts it into your actual food.';
+
+const faqs = [
+  {
+    question: 'How many calories does my dog need a day?',
+    answer:
+      'Start from resting energy requirement: 70 × (body weight in kg) raised to the power 0.75. Multiply that by a factor for life stage and activity — about 1.6 for a neutered adult, 1.8 for an intact one, 2.0 for a growing puppy over four months, 3.0 for a younger one. The calculator above does this and converts the result into cups of the food you actually feed.',
+  },
+  {
+    question: 'Why is this different from the feeding guide on the bag?',
+    answer:
+      'Bag guides are broad ranges built for an average dog, and they tend to run generous. They also cannot know whether your dog is neutered, elderly, working or lying on a sofa all day — all of which change requirements substantially. Use the bag as a sanity check and your dog’s body condition as the real measure.',
+  },
+  {
+    question: 'Should I feed once or twice a day?',
+    answer:
+      'Twice a day suits most adult dogs and spreads the load on the digestive system. Puppies need more frequent meals — three or four a day under four months. There is some evidence that deep-chested breeds benefit from smaller, more frequent meals and from not exercising immediately after eating, because of bloat risk.',
+  },
+  {
+    question: 'My dog is overweight. How fast should the weight come off?',
+    answer:
+      'Slowly, and with a vet involved. A common target is 1–2% of body weight per week. Calculate from the <strong>target</strong> weight rather than the current one, and have a vet confirm the target — obesity is often accompanied by conditions that change the plan. Crash dieting is dangerous.',
+  },
+  {
+    question: 'Do treats count?',
+    answer:
+      'Yes, and they are the usual reason a careful feeding plan fails. The standard guidance is that treats should be no more than 10% of daily calories, with the main food reduced to make room. A single large dental chew can be over 100 kcal, which is a meaningful share of a small dog’s day.',
+  },
+  {
+    question: 'How do I know the calculation is right for my dog?',
+    answer:
+      'Feed it for two to three weeks and then check body condition rather than the scale alone. You should be able to feel the ribs easily under a thin covering, see a waist from above, and see the belly tuck up from the side. If not, adjust by about 10% and reassess after another fortnight.',
+  },
+];
+---
+
+<ToolPage tool={tool} description={description} faqs={faqs}>
+  <div slot="tool" class="tool-card-shell">
+    <div class="tool-fields">
+      <div class="tool-field">
+        <label for="food-weight">Your dog's weight</label>
+        <div class="tool-input-group">
+          <input class="tool-input" type="number" id="food-weight" min="1" max="250" step="0.5" value="45" inputmode="decimal" />
+          <span class="tool-unit" id="food-weight-unit">lb</span>
+        </div>
+        <span class="tool-hint">
+          <label style="font-weight:600"><input type="checkbox" id="food-kg" /> use kilograms</label>
+          <span id="food-weight-note"></span>
+        </span>
+      </div>
+
+      <div class="tool-field">
+        <label for="food-profile">Life stage and activity</label>
+        <select class="tool-select" id="food-profile">
+          {PROFILES.map((p) => <option value={p.key} selected={p.key === 'neutered'}>{p.label}</option>)}
+        </select>
+        <span class="tool-hint" id="food-profile-note">{PROFILES[2].description}</span>
+      </div>
+
+      <div class="tool-field">
+        <label for="food-density">Calories in your food</label>
+        <div class="tool-input-group">
+          <input class="tool-input" type="number" id="food-density" min="50" max="900" step="5" value="380" inputmode="numeric" />
+          <span class="tool-unit">kcal/cup</span>
+        </div>
+        <span class="tool-hint">On the bag, often as "ME kcal/cup". Leave it if you only want calories.</span>
+      </div>
+    </div>
+
+    <div class="tool-result" id="food-result" aria-live="polite">
+      <p class="tool-sub">Feed about</p>
+      <p class="tool-big" id="food-kcal">1,030 kcal</p>
+      <p class="tool-headline" id="food-cups">roughly 2.7 cups a day, split into 2 meals</p>
+      <p class="tool-sub" id="food-permeal"></p>
+
+      <dl class="tool-stats">
+        <div class="tool-stat"><dt>Resting need</dt><dd id="food-rer">644</dd><small>kcal/day at rest</small></div>
+        <div class="tool-stat"><dt>Sensible range</dt><dd id="food-range">875–1,185</dd><small>kcal/day</small></div>
+        <div class="tool-stat"><dt>By weight</dt><dd id="food-grams">297 g</dd><small>per day, dry food</small></div>
+        <div class="tool-stat"><dt>Treat budget</dt><dd id="food-treats">103</dd><small>kcal/day max (10%)</small></div>
+      </dl>
+
+      <div class="tool-alert tool-alert-concerning" id="food-warning" hidden>
+        <p class="tool-alert-title">Worth knowing</p>
+        <p id="food-warning-text"></p>
+      </div>
+    </div>
+  </div>
+
+  <section class="tool-body tool-prose">
+    <h2 class="tool-h2">The formula, and why it is not linear</h2>
+    <p>
+      Energy needs scale with body surface area rather than weight, so the standard veterinary
+      calculation raises weight to the power of 0.75 rather than multiplying it directly:
+    </p>
+    <p style="text-align:center;font-family:var(--font-display);font-weight:800;font-size:1.05rem">
+      RER = 70 × (weight in kg)<sup>0.75</sup>
+    </p>
+    <p>
+      That is the resting requirement — what a dog burns doing nothing. Multiply it by a factor for
+      life stage, neuter status and activity to get what to actually feed. The practical consequence
+      of the exponent is that a 90 lb dog does not eat four and a half times what a 20 lb dog eats.
+      It eats roughly three times as much.
+    </p>
+
+    <h2 class="tool-h2">The multipliers</h2>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead><tr><th>Situation</th><th>× resting need</th><th>Notes</th></tr></thead>
+        <tbody>
+          {PROFILES.map((p) => (
+            <tr>
+              <td><strong>{p.label}</strong></td>
+              <td>{p.factor.toFixed(1)}</td>
+              <td>{p.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="tool-hint">
+      Published sources give ranges rather than single values, because real dogs vary by up to half
+      either side. These are mid-points, which is why the calculator shows a range too.
+    </p>
+
+    <h2 class="tool-h2">Check the dog, not the calculator</h2>
+    <p>
+      The number above is a starting point. The measure that matters is body condition, assessed with
+      your hands every couple of weeks:
+    </p>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead><tr><th>Score</th><th>Condition</th><th>What you feel</th></tr></thead>
+        <tbody>
+          {BODY_CONDITION.map((b) => (
+            <tr><td><strong>{b.score}</strong></td><td>{b.label}</td><td>{b.note}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Keeping a dog lean is the single most effective thing an owner controls. Dogs kept at a lean
+      body condition through life stay mobile longer and need less intervention for joint problems
+      than littermates fed freely.
+    </p>
+  </section>
+
+  <script>
+    import { dailyCalories, profileFor, LB_PER_KG } from '../../lib/tools/calories';
+
+    const el = (id: string) => document.getElementById(id)!;
+    const weightInput = el('food-weight') as HTMLInputElement;
+    const kgToggle = el('food-kg') as HTMLInputElement;
+    const profileSelect = el('food-profile') as HTMLSelectElement;
+    const densityInput = el('food-density') as HTMLInputElement;
+    const warning = el('food-warning');
+
+    const n = (value: number) => value.toLocaleString('en-US');
+
+    function update() {
+      const useKg = kgToggle.checked;
+      el('food-weight-unit').textContent = useKg ? 'kg' : 'lb';
+
+      const entered = Number(weightInput.value);
+      if (!Number.isFinite(entered) || entered <= 0) return;
+      const lb = useKg ? entered * LB_PER_KG : entered;
+
+      const profileKey = profileSelect.value;
+      const profile = profileFor(profileKey);
+      const density = Number(densityInput.value) || null;
+      const result = dailyCalories(lb, profileKey, density);
+
+      el('food-profile-note').textContent = profile.description;
+      el('food-weight-note').textContent =
+        profileKey === 'weight-loss' ? ' Enter the target weight, not the current one.' : '';
+
+      el('food-kcal').textContent = `${n(result.mer)} kcal`;
+      el('food-cups').textContent = result.cupsPerDay
+        ? `roughly ${result.cupsPerDay} cups a day, split into ${result.mealsPerDay} meals`
+        : `split into ${result.mealsPerDay} meals a day`;
+      el('food-permeal').textContent = result.cupsPerMeal
+        ? `That is about ${result.cupsPerMeal} cups per meal. Weighing is more accurate than scooping — a cup of dry food varies with kibble size.`
+        : 'Enter the calories per cup from your food’s label to convert this into cups.';
+
+      el('food-rer').textContent = n(result.rer);
+      el('food-range').textContent = `${n(result.range[0])}–${n(result.range[1])}`;
+      el('food-grams').textContent = result.gramsPerDay ? `${n(result.gramsPerDay)} g` : '—';
+      el('food-treats').textContent = n(Math.round(result.mer * 0.1));
+
+      if (result.warning) {
+        el('food-warning-text').textContent = result.warning;
+        warning.hidden = false;
+      } else {
+        warning.hidden = true;
+      }
+    }
+
+    // Converts the typed value rather than reinterpreting it.
+    kgToggle.addEventListener('change', () => {
+      const current = Number(weightInput.value);
+      if (Number.isFinite(current) && current > 0) {
+        weightInput.value = String(
+          Math.round((kgToggle.checked ? current / LB_PER_KG : current * LB_PER_KG) * 10) / 10,
+        );
+      }
+    });
+
+    [weightInput, kgToggle, densityInput].forEach((i) => i.addEventListener('input', update));
+    profileSelect.addEventListener('change', update);
+    update();
+  </script>
+</ToolPage>

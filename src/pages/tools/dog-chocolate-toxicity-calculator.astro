@@ -1,0 +1,309 @@
+---
+import ToolPage from '../../components/ToolPage.astro';
+import { toolBySlug } from '../../lib/tools/registry';
+import { CHOCOLATE_TYPES, EMERGENCY_CONTACTS, OTHER_HAZARDS, assessGrapes } from '../../lib/tools/toxicity';
+import { Phone, AlertTriangle } from 'lucide-astro';
+
+const tool = toolBySlug('dog-chocolate-toxicity-calculator')!;
+const grapes = assessGrapes();
+
+const description =
+  'Work out how much chocolate is dangerous for your dog from the type, the amount and their weight — plus what to do about grapes and raisins, where no safe amount exists. Poison-control numbers included.';
+
+const faqs = [
+  {
+    question: 'How much chocolate is toxic to a dog?',
+    answer:
+      'It depends on the type far more than the amount. Toxicity tracks methylxanthines — theobromine plus caffeine — per kilogram of body weight. Signs typically begin around 20 mg/kg, heart effects around 40 mg/kg, and seizures around 60 mg/kg. Because cocoa powder carries roughly a hundred times the theobromine of white chocolate, an ounce of one is trivial and an ounce of the other can be an emergency.',
+  },
+  {
+    question: 'My dog ate chocolate but seems fine. Do I still need to call?',
+    answer:
+      'Yes. Signs often take 6 to 12 hours to appear, and treatment works far better before they start than after. Decontamination is only an option in the first couple of hours, so waiting to see what happens removes the easiest intervention. A phone call costs nothing and takes five minutes.',
+  },
+  {
+    question: 'How long does chocolate poisoning take to show?',
+    answer:
+      'Usually 6 to 12 hours, though restlessness and vomiting can start sooner. Theobromine is cleared slowly by dogs — its half-life is around 17 hours — which is why effects last so long and why dogs sometimes need supportive care for a day or more.',
+  },
+  {
+    question: 'How many grapes are dangerous for a dog?',
+    answer:
+      'There is no known safe number, and this is genuinely different from chocolate. Some dogs eat a large quantity with no effect; others develop acute kidney injury from a handful. Because nobody can tell in advance which kind of dog yours is, the veterinary advice is to treat every ingestion — grapes, raisins, sultanas or currants — as an emergency and phone straight away.',
+  },
+  {
+    question: 'Should I make my dog vomit?',
+    answer:
+      'Not without being told to by a vet or a poison line. Inducing vomiting is the wrong move in several situations — if the dog is already unwell, having tremors, or if a caustic substance is involved — and home methods like salt can themselves be dangerous. Phone first; they will tell you whether to do it and how.',
+  },
+  {
+    question: 'Is white chocolate safe?',
+    answer:
+      'It contains almost no theobromine, so methylxanthine poisoning is unlikely. That is not the same as safe: the fat and sugar can cause significant stomach upset, and in larger amounts pancreatitis, which is serious in its own right. Wrappers and foil bring their own risk of obstruction.',
+  },
+];
+---
+
+<ToolPage tool={tool} description={description} faqs={faqs}>
+  <div slot="tool">
+    <!-- Emergency numbers come before the calculator, deliberately. Someone
+         whose dog just ate a box of chocolates should not have to fill in a
+         form to find a phone number. -->
+    <div class="tool-card-shell" style="border-color:#e79a9a;background:#fff8f8">
+      <p class="tool-alert-title" style="color:#8c2020">
+        <AlertTriangle class="w-5 h-5" style="flex-shrink:0" />
+        If your dog has eaten something now, phone first and calculate afterwards
+      </p>
+      <p style="color:#8c2020;font-size:0.92rem;line-height:1.6;margin-bottom:0.75rem">
+        Treatment is far more effective in the first couple of hours. Your own vet is the best call;
+        these lines are open around the clock if you cannot reach them.
+      </p>
+      <div class="tool-emergency">
+        {EMERGENCY_CONTACTS.map((c) => (
+          <a href={c.href}>
+            <span>
+              <strong>{c.phone}</strong>
+              <small style="display:block">{c.name} · {c.region}</small>
+            </span>
+            <small>{c.note}</small>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="tool-card-shell" style="margin-top:1rem">
+      <div class="tool-segments" role="tablist" style="margin-bottom:1.25rem">
+        <label class="tool-segment">
+          <input type="radio" name="poison" value="chocolate" checked />
+          <span>🍫 Chocolate</span>
+        </label>
+        <label class="tool-segment">
+          <input type="radio" name="poison" value="grapes" />
+          <span>🍇 Grapes &amp; raisins</span>
+        </label>
+      </div>
+
+      <!-- Chocolate -->
+      <div id="panel-chocolate">
+        <div class="tool-fields">
+          <div class="tool-field">
+            <label for="tox-weight">Your dog's weight</label>
+            <div class="tool-input-group">
+              <input class="tool-input" type="number" id="tox-weight" min="1" max="250" step="0.5" value="30" inputmode="decimal" />
+              <span class="tool-unit" id="tox-weight-unit">lb</span>
+            </div>
+            <span class="tool-hint"><label style="font-weight:600"><input type="checkbox" id="tox-kg" /> use kilograms</label></span>
+          </div>
+
+          <div class="tool-field">
+            <label for="tox-type">Type of chocolate</label>
+            <select class="tool-select" id="tox-type">
+              {CHOCOLATE_TYPES.map((t) => <option value={t.key} selected={t.key === 'milk'}>{t.label}</option>)}
+            </select>
+            <span class="tool-hint" id="tox-type-note">{CHOCOLATE_TYPES[1].note}</span>
+          </div>
+
+          <div class="tool-field">
+            <label for="tox-amount">How much was eaten</label>
+            <div class="tool-input-group">
+              <input class="tool-input" type="number" id="tox-amount" min="0.1" max="200" step="0.1" value="2" inputmode="decimal" />
+              <span class="tool-unit" id="tox-amount-unit">oz</span>
+            </div>
+            <span class="tool-hint">
+              <label style="font-weight:600"><input type="checkbox" id="tox-grams" /> use grams</label>
+              — a standard bar is about 1.5 oz (43 g). If unsure, estimate high.
+            </span>
+          </div>
+        </div>
+
+        <div class="tool-result" id="tox-result" aria-live="polite">
+          <div class="tool-alert" id="tox-alert">
+            <p class="tool-alert-title" id="tox-headline"></p>
+            <p id="tox-expected"></p>
+          </div>
+
+          <dl class="tool-stats">
+            <div class="tool-stat"><dt>Dose</dt><dd id="tox-dose">—</dd><small>mg methylxanthines per kg</small></div>
+            <div class="tool-stat"><dt>Total eaten</dt><dd id="tox-total">—</dd><small>mg theobromine + caffeine</small></div>
+            <div class="tool-stat"><dt>Signs usually start</dt><dd>6–12 h</dd><small>after eating</small></div>
+          </dl>
+
+          <h3 class="tool-h3">What to do</h3>
+          <p class="tool-sub" id="tox-action"></p>
+
+          <h3 class="tool-h3">What to watch for</h3>
+          <ul class="tool-prose" id="tox-signs" style="margin-left:1.1rem"></ul>
+        </div>
+      </div>
+
+      <!-- Grapes: no dose, by design -->
+      <div id="panel-grapes" hidden>
+        <div class="tool-alert tool-alert-critical">
+          <p class="tool-alert-title"><AlertTriangle class="w-5 h-5" style="flex-shrink:0" /> {grapes.headline}</p>
+          <p>{grapes.explanation}</p>
+        </div>
+
+        <h3 class="tool-h3">Why there is no calculator here</h3>
+        <p class="tool-sub">
+          Every other tool on this page gives you a number. This one deliberately does not. Grape
+          toxicity does not scale with the amount eaten in any predictable way, so any tool that told
+          you "that much is fine" would be inventing a threshold that does not exist in the
+          literature. The honest output is the same for one grape as for a bag.
+        </p>
+
+        <h3 class="tool-h3">What to do</h3>
+        <p class="tool-sub">{grapes.action}</p>
+
+        <h3 class="tool-h3">What to watch for</h3>
+        <ul class="tool-prose" style="margin-left:1.1rem">
+          {grapes.signs.map((s) => <li>{s}</li>)}
+        </ul>
+        <p class="tool-sub"><strong>Timing:</strong> {grapes.timeline}</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="tool-body tool-prose">
+    <h2 class="tool-h2">Why the type of chocolate matters more than the amount</h2>
+    <p>
+      Dogs metabolise theobromine far more slowly than people do — its half-life in a dog is roughly
+      17 hours, against two or three in a human. It accumulates, which is why effects are both
+      stronger and longer-lasting, and why a dog may need supportive care for more than a day.
+    </p>
+    <p>
+      The concentration varies enormously between products, and that variation swamps everything
+      else:
+    </p>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead><tr><th>Type</th><th>Theobromine</th><th>Caffeine</th><th>Notes</th></tr></thead>
+        <tbody>
+          {CHOCOLATE_TYPES.map((t) => (
+            <tr>
+              <td><strong>{t.label}</strong></td>
+              <td>{t.theobromine} mg/oz</td>
+              <td>{t.caffeine} mg/oz</td>
+              <td>{t.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="tool-hint">
+      Figures are mid-range estimates. Actual content varies between products and batches, which is
+      one more reason to treat the result as a guide and phone a vet rather than self-diagnose.
+    </p>
+
+    <h2 class="tool-h2">What the dose bands mean</h2>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead><tr><th>Dose</th><th>Generally associated with</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Under 20 mg/kg</strong></td><td>Poisoning signs unlikely. Fat and sugar may still cause vomiting or diarrhoea.</td></tr>
+          <tr><td><strong>20–40 mg/kg</strong></td><td>Vomiting, diarrhoea, thirst, restlessness.</td></tr>
+          <tr><td><strong>40–60 mg/kg</strong></td><td>Racing heart, abnormal rhythms, tremors.</td></tr>
+          <tr><td><strong>Over 60 mg/kg</strong></td><td>Seizures and life-threatening rhythms. Doses at this level have been fatal.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      These are thresholds for a typical healthy adult dog. A puppy, an elderly dog or one with heart
+      disease may react at a lower dose, and nobody weighing a half-eaten box can be precise about
+      the amount. Treat the bands as guidance, not permission.
+    </p>
+
+    <h2 class="tool-h2">Other things worth knowing about</h2>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead><tr><th>Hazard</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          {OTHER_HAZARDS.map((h) => (
+            <tr><td><strong>{h.name}</strong></td><td>{h.note}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    import { assessChocolate, chocolateType, CHOCOLATE_TYPES } from '../../lib/tools/toxicity';
+
+    const el = (id: string) => document.getElementById(id)!;
+    const weightInput = el('tox-weight') as HTMLInputElement;
+    const kgToggle = el('tox-kg') as HTMLInputElement;
+    const amountInput = el('tox-amount') as HTMLInputElement;
+    const gramsToggle = el('tox-grams') as HTMLInputElement;
+    const typeSelect = el('tox-type') as HTMLSelectElement;
+    const alertBox = el('tox-alert');
+
+    const LB_PER_KG = 2.20462;
+    const OZ_PER_G = 0.035274;
+
+    function update() {
+      el('tox-weight-unit').textContent = kgToggle.checked ? 'kg' : 'lb';
+      el('tox-amount-unit').textContent = gramsToggle.checked ? 'g' : 'oz';
+
+      const enteredWeight = Number(weightInput.value);
+      const enteredAmount = Number(amountInput.value);
+      if (!Number.isFinite(enteredWeight) || !Number.isFinite(enteredAmount) || enteredWeight <= 0 || enteredAmount <= 0) return;
+
+      const lb = kgToggle.checked ? enteredWeight * LB_PER_KG : enteredWeight;
+      const oz = gramsToggle.checked ? enteredAmount * OZ_PER_G : enteredAmount;
+      const type = typeSelect.value;
+
+      el('tox-type-note').textContent = chocolateType(type).note;
+
+      const result = assessChocolate(lb, oz, type);
+
+      alertBox.className = `tool-alert tool-alert-${result.level}`;
+      el('tox-headline').textContent = result.headline;
+      el('tox-expected').textContent = result.expected;
+      // A trace dose rounds to 0.0, and "0 mg/kg" reads as "nothing happened".
+      // This tool does not reassure; show it as a trace instead.
+      // mgPerKg is already rounded to one decimal by the library, so a trace
+      // dose arrives here as exactly 0. Key off the total to tell "a trace"
+      // apart from "none" — "0 mg/kg" reads as "nothing happened", and this
+      // tool does not reassure.
+      el('tox-dose').textContent =
+        result.totalMg > 0 && result.mgPerKg < 0.1 ? '<0.1 mg/kg' : `${result.mgPerKg} mg/kg`;
+      el('tox-total').textContent = `${result.totalMg.toLocaleString('en-US')} mg`;
+      el('tox-action').textContent = result.action;
+
+      const signs = el('tox-signs');
+      signs.replaceChildren();
+      for (const sign of result.signs) {
+        const li = document.createElement('li');
+        li.textContent = sign;
+        signs.append(li);
+      }
+    }
+
+    // Convert what is typed when the unit changes. This matters more here than
+    // anywhere else on the site: silently reading 30 lb as 30 kg would more than
+    // double the assumed body weight and understate the dose by the same factor.
+    function convertOnToggle(input: HTMLInputElement, toggle: HTMLInputElement, factor: number) {
+      toggle.addEventListener('change', () => {
+        const current = Number(input.value);
+        if (Number.isFinite(current) && current > 0) {
+          input.value = String(Math.round((toggle.checked ? current * factor : current / factor) * 100) / 100);
+        }
+      });
+    }
+    convertOnToggle(weightInput, kgToggle, 1 / LB_PER_KG);
+    convertOnToggle(amountInput, gramsToggle, 1 / OZ_PER_G);
+
+    [weightInput, amountInput, kgToggle, gramsToggle].forEach((i) => i.addEventListener('input', update));
+    typeSelect.addEventListener('change', update);
+
+    // Panel switching
+    document.querySelectorAll<HTMLInputElement>('input[name="poison"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const chocolate = radio.value === 'chocolate';
+        el('panel-chocolate').hidden = !chocolate;
+        el('panel-grapes').hidden = chocolate;
+      });
+    });
+
+    update();
+  </script>
+</ToolPage>

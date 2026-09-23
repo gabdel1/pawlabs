@@ -6,6 +6,7 @@ import NewsletterSignup from '../components/NewsletterSignup.astro';
 import QuizPromo from '../components/QuizPromo.astro';
 import BreedIdPromo from '../components/BreedIdPromo.astro';
 import { withoutRetired } from '../lib/retired';
+import { TOOLS } from '../lib/tools/registry';
 import { getBreeds, getComparisons, getMediaUrl, BREED_GROUP_LABELS, SIZE_LABELS } from '../lib/payload';
 import type { Media } from '../lib/payload';
 import { websiteJsonLd, organizationJsonLd } from '../lib/seo';
@@ -171,6 +172,40 @@ const methodology = [
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <QuizPromo variant="hero" breedCount={breeds.length} source="home-hero" class="reveal" />
       <BreedIdPromo variant="banner" source="home" class="mt-6 reveal" />
+    </div>
+  </section>
+
+  <!-- Calculators. Short, practical answers — the reason most people arrive. -->
+  <section class="bg-white pt-12 sm:pt-16 pb-4 sm:pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7 reveal">
+        <div>
+          <h2 class="display-heading text-2xl sm:text-3xl text-ink mb-2">Free dog calculators</h2>
+          <p class="text-ink-muted text-sm sm:text-base max-w-2xl">
+            The arithmetic owners actually need, done with the formulas vets use — not the rules of
+            thumb that get repeated online. Instant, and nothing you type is stored.
+          </p>
+        </div>
+        <a href="/tools" class="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-brand-700 hover:text-brand-900 transition-colors">
+          All calculators <ArrowUpRight class="w-4 h-4" />
+        </a>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 reveal reveal-delay-1">
+        {TOOLS.map((tool) => (
+          <a
+            href={`/tools/${tool.slug}?from=home`}
+            class="group flex flex-col gap-1.5 p-5 rounded-2xl bg-surface border border-ink/[0.07] hover:border-brand-300 hover:-translate-y-0.5 transition-all"
+          >
+            <span class="text-2xl leading-none mb-1">{tool.emoji}</span>
+            <span class="font-display font-extrabold text-ink group-hover:text-brand-700 transition-colors">{tool.shortName}</span>
+            <span class="text-sm text-ink-muted leading-relaxed flex-1">{tool.cardBlurb}</span>
+            <span class="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-brand-700">
+              Open <ArrowUpRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </a>
+        ))}
+      </div>
     </div>
   </section>
 

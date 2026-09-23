@@ -1,0 +1,200 @@
+---
+import ToolPage from '../../components/ToolPage.astro';
+import { toolBySlug } from '../../lib/tools/registry';
+import { BASES, WHELPING_RED_FLAGS } from '../../lib/tools/whelping';
+import { AlertTriangle } from 'lucide-astro';
+
+const tool = toolBySlug('dog-pregnancy-calculator')!;
+
+const description =
+  'Work out your dog’s due date and whelping window from the mating or ovulation date, with the full week-by-week timeline: when a scan will show puppies, when an X-ray can count them, and the temperature drop that means labour is close.';
+
+const faqs = [
+  {
+    question: 'How long are dogs pregnant?',
+    answer:
+      'About 63 days from ovulation, which is remarkably consistent. From a mating date it looks far more variable — anywhere from 57 to 65 days — but that is because sperm can survive for up to a week in the reproductive tract, so conception may happen days after the mating. If your vet timed ovulation with progesterone testing, the 63-day figure is accurate to a day or two.',
+  },
+  {
+    question: 'When can a vet confirm the pregnancy?',
+    answer:
+      'Ultrasound from about day 25 will confirm pregnancy and check for heartbeats, though it is unreliable for counting. A blood test for relaxin works from around day 21–25. To know how many puppies to expect you need an X-ray from about day 45, once the skeletons have mineralised enough to see.',
+  },
+  {
+    question: 'Why does the puppy count matter?',
+    answer:
+      'Because it tells you when whelping is finished. Without it, a bitch who has delivered four puppies with a fifth still inside can look like she is simply resting. Knowing the number is the difference between calling the vet at the right moment and finding out too late.',
+  },
+  {
+    question: 'What does the temperature drop mean?',
+    answer:
+      'A bitch’s normal temperature is about 101–102.5°F (38.3–39.2°C). In the 12–24 hours before labour it usually drops below 100°F (37.8°C) as progesterone falls. Taking it twice daily from about a week before the due date is the most reliable home warning you get. If it drops and labour has not started within 24 hours, call your vet.',
+  },
+  {
+    question: 'How do I know if something is going wrong?',
+    answer:
+      'Strong contractions for 30 minutes with no puppy, more than two hours between puppies when more are due, a green or black discharge before the first puppy, or going past day 65 from ovulation all warrant a call. Whelping problems escalate quickly, and vets would far rather hear from you early.',
+  },
+  {
+    question: 'Should she be eating more?',
+    answer:
+      'Not much for the first five weeks — overfeeding early does not help. From around week six the demand climbs steeply, and most vets advise switching to a puppy or performance food fed in more frequent, smaller meals, because there is progressively less room for a full stomach. Nursing then places the highest energy demand of her life.',
+  },
+];
+---
+
+<ToolPage tool={tool} description={description} faqs={faqs}>
+  <div slot="tool" class="tool-card-shell">
+    <div class="tool-fields">
+      <div class="tool-field">
+        <label for="preg-date">Date of the event</label>
+        <input class="tool-input" type="date" id="preg-date" />
+        <span class="tool-hint">Defaults to four weeks ago so you can see a timeline in progress.</span>
+      </div>
+
+      <div class="tool-field">
+        <label for="preg-basis">What that date is</label>
+        <select class="tool-select" id="preg-basis">
+          {BASES.map((b) => <option value={b.key} selected={b.key === 'mating'}>{b.label}</option>)}
+        </select>
+        <span class="tool-hint" id="preg-basis-note">{BASES[0].description}</span>
+      </div>
+    </div>
+
+    <div class="tool-result" id="preg-result" aria-live="polite">
+      <p class="tool-sub">Puppies due around</p>
+      <p class="tool-big" id="preg-due">—</p>
+      <p class="tool-headline" id="preg-window">—</p>
+
+      <dl class="tool-stats">
+        <div class="tool-stat"><dt>Day of pregnancy</dt><dd id="preg-day">—</dd><small id="preg-trimester">—</small></div>
+        <div class="tool-stat"><dt>Days to go</dt><dd id="preg-remaining">—</dd><small>until the due date</small></div>
+        <div class="tool-stat"><dt>Next milestone</dt><dd id="preg-next" style="font-size:1rem">—</dd><small id="preg-next-when">—</small></div>
+      </dl>
+
+      <h3 class="tool-h3">Week by week</h3>
+      <div class="tool-timeline" id="preg-timeline"></div>
+    </div>
+  </div>
+
+  <section class="tool-body tool-prose">
+    <h2 class="tool-h2">Why mating dates mislead</h2>
+    <p>
+      Canine gestation measured from ovulation is one of the most consistent figures in veterinary
+      reproduction: 63 days, give or take a couple. Measured from mating it appears to swing wildly,
+      and breeders conclude that some litters simply come early.
+    </p>
+    <p>
+      They usually have not. Sperm can remain viable in the reproductive tract for up to a week, and
+      a bitch can be mated several days before she ovulates. A litter that arrives on "day 58" after
+      a mating is very often exactly 63 days after the ovulation nobody measured. That is why
+      progesterone timing is worth doing where the date matters.
+    </p>
+
+    <h2 class="tool-h2">The three stages of labour</h2>
+    <h3 class="tool-h3">Stage one: 6–12 hours</h3>
+    <p>
+      Restlessness, panting, shivering, nesting, refusing food, sometimes vomiting. The cervix is
+      dilating and contractions are not yet visible. This stage can last up to 24 hours in a
+      first-time mother.
+    </p>
+    <h3 class="tool-h3">Stage two: delivery</h3>
+    <p>
+      Visible straining, and a puppy usually within 30 minutes of it starting. Puppies then arrive
+      anywhere from a few minutes to two hours apart. Half arrive tail-first, which is normal for
+      dogs. Thirty minutes of hard straining without a puppy is the point to call.
+    </p>
+    <h3 class="tool-h3">Stage three: placentas</h3>
+    <p>
+      One placenta follows each puppy, though they interleave with later deliveries. Counting them
+      matters — a retained placenta can cause infection.
+    </p>
+
+    <h2 class="tool-h2">When to call the vet immediately</h2>
+    <div class="tool-alert tool-alert-critical">
+      <p class="tool-alert-title"><AlertTriangle class="w-5 h-5" style="flex-shrink:0" /> Any one of these warrants a phone call now</p>
+      <ul style="margin:0.5rem 0 0 1.1rem">
+        {WHELPING_RED_FLAGS.map((flag) => <li style="list-style:disc;margin-bottom:0.3rem;font-size:0.92rem">{flag}</li>)}
+      </ul>
+    </div>
+    <p>
+      Have your vet's out-of-hours number written down before the due date, along with the address of
+      the nearest emergency clinic. Whelping rarely happens at a convenient hour, and looking up a
+      number at 3am while a bitch is in trouble is not when you want to be doing it.
+    </p>
+  </section>
+
+  <script>
+    import { calculatePregnancy, basisFor, type DateBasis } from '../../lib/tools/whelping';
+
+    const el = (id: string) => document.getElementById(id)!;
+    const dateInput = el('preg-date') as HTMLInputElement;
+    const basisSelect = el('preg-basis') as HTMLSelectElement;
+
+    // Default to four weeks ago, so the page opens on a live timeline rather
+    // than an empty state.
+    const initial = new Date();
+    initial.setDate(initial.getDate() - 28);
+    dateInput.value = initial.toISOString().slice(0, 10);
+
+    const fmt = (d: Date) =>
+      d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    const fmtShort = (d: Date) =>
+      d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+    function update() {
+      if (!dateInput.value) return;
+      const [y, m, d] = dateInput.value.split('-').map(Number);
+      const start = new Date(Date.UTC(y, m - 1, d));
+      const basis = basisSelect.value as DateBasis;
+
+      el('preg-basis-note').textContent = basisFor(basis).description;
+
+      const result = calculatePregnancy(start, basis);
+
+      el('preg-due').textContent = fmt(result.dueDate);
+      el('preg-window').textContent = `Whelping window: ${fmtShort(result.windowStart)} to ${fmtShort(result.windowEnd)}`;
+      el('preg-day').textContent = result.dayOfPregnancy !== null ? `Day ${result.dayOfPregnancy}` : '—';
+      el('preg-trimester').textContent = result.trimester ? `trimester ${result.trimester} of 3` : 'not yet started, or already whelped';
+      el('preg-remaining').textContent = result.daysRemaining !== null ? String(result.daysRemaining) : '—';
+
+      const next = result.milestones.find((ms) => !ms.past);
+      el('preg-next').textContent = next ? next.title : 'Whelping';
+      el('preg-next-when').textContent = next ? fmtShort(next.date) : '—';
+
+      const timeline = el('preg-timeline');
+      timeline.replaceChildren();
+      for (const ms of result.milestones) {
+        const row = document.createElement('div');
+        row.className = `tool-milestone${ms.past ? ' is-past' : ''}${ms.vet ? ' is-vet' : ''}`;
+
+        const day = document.createElement('div');
+        day.className = 'tool-milestone-day';
+        day.textContent = `Day ${ms.day}`;
+        const when = document.createElement('small');
+        when.textContent = fmtShort(ms.date);
+        day.append(when);
+
+        const body = document.createElement('div');
+        const h4 = document.createElement('h4');
+        h4.textContent = ms.title;
+        if (ms.vet) {
+          const tag = document.createElement('span');
+          tag.className = 'tool-vet-tag';
+          tag.textContent = 'VET';
+          h4.append(tag);
+        }
+        const p = document.createElement('p');
+        p.textContent = ms.detail;
+        body.append(h4, p);
+
+        row.append(day, body);
+        timeline.append(row);
+      }
+    }
+
+    dateInput.addEventListener('input', update);
+    basisSelect.addEventListener('change', update);
+    update();
+  </script>
+</ToolPage>

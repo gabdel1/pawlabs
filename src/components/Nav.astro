@@ -1,9 +1,9 @@
 ---
 import Logo from './Logo.astro';
-import { PawPrint, Scale, Sparkles, ScanSearch } from 'lucide-astro';
+import { PawPrint, Scale, Sparkles, ScanSearch, Wrench } from 'lucide-astro';
 
 interface Props {
-  activePage?: 'breeds' | 'compare' | 'quiz' | 'identify';
+  activePage?: 'breeds' | 'compare' | 'quiz' | 'identify' | 'tools';
 }
 
 const { activePage } = Astro.props;
@@ -11,6 +11,7 @@ const { activePage } = Astro.props;
 const navLinks = [
   { href: '/quiz', label: 'Breed Quiz', key: 'quiz' },
   { href: '/what-breed-is-my-dog', label: 'Identify My Dog', key: 'identify' },
+  { href: '/tools', label: 'Tools', key: 'tools' },
   { href: '/breeds', label: 'Breeds', key: 'breeds' },
   { href: '/compare', label: 'Compare', key: 'compare' },
 ];
@@ -64,6 +65,7 @@ const navLinks = [
   </div>
   <a href="/quiz" class="flex items-center gap-2.5"><Sparkles class="w-[18px] h-[18px] opacity-70" /> Breed Quiz</a>
   <a href="/what-breed-is-my-dog" class="flex items-center gap-2.5"><ScanSearch class="w-[18px] h-[18px] opacity-70" /> Identify My Dog</a>
+  <a href="/tools" class="flex items-center gap-2.5"><Wrench class="w-[18px] h-[18px] opacity-70" /> Calculators</a>
   <a href="/breeds" class="flex items-center gap-2.5"><PawPrint class="w-[18px] h-[18px] opacity-70" /> Breeds</a>
   <a href="/compare" class="flex items-center gap-2.5"><Scale class="w-[18px] h-[18px] opacity-70" /> Compare</a>
   <div class="mt-auto pt-6">
