@@ -111,5 +111,10 @@ log "build produced $PAGES pages — swapping in"
 mv "$ROOT/dist" "$PREVIOUS" && mv "$STAGING" "$ROOT/dist"
 rm -rf "$PREVIOUS"
 
+# Tell Bing and Yandex what changed. Google ignores IndexNow, and a failure
+# here must never fail a deploy that has already succeeded.
+log "submitting changed URLs to IndexNow"
+npx tsx scripts/indexnow-submit.ts >>"$LOG" 2>&1 || log "WARN: IndexNow submission failed, continuing"
+
 log "done — https://pawlabs.org/compare"
 exit 0

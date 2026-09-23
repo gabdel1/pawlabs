@@ -14,6 +14,14 @@ interface Props {
   /** Overrides og:title / twitter:title only — <title> keeps the site suffix. */
   ogTitle?: string;
   noindex?: boolean;
+  /**
+   * Overrides the robots directive entirely, e.g. "noindex, follow".
+   *
+   * `noindex` alone emits "noindex,nofollow", which is right for pages we do
+   * not want crawled onward. Pages that should drop out of search while still
+   * passing link equity to what they link to need this instead.
+   */
+  robots?: string;
   publishedTime?: string;
   modifiedTime?: string;
 }
@@ -28,6 +36,7 @@ const {
   jsonLd,
   ogTitle,
   noindex = false,
+  robots,
   publishedTime,
   modifiedTime,
 } = Astro.props;
@@ -36,6 +45,13 @@ const siteUrl = 'https://pawlabs.org';
 const fullCanonical = canonicalUrl ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`) : Astro.url.href;
 const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : null;
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+// An explicit `robots` wins; otherwise `noindex` picks one of the two defaults.
+const robotsContent =
+  robots ??
+  (noindex
+    ? 'noindex, nofollow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
 // Derive the declared type from the file so JPEG cards are not announced as PNG.
 const ogImageType = fullOgImage && /\.jpe?g($|\?)/i.test(fullOgImage) ? 'image/jpeg' : 'image/png';
 
@@ -135,11 +151,7 @@ const socialTitle = ogTitle ?? pageTitle;
     <!-- Primary Meta -->
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    {noindex ? (
-      <meta name="robots" content="noindex,nofollow" />
-    ) : (
-      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    )}
+    <meta name="robots" content={robotsContent} />
     <link rel="canonical" href={fullCanonical} />
 
     <!-- Language & Locale -->

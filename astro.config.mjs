@@ -36,6 +36,9 @@ export default defineConfig({
         // noindex and must not compete with real pages. /embed (the generator)
         // stays in: it is a normal indexable landing page.
         !/\/embed\/.+/.test(page) &&
+        // Quiz result pages carry noindex — a sitemap must never advertise a
+        // URL we are asking search engines to drop.
+        !page.includes('/quiz/result/') &&
         // Low-demand comparisons carry noindex; keep them out of the sitemap too.
         ![...noindexedComparisons].some((slug) => page.includes(`/compare/${slug}`)),
       /**

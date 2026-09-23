@@ -66,6 +66,15 @@ const description =
   ogTitle={title}
   description={description}
   canonicalUrl={`/quiz/result/${breed.slug}`}
+  {/*
+    201 of these exist, one per breed, and each is ~125 words of breed name,
+    tagline and six trait scores. To a search engine that is 201 near-duplicate
+    thin pages; to a person who was sent one it is their quiz result. So: out of
+    the index, but crawlable and still passing equity to the full breed profile
+    it links to. The canonical stays self-referencing — these are the originals,
+    not duplicates of /breeds/<slug>.
+  */}
+  robots="noindex, follow"
   ogType="website"
   ogImage={cardUrl}
   jsonLd={[breadcrumbJsonLd([
