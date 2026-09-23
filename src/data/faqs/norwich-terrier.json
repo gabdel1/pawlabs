@@ -3,18 +3,18 @@
   "breed": "Norwich Terrier",
   "generated": "2026-09-23",
   "model": "grok-4.20-0309-non-reasoning",
-  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding answer opener corrected.",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding opener aligned to the answer.",
   "quick": {
-    "sheds": "Moderately, seasonal",
-    "hypoallergenic": "Sometimes suggested",
-    "barks": "Moderately, at alerts"
+    "sheds": "Lightly, seasonal",
+    "hypoallergenic": "No — wire coat",
+    "barks": "Moderately, at stimuli"
   },
   "answers": {
     "children": "Yes — Norwich Terriers are good with children when the children respect their boundaries. Their feisty yet affectionate nature and boundless energy suit play with older respectful kids, but their small 10-12 lb build and determined terrier spirit mean they can react sharply if accidentally squeezed or chased. The compact size that once helped them bolt foxes from dens now makes them vulnerable around very young or boisterous toddlers. (PawLabs child-friendly score: 7/10)",
     "other-pets": "No — Norwich Terriers often struggle with other pets because of their high prey drive. Bred for ratting and fox hunting, their tenacious spirit leads them to chase or confront small animals, and they can be wary of unfamiliar dogs. Their affectionate side shines only with family, leaving same-sex tension or feline housemates as frequent flashpoints for this East Anglian terrier.",
     "exercise": "Norwich Terriers need 45 to 60 minutes of exercise daily. Their boundless energy and hunting background mean they thrive on brisk walks, fetch games and puzzle toys that mimic ratting work, yet without this they dig up gardens or shred household items. The feisty terrier in their 9-10 inch frame simply redirects its determination into mischief.",
-    "shedding": "Not especially — Norwich Terriers shed moderately with peaks in spring and autumn. Their medium wire coat tangles less than softer breeds but still drops coarse hairs that catch in carpets and upholstery, especially around the furnishings developed for farm work. Daily brushing prevents loose hair from building up in a home shared with this determined little hunter.",
-    "hypoallergenic": "No breed is truly hypoallergenic, yet the Norwich Terrier is sometimes suggested for allergy sufferers because of its medium wire coat. The wiry texture that suited its ratting origins in East Anglia traps dander less obviously than soft double coats, though it still produces allergens and requires regular grooming to limit spread through a house.",
+    "shedding": "Yes — Norwich Terriers shed moderately with peaks in spring and autumn. Their medium wire coat tangles less than softer breeds but still drops coarse hairs that catch in carpets and upholstery, especially around the furnishings developed for farm work. Daily brushing prevents loose hair from building up in a home shared with this determined little hunter.",
+    "hypoallergenic": "The Norwich Terrier has a medium wire coat that sheds lightly and produces moderate dander in the home. Its wiry texture holds dead hair until plucked or stripped, so regular grooming prevents loose strands from spreading. No breed is genuinely hypoallergenic, and the Norwich Terrier is not among those usually suggested to allergy sufferers. (PawLabs shedding score: 4/10)",
     "training": "No — Norwich Terriers are not easy to train because of their stubborn streak. The same determined spirit that helped them hunt foxes and rats in 19th-century England makes them independent and slow to respond to commands, turning sessions into contests of will. Owners must channel the intelligence and affection of this feisty terrier with patience and consistent structure.",
     "lifespan": "Norwich Terriers live 12-15 years. Their compact, sturdy build and health robustness support a long active life for a small terrier once used to squeeze into tight spaces after vermin, though the feisty energy that once tackled larger adversaries can still lead to wear on joints if exercise is poorly managed.",
     "size": "Norwich Terriers reach 10-12 lb and stand 9-10 in tall. The compact, substantial build once ideal for bolting foxes from dens feels surprisingly solid in the lap yet leaves the dog nimble enough to zoom through a small house, giving owners the benefit of a tiny dynamo that still carries the heart of a much larger terrier.",

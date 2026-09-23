@@ -3,10 +3,10 @@
   "breed": "Basenji",
   "generated": "2026-09-23",
   "model": "grok-4.20-0309-non-reasoning",
-  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding answer opener corrected.",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
   "quick": {
-    "sheds": "Lightly, year-round",
-    "hypoallergenic": "No — short smooth coat",
+    "sheds": "Lightly, minimal dander",
+    "hypoallergenic": "No, not suggested",
     "barks": "Rarely, yodels instead"
   },
   "answers": {
@@ -14,7 +14,7 @@
     "other-pets": "Basenjis do not always get along with other pets because their high prey drive, developed for hunting small game, leads them to chase or view smaller animals as quarry. They can show tension with same-sex dogs due to their aloof and independent temperament. Living with one requires secure management and careful introductions to prevent the silent hunter from acting on its primitive instincts.",
     "exercise": "Basenjis need 60 to 90 minutes of exercise daily, combining brisk walks with off-leash running in secure areas and mental puzzles that match their intelligent problem-solving ability. Without this outlet their forest-hunting energy turns inward, resulting in destructive chewing or climbing that can damage furniture and doors. The breed’s cat-like curiosity demands varied activity to keep its independent mind occupied.",
     "shedding": "No — Basenjis shed lightly year-round with no heavy seasonal blow because their short, smooth single coat lacks the dense undercoat of many hounds. The fine texture means loose hairs are minimal and easy to wipe away from furniture or clothing. Living with this African breed therefore requires only occasional brushing rather than intensive grooming sessions.",
-    "hypoallergenic": "No breed is truly hypoallergenic, yet the Basenji’s short smooth coat is sometimes suggested for allergy sufferers because it produces relatively little dander compared with longer-haired dogs. The single coat still sheds lightly and requires regular wiping to control allergens in the home. People with sensitivities should still spend time around the breed before deciding.",
+    "hypoallergenic": "Basenjis have a short smooth coat that sheds lightly and produces minimal dander in the home. Their low grooming needs and quiet independent nature suit owners seeking a clean-living hound, yet no breed is genuinely hypoallergenic and the Basenji is not among those usually suggested to allergy sufferers. (PawLabs shedding score: 3/10)",
     "training": "Basenjis are not easy to train because their stubborn independence, inherited from centuries of self-sufficient hunting in Central African tribes, makes them question commands rather than obey them. Highly intelligent problem-solvers, they quickly learn how to open doors or reach counters but rarely perform for praise alone. Consistent, creative methods are needed or the aloof hunter will simply disengage.",
     "lifespan": "Basenjis live 13-14 years, a range supported by their naturally robust build and the primitive health that comes from evolving through tribal selection rather than extreme conformation. Their medium weight and athletic proportions from forest hunting help maintain condition into later life. The breed’s self-reliant background contributes to a hardy constitution that benefits from an active lifestyle.",
     "size": "Adult Basenjis weigh 22-24 lb and stand 16-17 in at the shoulder, giving a compact, lightly built frame that feels more like a cat than a typical hound in the house. Their elegant proportions and tightly curled tail suit an independent lifestyle where they perch on furniture to observe. This medium size allows them to navigate small spaces easily while still possessing the speed and agility of their African hunting ancestors.",

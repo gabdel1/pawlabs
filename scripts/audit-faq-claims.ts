@@ -63,7 +63,7 @@ const GENERIC = [
  * of its first run's findings were this, and a checker that cries wolf gets
  * ignored.
  */
-const NEGATION = /\b(not|never|nor|no|rather than|instead of|compared (?:with|to)|unlike|opposing|opposed to|than|other|far from|anything but)\b[^.]{0,40}$/i;
+const NEGATION = /\b(not|never|nor|no|rather than|instead of|compared (?:with|to)|unlike|opposing|opposed to|than|other|far from|anything but|opposite of|a long way from)\b[^.]{0,40}$/i;
 
 /** True when the match is negated or refers to other dogs. */
 function isNegated(answer: string, index: number): boolean {
@@ -135,7 +135,7 @@ for (const file of fs.readdirSync(DATA).filter((f) => f.endsWith('.json'))) {
     if (key === 'hypoallergenic' && findClaim(answer, ALLERGY_SAFE)) {
       add(data.slug, key, 'check', 'may read as claiming the breed is allergy-safe', answer);
     }
-    if (key === 'hypoallergenic' && !/\bno breed\b|\bnot hypoallergenic\b|\bnor is any breed\b|\bno dog\b/i.test(answer)) {
+    if (key === 'hypoallergenic' && !/\bno breed\b|\bno dog\b|nor is any breed|none (?:are|is)\b|nothing on four legs|no such thing as a(?:n)? (?:genuinely )?hypoallergenic|hypoallergenic dogs? do(?:es)? not exist|no genuinely hypoallergenic|escapes? the allergen/i.test(answer)) {
       add(data.slug, key, 'minor', 'does not state that no breed is hypoallergenic', answer);
     }
 

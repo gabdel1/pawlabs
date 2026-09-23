@@ -46,6 +46,13 @@ const printOnly = args.includes('--print');
 const doAll = args.includes('--all');
 const limit = Number(arg('limit')) || Infinity;
 const slugFilter = arg('slugs')?.split(',').map((s) => s.trim()).filter(Boolean);
+/**
+ * Rewrite only these answers, keeping the rest of the file as it is.
+ *
+ * Regenerating all eleven to fix one is how hand-corrections get silently
+ * undone — it happened once already with the shedding openers.
+ */
+const onlyKeys = arg('only-keys')?.split(',').map((s) => s.trim()).filter(Boolean);
 
 /**
  * The eleven questions, fixed in code.
@@ -66,7 +73,7 @@ const BRIEFS: Record<FaqKey, string> = {
   'other-pets': 'Does it get along with other pets? Open with a direct verdict. Address prey drive, same-sex tension or sociability where the profile supports it.',
   exercise: 'How much exercise does it need? Open with a concrete daily figure or range. Say what happens when that is not met, and what kind of exercise suits this breed.',
   shedding: 'Does it shed? Open with yes/no plus how much and whether it is seasonal. Describe this breed\'s actual coat — length, single or double, texture, feathering — and what that means for the house.',
-  hypoallergenic: 'Is it hypoallergenic? Open by saying plainly that no breed is, then whether this breed is one of those commonly suggested for allergy sufferers, based on its coat. Be honest: most breeds are not.',
+  hypoallergenic: 'Is it hypoallergenic? START WITH THIS BREED, not with the general rule. Open on its coat and what that coat does in a house — then make clear, in the same answer, that no breed is genuinely hypoallergenic and say whether this one is among those usually suggested to allergy sufferers. Be honest: most are not. Do NOT begin with "No breed is..." — 198 of these answers opened that way and read as one template.',
   training: 'Is it easy to train? Open with a direct verdict. Say what makes this breed easy or hard specifically — biddability, independence, sensitivity, what it was bred to do without human direction.',
   lifespan: 'How long does it live? Open with the range. Add what is known from the profile about this breed\'s health or build that bears on it. Do not invent health conditions.',
   size: 'How big does it get? Open with the adult weight and height. Add something useful about the build — substance, proportions, how it feels to live with at that size.',
@@ -151,7 +158,7 @@ HARD RULES
 
 Return ONLY a JSON object:
 {
-  "answers": { "<key>": "<answer text>", ... for all eleven keys },
+  "answers": { "<key>": "<answer text>", ... one entry per brief you were given },
   "quick": {
     "sheds": "<max 5 words, e.g. 'Moderately, year-round'>",
     "hypoallergenic": "<max 5 words, e.g. 'No — heavy double coat'>",
@@ -168,12 +175,13 @@ async function generate(breed: Breed, fixes?: string[]): Promise<Generated> {
   const apiKey = process.env.XAI_API_KEY;
   if (!apiKey) throw new Error('XAI_API_KEY is not set');
 
-  const briefs = FAQ_KEYS.map((key) => `  "${key}": ${BRIEFS[key]}`).join('\n');
-  const userPrompt = `Write the eleven FAQ answers for this breed.
+  const keys = (onlyKeys?.length ? onlyKeys.filter((k) => (FAQ_KEYS as readonly string[]).includes(k)) : FAQ_KEYS) as readonly FaqKey[]
+  const briefs = keys.map((key) => `  "${key}": ${BRIEFS[key]}`).join('\n');
+  const userPrompt = `Write ${keys.length === 1 ? 'this FAQ answer' : `these ${keys.length} FAQ answers`} for this breed.
 
 ${breedFacts(breed)}
 
-ANSWER BRIEFS — one answer per key:
+ANSWER BRIEF${keys.length === 1 ? '' : 'S'} — one answer per key:
 ${briefs}
 
 Remember: first sentence answers the question and names the breed; everything after it must be true of ${breed.name} specifically and supported by the profile above.${
@@ -205,7 +213,8 @@ Remember: first sentence answers the question and names the breed; everything af
 
   const parsed = JSON.parse(content.trim().replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '')) as Generated;
 
-  const missing = FAQ_KEYS.filter((k) => !parsed.answers?.[k]?.trim());
+  const requested = (onlyKeys?.length ? onlyKeys : FAQ_KEYS) as readonly string[]
+  const missing = requested.filter((k) => !parsed.answers?.[k]?.trim());
   if (missing.length) throw new Error(`missing answers: ${missing.join(', ')}`);
   return parsed;
 }
@@ -241,6 +250,7 @@ function validate(breed: Breed, generated: Generated): string[] {
 
   for (const key of FAQ_KEYS) {
     const answer = generated.answers[key];
+    if (!answer) continue;
     const first = answer.split(/(?<=[.!?])\s/)[0] ?? answer;
 
     if (!stem.test(first)) problems.push(`${key}: first sentence does not name the breed`);
@@ -255,7 +265,14 @@ function validate(breed: Breed, generated: Generated): string[] {
     if (LOOSE_SCORE.test(answer)) problems.push(`${key}: score outside the approved format`);
   }
 
-  const scored = FAQ_KEYS.filter((k) => /PawLabs [a-z- ]+score:/i.test(generated.answers[k])).length;
+  // The honest general point must survive the breed-specific opening: saying
+  // "this breed is not hypoallergenic" is not the same as saying none is.
+  const hypo = generated.answers.hypoallergenic;
+  if (hypo && !/\bno breed\b|\bno dog\b|nor is any breed|none (?:are|is)\b|nothing on four legs|no such thing as a(?:n)? (?:genuinely )?hypoallergenic|hypoallergenic dogs? do(?:es)? not exist|no genuinely hypoallergenic|escapes? the allergen/i.test(hypo)) {
+    problems.push('hypoallergenic: does not say that no breed is hypoallergenic');
+  }
+
+  const scored = FAQ_KEYS.filter((k) => generated.answers[k] && /PawLabs [a-z- ]+score:/i.test(generated.answers[k])).length;
   if (scored > 2) problems.push(`${scored} answers quote a score (max 2)`);
 
   return problems;
@@ -288,7 +305,7 @@ async function main() {
   }
 
   const todo = breeds
-    .filter((b) => force || !fs.existsSync(path.join(OUT_DIR, `${b.slug}.json`)))
+    .filter((b) => force || onlyKeys?.length || !fs.existsSync(path.join(OUT_DIR, `${b.slug}.json`)))
     .slice(0, limit);
 
   console.log(`[faqs] ${todo.length} breed(s) to write (model ${MODEL})`);
@@ -308,20 +325,29 @@ async function main() {
       }
       if (issues.length) problems.push(`${breed.slug}: ${issues.join(' | ')}`);
 
+      const outFile = path.join(OUT_DIR, `${breed.slug}.json`);
+      const existing = fs.existsSync(outFile) ? JSON.parse(fs.readFileSync(outFile, 'utf-8')) : null;
+
+      const answers = { ...(existing?.answers ?? {}) };
+      for (const key of FAQ_KEYS) {
+        if (generated.answers[key]) answers[key] = generated.answers[key].trim();
+      }
+
       const payload = {
         slug: breed.slug,
         breed: breed.name,
         generated: new Date().toISOString().slice(0, 10),
         model: MODEL,
         note: 'Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.',
-        quick: generated.quick,
-        answers: Object.fromEntries(FAQ_KEYS.map((k) => [k, generated.answers[k].trim()])),
+        // A single-key run keeps the quick answers it did not ask for.
+        quick: generated.quick ?? existing?.quick,
+        answers,
       };
 
       if (printOnly) {
         console.log(JSON.stringify(payload, null, 2));
       } else {
-        fs.writeFileSync(path.join(OUT_DIR, `${breed.slug}.json`), JSON.stringify(payload, null, 2) + '\n');
+        fs.writeFileSync(outFile, JSON.stringify(payload, null, 2) + '\n');
       }
       ok++;
       process.stdout.write(`  ${ok}/${todo.length} ${breed.slug}\n`);

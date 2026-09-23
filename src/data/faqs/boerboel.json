@@ -3,18 +3,18 @@
   "breed": "Boerboel",
   "generated": "2026-09-23",
   "model": "grok-4.20-0309-non-reasoning",
-  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding answer opener corrected.",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding opener aligned to the answer.",
   "quick": {
-    "sheds": "Moderately, year-round",
-    "hypoallergenic": "No",
-    "barks": "Only on real threats"
+    "sheds": "Lightly, year-round",
+    "hypoallergenic": "No — short coat",
+    "barks": "Moderately, on alert"
   },
   "answers": {
     "children": "Boerboels are moderately good with children thanks to their loyal and protective nature. Their massive 110-200 lb build demands supervision around small kids because a simple lean or playful nudge from this powerful South African guardian can knock a child over. Bred for farm protection, they position themselves between family members and perceived threats with a steady stare rather than playfulness. Their confidence can border on stubbornness during interactions. (PawLabs child-friendly score: 6/10)",
     "other-pets": "Boerboels do not always get along with other pets. Their protective instincts and history guarding South African farms against predators create wariness toward unfamiliar animals and potential same-sex tension with other dogs. They can show dominance without careful introductions, though loyalty to their own family extends to accepted household pets. Their confidence makes sharing space a challenge.",
     "exercise": "Boerboels need 60 minutes of daily exercise. Long deliberate walks suit their powerful mastiff build and farm-guarding heritage better than high-speed activities, while a securely fenced yard allows them to patrol and lumber at their own pace. Without this outlet their massive frames and minds become frustrated, leading to destructive chewing from pent-up energy.",
-    "shedding": "Not especially — Boerboels shed moderately with short, dense single coats that spread visible hair on furniture and floors year-round. The smooth texture requires only minimal brushing yet still produces enough loose hair to notice in a home, especially during seasonal changes. Their working mastiff heritage left no heavy undercoat but the short coat still traps and releases hair readily.",
-    "hypoallergenic": "No breed is hypoallergenic and the Boerboel is not one commonly suggested for allergy sufferers. Its short single coat still sheds moderate amounts of hair and dander throughout the year, a trait rooted in its South African farm guardian ancestry. The smooth texture offers no special barrier against allergens despite low grooming needs.",
+    "shedding": "Yes — Boerboels shed moderately with short, dense single coats that spread visible hair on furniture and floors year-round. The smooth texture requires only minimal brushing yet still produces enough loose hair to notice in a home, especially during seasonal changes. Their working mastiff heritage left no heavy undercoat but the short coat still traps and releases hair readily.",
+    "hypoallergenic": "The Boerboel is not hypoallergenic. Its short coat sheds lightly and produces the dander typical of a mastiff-type guardian, spreading it through the house during normal activity. No breed is genuinely hypoallergenic, and the Boerboel is rarely suggested to allergy sufferers.",
     "training": "Boerboels are not easy to train. Their high intelligence pairs with confident independence and a stubborn streak that tests an owner's will, while their original role guarding South African farms without constant direction reduces natural biddability. Protective instincts can override commands if they sense a threat, making consistent leadership essential.",
     "lifespan": "Boerboels live 9-11 years. Their large powerful build and working heritage as South African farm guardians contribute to this relatively short range, with the massive frame placing demands on joints and heart that influence overall robustness. The breed's history of survival in rugged terrain shaped a resilient yet time-limited constitution.",
     "size": "Adult Boerboels reach 110-200 lb and stand 22-27 in tall. This towering mastiff build feels like living with a solid muscular statue that can lean with considerable weight, reflecting their development as protectors of South African homesteads against lions and intruders. The substantial frame commands space and respect indoors and out.",

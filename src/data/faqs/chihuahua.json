@@ -3,18 +3,18 @@
   "breed": "Chihuahua",
   "generated": "2026-09-23",
   "model": "grok-4.20-0309-non-reasoning",
-  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding answer opener corrected.",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build. Shedding opener aligned to the answer.",
   "quick": {
-    "sheds": "Moderately, year-round",
-    "hypoallergenic": "No",
+    "sheds": "Lightly, minimal dander",
+    "hypoallergenic": "Sometimes suggested",
     "barks": "Frequently at everything"
   },
   "answers": {
     "children": "No — Chihuahuas are not good with children. Their 2-6 lb build and fragile frame make them vulnerable to injury from even gentle play by toddlers, while their bold and sassy temperament can lead to overprotectiveness or snapping when they feel crowded. Owners must therefore keep interactions closely managed so the tiny companion does not become overwhelmed or hurt. (PawLabs child-friendly score: 5/10)",
     "other-pets": "Chihuahuas can get along with other pets when raised together but often show tension. Their fiercely loyal nature makes them bond intensely to one or two people and view outsiders including household animals as intruders, sometimes resulting in yappiness or overprotectiveness. The small size further complicates shared spaces because accidental knocks can injure the Chihuahua.",
     "exercise": "Chihuahuas need 15-20 minutes of exercise daily. Short walks or indoor romps suit their minimal requirements and prevent bursts of zoomies, yet too little activity leaves them restless and more prone to barking at shadows. Their fragile build from ancient Mexican companion roots means they are unsuited to hikes or rough play.",
-    "shedding": "Not especially — Chihuahuas shed moderately year-round. The short smooth coat loses hair steadily without heavy seasonal blows, so light vacuuming keeps the home tidy yet the fine hairs still cling to furniture and clothing. Minimal grooming needs of three out of ten reflect how little extra work the single coat demands beyond basic brushing.",
-    "hypoallergenic": "No breed is truly hypoallergenic, and the Chihuahua is not one commonly suggested for allergy sufferers. Its short smooth coat still releases dander and fine hairs that can trigger reactions despite low grooming scores. The breed's history as a Mexican lap dog prized for companionship rather than coat type leaves it unsuitable for those with sensitivities.",
+    "shedding": "Yes — Chihuahuas shed moderately year-round. The short smooth coat loses hair steadily without heavy seasonal blows, so light vacuuming keeps the home tidy yet the fine hairs still cling to furniture and clothing. Minimal grooming needs of three out of ten reflect how little extra work the single coat demands beyond basic brushing.",
+    "hypoallergenic": "Chihuahuas have a short smooth coat that sheds lightly and produces minimal loose hair around the home. Their small size and low grooming needs mean dander spread stays limited compared with longer-coated breeds. No breed is genuinely hypoallergenic yet this one is sometimes suggested to allergy sufferers. (PawLabs shedding score: 4/10)",
     "training": "Chihuahuas are moderately easy to train. Their intelligence of seven out of ten and quick learning help with short sessions using puzzle toys, yet sassy independence and strong loyalty to one person can produce stubbornness when the dog decides it knows best. Consistent gentle methods prevent the overprotectiveness from undermining progress.",
     "lifespan": "Chihuahuas live 12-16 years. The small 2-6 lb build and history as a companion from Toltec and Aztec times contribute to this span, with moderate health robustness allowing many to remain active into old age. Their fragile frame nevertheless requires owners to guard against accidents that could shorten the long life.",
     "size": "Chihuahuas reach 2-6 lb and stand 5-8 in tall. This tiny yet sturdy frame feels almost weightless when carried yet surprisingly solid when the dog plants itself defiantly, reflecting the bold personality that makes them seem larger than life. Apartment dwellers appreciate how little space the compact build occupies while still demanding attention.",

@@ -5,16 +5,16 @@
   "model": "grok-4.20-0309-non-reasoning",
   "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
   "quick": {
-    "sheds": "Very little, non-seasonal",
-    "hypoallergenic": "Commonly suggested",
-    "barks": "Moderately, when alert"
+    "sheds": "Very little",
+    "hypoallergenic": "Often suggested",
+    "barks": "Moderately, alert-based"
   },
   "answers": {
     "children": "Poodles are moderately good with children. Their affectionate and intelligent nature helps them read moods and play inventively with a tennis ball, yet their proud streak means they wait for interaction rather than beg, and understimulation can lead to anxious or destructive behaviour in a lively household. (PawLabs child-friendly score: 7/10)",
     "other-pets": "Poodles usually get along with other pets. Bred originally as water retrievers rather than hunters of fur, they lack strong prey drive, and their sociable yet observant temperament allows them to coexist peacefully when given enough mental stimulation to prevent anxiety-driven tension.",
     "exercise": "Poodles need 30 to 60 minutes of daily exercise. A Standard requires a brisk walk, run or swim to match its water-retriever roots, while Miniature and Toy versions scale down, but insufficient activity triggers zoomies at dawn or furniture dismantling because their active intelligence demands both physical and mental outlets.",
     "shedding": "Poodles shed very little year-round. Their medium curly single coat traps dead hair instead of releasing it, producing minimal house hair yet requiring regular grooming to stop matting, which suits their low-shedding trait developed from the water-resistant coat of their German water-retriever ancestors.",
-    "hypoallergenic": "No breed is truly hypoallergenic yet Poodles are frequently recommended for allergy sufferers. Their curly coat that holds loose hair rather than scattering it reduces airborne dander, making the low-shedding medium texture a practical choice for those sensitive to dog hair.",
+    "hypoallergenic": "Poodles have a medium curly coat that sheds very little and produces minimal dander in the home. Their low-shedding quality makes them one of the breeds often suggested to allergy sufferers, yet no breed is genuinely hypoallergenic. Owners must commit to regular grooming to prevent mats that can trap allergens. (PawLabs shedding score: 2/10)",
     "training": "Poodles are exceptionally easy to train. Their intelligence score of ten and high biddability let them learn commands faster than most breeds, often anticipating the next step, though their active minds need consistent mental challenges or they grow bored and inventive with household items.",
     "lifespan": "Poodles live 12-15 years. Their elegant build across Standard, Miniature and Toy sizes supports this range, yet health robustness is average so owners must maintain the mental stimulation and grooming their intelligent, curly-coated breed requires to thrive throughout those years.",
     "size": "Poodles reach 6-70 lb and stand 10-24 in at the shoulder. The three sizes give a versatile feel in the home, from the sturdy athletic presence of a Standard water-retriever build to the lap-sized elegance of a Toy, all sharing the same proportionate, refined frame.",
