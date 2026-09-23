@@ -1,0 +1,204 @@
+---
+/**
+ * The page the per-breed FAQ answers link to instead of repeating themselves.
+ *
+ * Three explanations used to appear verbatim on all 201 breed pages: that
+ * low-shedding is not the same as hypoallergenic, that socialisation matters
+ * as much as breed, and that lifespan figures are averages. Each is true and
+ * worth saying once. Said 201 times it is boilerplate, and it is part of why
+ * the site read as low-value.
+ *
+ * So it lives here, once, at a URL that answers a real query in its own right.
+ */
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getBreeds } from '../../lib/payload';
+import { breadcrumbJsonLd, SITE_URL } from '../../lib/seo';
+import { AlertTriangle } from 'lucide-astro';
+
+const breeds = await getBreeds();
+
+/** Coat types people are usually pointed at when they ask about allergies. */
+const LOW_SHEDDING = breeds
+  .filter((b) => typeof b.traits?.sheddingLevel === 'number' && b.traits.sheddingLevel <= 3)
+  .sort((a, b) => (a.traits!.sheddingLevel! - b.traits!.sheddingLevel!) || a.name.localeCompare(b.name))
+  .slice(0, 12);
+
+const description =
+  'No dog breed is truly hypoallergenic. What the label really means, why low-shedding breeds help some people and not others, and how to test whether a breed suits you before you commit.';
+
+const faqs = [
+  {
+    question: 'Are any dog breeds truly hypoallergenic?',
+    answer:
+      'No. Every dog produces the proteins that cause allergic reactions, and no breed has been shown to be free of them. Some breeds shed far less hair and dander into a home, which reduces exposure — that is what the label is really describing.',
+  },
+  {
+    question: 'What actually causes a dog allergy?',
+    answer:
+      'Proteins found mainly in saliva, urine and dander — the flakes of skin a dog sheds constantly. Hair itself is not the allergen; it is a carrier. That is why a heavy-shedding dog spreads more of the allergen around a house, and why a low-shedding one spreads less without being allergen-free.',
+  },
+  {
+    question: 'Does a low-shedding coat help allergy sufferers?',
+    answer:
+      'Often, but not reliably. Less hair loose in the house means less dander distributed with it, which is enough for some people. Others react to the same dog regardless. Individual dogs within a breed also vary, so the only honest test is time spent with the specific dog.',
+  },
+  {
+    question: 'How can I tell whether a breed will suit my allergies?',
+    answer:
+      'Spend several hours with adult dogs of that breed, ideally more than once and in their own home rather than a brief meeting outdoors. Reactions build with exposure, so a short introduction can be misleading. Speaking to an allergist first is sensible if the reaction has ever been severe.',
+  },
+];
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Article',
+      '@id': `${SITE_URL}/guides/hypoallergenic-dogs#article`,
+      headline: 'Hypoallergenic Dogs: What the Label Actually Means',
+      description,
+      url: `${SITE_URL}/guides/hypoallergenic-dogs`,
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${SITE_URL}/guides/hypoallergenic-dogs#faq`,
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    },
+  ],
+});
+---
+
+<Layout
+  title="Hypoallergenic Dogs: What the Label Actually Means | PawLabs"
+  description={description}
+  ogTitle="Hypoallergenic dogs: what the label actually means"
+  canonicalUrl="/guides/hypoallergenic-dogs"
+  ogType="article"
+  jsonLd={[jsonLd, breadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Guides', url: '/guides/hypoallergenic-dogs' },
+    { name: 'Hypoallergenic dogs', url: '/guides/hypoallergenic-dogs' },
+  ])]}
+>
+  <Nav />
+
+  <div class="pt-32 sm:pt-36">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Hypoallergenic dogs' }]} />
+  </div>
+
+  <main class="min-h-screen bg-surface noise">
+    <article class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <header class="mb-8">
+        <h1 class="display-heading display-fluid-lg text-ink mb-4 text-balance">
+          Hypoallergenic dogs: what the label actually means
+        </h1>
+        <p class="text-ink-muted text-base sm:text-lg leading-relaxed text-pretty">
+          Short version: no dog is hypoallergenic. Some are markedly easier to live with if you
+          react to dogs, and the difference is worth understanding before you choose one.
+        </p>
+      </header>
+
+      <div class="glass-card rounded-2xl p-6 sm:p-8 breed-prose">
+        <h2 id="hypoallergenic">Why no breed is allergy-free</h2>
+        <p>
+          The allergens are proteins — principally <strong>Can f 1</strong> and its relatives —
+          produced in a dog's saliva, urine and skin. Every dog produces them. A dog that sheds
+          very little still licks itself, still grows and sheds skin cells, and still leaves those
+          proteins on your furniture.
+        </p>
+        <p>
+          What varies is how much of it ends up circulating in your house. Hair is the vehicle:
+          dander rides on it. A breed that drops its coat continuously distributes allergen through
+          every room; one whose hair keeps growing and is removed by brushing and clipping keeps
+          far more of it contained. For some people that difference is the whole ballgame. For
+          others it changes nothing at all.
+        </p>
+        <p>
+          This is why the honest phrasing is "often recommended for allergy sufferers" rather than
+          "hypoallergenic", and why two people can give you flatly contradictory accounts of the
+          same breed.
+        </p>
+
+        <div class="legal-callout not-prose">
+          <p class="flex gap-2 items-start text-sm">
+            <AlertTriangle class="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              If anyone in the household has had a severe reaction to a dog, talk to an allergist
+              before choosing a breed. No article, and no breed, is a substitute for that.
+            </span>
+          </p>
+        </div>
+
+        <h2>Breeds most often suggested for allergy sufferers</h2>
+        <p>
+          These are the breeds we have profiled that shed least. Low shedding is the only part of
+          this anyone can measure — it is not a promise about your own reaction.
+        </p>
+        <ul>
+          {LOW_SHEDDING.map((b) => (
+            <li>
+              <a href={`/breeds/${b.slug}`}>{b.name}</a>
+              {b.coatType ? ` — ${b.coatType} coat` : ''}
+              {typeof b.traits?.sheddingLevel === 'number' ? ` (shedding ${b.traits.sheddingLevel}/10)` : ''}
+            </li>
+          ))}
+        </ul>
+        <p>
+          A test worth doing before committing: spend a few hours with adult dogs of the breed, more
+          than once, indoors where they live. Reactions build with exposure, so ten minutes in a car
+          park proves very little.
+        </p>
+
+        <h2 id="socialisation">What a temperament score can and cannot tell you</h2>
+        <p>
+          Our trait ratings describe what a breed is typically like — the tendencies it was bred for
+          and that owners consistently report. They cannot describe your dog, because how an
+          individual turns out depends heavily on what happened to it between three and sixteen
+          weeks old, and on the training it has had since.
+        </p>
+        <p>
+          A breed rated highly for tolerance of children can still be a poor choice if it was never
+          socialised around them; a breed rated poorly can live happily with a family that put the
+          work in. Use the scores to understand the starting point and the likely direction of
+          travel, not as a prediction. And supervise young children around any dog, whatever the
+          number says.
+        </p>
+
+        <h2 id="lifespan">What lifespan figures mean</h2>
+        <p>
+          The ranges on our breed pages are typical spans reported for healthy dogs of that breed.
+          They are averages, and averages hide a lot: within one breed the difference between the
+          shortest and longest lives is usually larger than the difference between breeds.
+        </p>
+        <p>
+          The factors that move an individual dog within that range are mostly the ones an owner
+          controls — body condition above all, alongside dental care, appropriate exercise and
+          catching problems early. Keeping a dog lean is the single most effective intervention
+          available, and it is free.
+        </p>
+
+        <h2>Common questions</h2>
+        {faqs.map((faq) => (
+          <div class="mb-4">
+            <h3>{faq.question}</h3>
+            <p>{faq.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <p class="text-sm text-ink-muted mt-6">
+        General information, not veterinary or medical advice. For allergy management, speak to a
+        doctor; for anything concerning a specific dog, speak to a vet.
+      </p>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

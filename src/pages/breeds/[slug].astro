@@ -15,7 +15,7 @@ import { breedMetaTitle, breedMetaDescription, familyRoundupFor } from '../../li
 import { findSimilarBreeds } from '../../lib/similar-breeds';
 import { isNoindexed } from '../../lib/noindex';
 import { withoutRetired } from '../../lib/retired';
-import { buildBreedFaqs } from '../../lib/breed-faq';
+import { buildBreedFaqs, writtenFaqs } from '../../lib/breed-faq';
 import type { Breed, Comparison, Media } from '../../lib/payload';
 import { Dog, Cat, Star as StarIcon, Scale, ArrowUpRight } from 'lucide-astro';
 
@@ -100,6 +100,44 @@ const jsonLd = breedJsonLd(breed);
 // child-friendliness answer cites it inline.
 const familyRoundup = familyRoundupFor(breed, featuredIn);
 const faqs = buildBreedFaqs(breed, { familyRoundup });
+
+/**
+ * "Quick answers" — five one-liners directly under the hero.
+ *
+ * The FAQ sits 1,500+ words down the page, which is a long way from the top
+ * for someone who arrived from a search like "gordon setter shedding". These
+ * answer the five most-searched questions immediately and link down to the
+ * full answer.
+ *
+ * Size and lifespan are read straight off the breed record. The three
+ * judgement calls come from the written answer file; a breed whose answers are
+ * not written yet simply shows fewer rows rather than a templated guess.
+ */
+const written = writtenFaqs(breed.slug);
+const hasFaq = (id: string) => faqs.some((f) => f.id === id);
+
+const quickAnswers = [
+  written?.quick?.sheds && hasFaq('faq-shedding')
+    ? { label: 'Sheds', value: written.quick.sheds, href: '#faq-shedding' } : null,
+  written?.quick?.hypoallergenic && hasFaq('faq-hypoallergenic')
+    ? { label: 'Hypoallergenic', value: written.quick.hypoallergenic, href: '#faq-hypoallergenic' } : null,
+  written?.quick?.barks && hasFaq('faq-barking')
+    ? { label: 'Barks', value: written.quick.barks, href: '#faq-barking' } : null,
+  breed.weightMin && breed.weightMax
+    ? {
+        label: 'Size',
+        value: `${breed.weightMin}–${breed.weightMax} lb${sizeLabel ? `, ${sizeLabel.toLowerCase()}` : ''}`,
+        href: hasFaq('faq-size') ? '#faq-size' : null,
+      }
+    : null,
+  breed.lifeExpectancyMin && breed.lifeExpectancyMax
+    ? {
+        label: 'Lifespan',
+        value: `${breed.lifeExpectancyMin}–${breed.lifeExpectancyMax} years`,
+        href: hasFaq('faq-lifespan') ? '#faq-lifespan' : null,
+      }
+    : null,
+].filter((row): row is { label: string; value: string; href: string | null } => row !== null);
 const faqJsonLd = breedFaqJsonLd(faqs, breed.slug);
 const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
 ---
@@ -254,6 +292,29 @@ const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
             </div>
           )}
 
+          <!-- Quick answers — the five questions people arrive searching for -->
+          {quickAnswers.length >= 3 && (
+            <div class="glass-card rounded-2xl p-5 sm:p-6 reveal reveal-delay-2">
+              <h2 class="font-display font-bold text-ink text-base mb-3 flex items-center gap-2">
+                <span class="text-base">⚡</span> Quick answers
+              </h2>
+              <dl class="quick-answers">
+                {quickAnswers.map((row) => (
+                  <div class="quick-answer">
+                    <dt>{row.label}</dt>
+                    <dd>
+                      {row.href ? (
+                        <a href={row.href}>{row.value} <span aria-hidden="true">→</span></a>
+                      ) : (
+                        <span>{row.value}</span>
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+
           <!-- Breed History -->
           {breed.breedHistory && (
             <div class="glass-card rounded-2xl p-6 sm:p-8 reveal reveal-delay-2">
@@ -278,11 +339,16 @@ const pageSchemas = faqJsonLd ? [jsonLd, faqJsonLd] : [jsonLd];
                 <span class="text-lg">❓</span> {breed.name} FAQs
               </h2>
               <p class="text-sm text-ink-muted font-medium mb-6">
-                The questions people ask most, answered from this breed's trait scores.
+                The questions people ask most about the {breed.name}, answered specifically.
+                {/* Deliberately not a sentence: a full sentence here would be
+                    identical on every page, which is the thing being fixed. */}
+                {faqs.some((f) => f.id === 'faq-hypoallergenic') && (
+                  <> <a href="/guides/hypoallergenic-dogs" class="underline underline-offset-2 text-brand-700">Hypoallergenic dogs, explained</a></>
+                )}
               </p>
               <div class="divide-y divide-ink/5">
                 {faqs.map((faq) => (
-                  <div class="py-4 first:pt-0 last:pb-0">
+                  <div class="py-4 first:pt-0 last:pb-0 scroll-mt-28" id={faq.id}>
                     <h3 class="font-display font-bold text-ink text-[0.95rem] mb-2">{faq.question}</h3>
                     {faq.answerHtml
                       ? <p class="text-sm text-ink-light leading-relaxed" set:html={faq.answerHtml} />

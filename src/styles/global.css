@@ -567,3 +567,44 @@ body {
     margin-bottom: 1rem;
   }
 }
+
+/* ── Quick answers box on breed pages ─────────────────── */
+.quick-answers {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.quick-answer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(10, 15, 26, 0.035);
+  min-width: 0;
+}
+
+.quick-answer dt {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+.quick-answer dd {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  min-width: 0;
+}
+
+.quick-answer a {
+  color: var(--color-brand-700);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(32, 122, 91, 0.45);
+}
+
+.quick-answer a:hover { border-bottom-style: solid; }

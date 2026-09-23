@@ -1,0 +1,25 @@
+{
+  "slug": "pomeranian",
+  "breed": "Pomeranian",
+  "generated": "2026-09-23",
+  "model": "grok-4.20-0309-non-reasoning",
+  "note": "Reviewed answer text. Edit freely — this file is the source of truth and is not regenerated on build.",
+  "quick": {
+    "sheds": "Moderately, seasonal",
+    "hypoallergenic": "No — long double coat",
+    "barks": "Frequently at alerts"
+  },
+  "answers": {
+    "children": "Pomeranians are moderately child-friendly because their tiny 3-7 lb build makes them fragile around rough play from small children. The breed's spunky and confident nature can lead to standoffish reactions if handled clumsily, and their alert temperament sometimes produces defensive barking during noisy interactions. Their history as a downsized companion means they lack the sturdy frame of their larger Spitz ancestors. (PawLabs child-friendly score: 5/10)",
+    "other-pets": "Pomeranians get along moderately well with other pets when introduced carefully, thanks to their adaptable nature in small spaces. Their bold personality can spark confrontations with larger dogs as they puff up confidently despite their size, yet the breed's sociability supports peaceful coexistence with respectful housemates. The long double coat sometimes collects fur from play sessions with fellow animals.",
+    "exercise": "Pomeranians need 30 to 45 minutes of daily exercise split into short walks and indoor play sessions. Without this their spunky energy builds into boredom-driven sass and excessive yapping while their small lungs tire quickly during overexertion. Puzzle toys suit their intelligent minds and the breed's history of shifting from working Spitz roots to lively lapdog routines.",
+    "shedding": "Yes — Pomeranians shed moderately with a long double coat that traps loose underfur in the dense outer layer. The texture creates noticeable tumbleweeds around the home especially during seasonal changes while the feathering on legs and tail mats if neglected. Their compact 6-7 inch frame means even moderate shedding covers furniture quickly. (PawLabs shedding score: 6/10)",
+    "hypoallergenic": "No breed is truly hypoallergenic yet Pomeranians are not among those commonly suggested for allergy sufferers. Their long double coat releases dander and loose hair that clings to fabrics and air, a legacy of the thick insulation once needed by their larger Pomeranian-region ancestors. The luxurious fluff demands regular grooming that can spread allergens further.",
+    "training": "Pomeranians prove moderately easy to train because their intelligence and confident personality respond to consistent boundaries rather than force. The breed's independent streak from its original utilitarian Spitz background can produce stubbornness if sessions lack mental stimulation such as puzzle toys or short commands. Their alert nature helps them learn quickly once motivated.",
+    "lifespan": "Pomeranians live 12-16 years thanks to their small size and adaptable build that generally supports longevity when cared for properly. The breed's transition from larger working stock to a 3-7 lb companion means delicate frames require protection from strain yet their spunky vitality often carries them through active senior years.",
+    "size": "Pomeranians reach 3-7 lb and stand 6-7 in tall at the shoulder giving them a lightweight fluffy presence that fits easily into bags or laps. Their proportions pack a bold confident attitude into a loaf-of-bread frame so they feel surprisingly substantial when they lean in for affection or strut across a room.",
+    "barking": "Pomeranians bark a lot especially at strangers noises or anything that disrupts their alert watchfulness. Their spunky temperament and history as a companion breed produce a loud voice disproportionate to their tiny size which can become incessant yapping when they feel ignored or territorial in small spaces.",
+    "apartment": "Yes — Pomeranians adapt well to apartment living because their small 3-7 lb size and high adaptability suit compact homes. The breed settles indoors after short bursts of hallway fetch yet their barking score of 8 demands training to prevent noise complaints while the long coat needs grooming to avoid tracked-in debris.",
+    "first-time": "Pomeranians are not the easiest choice for first-time owners because their fragile build and demanding grooming needs require constant vigilance. The breed's bold confident personality can test novices through bossy behaviour and excessive barking if boundaries slip while their intelligence still rewards patient handling."
+  }
+}
