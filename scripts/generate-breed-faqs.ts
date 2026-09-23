@@ -134,7 +134,7 @@ HARD RULES
    BAD:  "At 6/10 for shedding, the Gordon Setter sheds a moderate amount."
 2. The rest of the answer must be SPECIFIC TO THIS BREED — its coat, its build, what it was bred to do, what owners of this breed report. Anything you write must be supported by the supplied profile, history, temperament words, strengths, weaknesses or trait scores. Invent nothing: no health conditions, no statistics, no history that is not given.
 3. AIM FOR 55-70 WORDS per answer. The hard limits are 40 and 80, and answers keep coming back at 36-39, which fails. Three full sentences is about right: the direct answer, a concrete breed-specific detail, then a consequence for the person living with the dog. If an answer feels finished at 38 words, it is missing the third sentence.
-4. A score may appear ONLY as supporting detail at the end of a sentence, in exactly this format: "(PawLabs shedding score: 6/10)". Use it in at most two of the eleven answers. Any other mention of a number out of ten is forbidden — do not write "rates 5/10", "their moderate 5/10 score", or similar. Never write a trait code.
+4. A score may appear ONLY as supporting detail at the end of a sentence, in exactly this format: "(PawLabs shedding score: 6/10)". Spelling it out is the same violation — never "7 out of 10", "a score of 3", "intelligence of 6", "robustness of 4". Describe the quality in words instead: "quick to learn", "not a robust breed". Use it in at most two of the eleven answers. Any other mention of a number out of ten is forbidden — do not write "rates 5/10", "their moderate 5/10 score", or similar. Never write a trait code.
 5. NO GENERIC CAVEATS. These sentences are banned outright because they used to appear on every page:
    - anything saying low shedding is not the same as hypoallergenic
    - anything telling the reader to supervise children around dogs
@@ -146,6 +146,7 @@ HARD RULES
 8. Write about the breed in a way that could only describe THIS breed. If a sentence would be equally true of fifty other breeds, rewrite it.
 9. Do not claim what owners report, what studies show, or what is commonly observed. You have no such source. State the thing itself: "the coat mats behind the ears", not "owners report the coat mats behind the ears".
 10. Do not lean on one fact repeatedly. If you mention the breed's country or original job, do so in at most two answers — the other nine must find something else to say.
+12. The shedding question is "Does the breed shed A LOT?". If it sheds lightly or moderately, do NOT open with "Yes" — that contradicts the question. Open with "No", "Not especially", or a plain statement. Reserve "Yes" for breeds that genuinely shed heavily.
 11. Vary how the hypoallergenic answer opens. It must still make clear no breed is allergy-free, but every breed page must not begin that answer with the same words.
 
 Return ONLY a JSON object:
@@ -220,7 +221,8 @@ const BANNED = [
 ];
 
 /** A score outside the one approved format. */
-const LOOSE_SCORE = /(?<!PawLabs [a-z- ]{3,30}score: )\b\d{1,2}\/10\b/;
+const LOOSE_SCORE =
+  /(?<!PawLabs [a-z- ]{3,30}score: )\b\d{1,2}\/10\b|\b\d{1,2} out of (?:10|ten)\b|\b(?:score|rating|robustness|intelligence|trainability|level) of \d{1,2}\b/i;
 
 /**
  * Match the breed name allowing for plurals: answers say "Huskies" where the
