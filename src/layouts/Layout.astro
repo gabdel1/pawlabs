@@ -43,7 +43,26 @@ const {
 
 const siteUrl = 'https://pawlabs.org';
 const fullCanonical = canonicalUrl ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`) : Astro.url.href;
-const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : null;
+/**
+ * Every page gets a share image. Breed profiles and comparisons use their own
+ * photo; everything else falls back to a branded card, because a link with no
+ * preview picture is markedly less likely to be clicked — and 96 pages were
+ * shipping without one.
+ */
+const DEFAULT_OG_IMAGE = '/og/default.png';
+const resolvedOgImage = ogImage || DEFAULT_OG_IMAGE;
+const fullOgImage = resolvedOgImage.startsWith('http') ? resolvedOgImage : `${siteUrl}${resolvedOgImage}`;
+
+/**
+ * Only declare dimensions we actually know.
+ *
+ * Our branded cards and quiz share cards are all 1200x630. Breed photos are
+ * square, so announcing 1200x630 for them was simply wrong — and a declared
+ * size that does not match the file can make an unfurler crop oddly or ignore
+ * the hint. Omitting the tags just means the crawler measures the image
+ * itself, which is the honest fallback.
+ */
+const ogImageIsCard = /\/(og|share)\//.test(resolvedOgImage);
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
 // An explicit `robots` wins; otherwise `noindex` picks one of the two defaults.
@@ -185,8 +204,8 @@ const socialTitle = ogTitle ?? pageTitle;
     <meta property="og:url" content={fullCanonical} />
     <meta property="og:site_name" content="PawLabs" />
     {fullOgImage && <meta property="og:image" content={fullOgImage} />}
-    {fullOgImage && <meta property="og:image:width" content="1200" />}
-    {fullOgImage && <meta property="og:image:height" content="630" />}
+    {fullOgImage && ogImageIsCard && <meta property="og:image:width" content="1200" />}
+    {fullOgImage && ogImageIsCard && <meta property="og:image:height" content="630" />}
     {fullOgImage && <meta property="og:image:type" content={ogImageType} />}
     {fullOgImage && <meta property="og:image:alt" content={ogImageAlt ?? title} />}
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}

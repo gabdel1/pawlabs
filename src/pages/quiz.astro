@@ -37,6 +37,7 @@ const petCopy: Record<string, { emoji: string; label: string; blurb: string }> =
   title="Breed Match Quiz — Find the Right Breed For Your Life | PawLabs"
   description={`Answer ${questionCount} honest questions about your home, your week and your household. Our AI reads your answers against ${breedCount} breed profiles and tells you which breeds actually fit — and which to avoid.`}
   canonicalUrl="/quiz"
+  ogImage="/og/quiz.png"
   ogType="website"
   jsonLd={[quizJsonLd(questionCount, breedCount), breadcrumbJsonLd([
     { name: 'Home', url: '/' },

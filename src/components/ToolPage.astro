@@ -43,6 +43,7 @@ const breadcrumbs = [
   title={metaTitle ?? `${tool.title} | PawLabs`}
   description={description}
   ogTitle={tool.title}
+  ogImage={tool.ogImage}
   canonicalUrl={`/tools/${tool.slug}`}
   jsonLd={[
     toolJsonLd(tool, description, faqs),
